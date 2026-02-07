@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title 1 School Performance Dashboard</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --primary: #1a365d;
+            --primary-light: #2b6cb0;
+            --accent: #ed8936;
+            --success: #38a169;
+            --warning: #d69e2e;
+            --danger: #e53e3e;
+            --bg: #f7fafc;
+            --card: #ffffff;
+            --text: #2d3748;
+            --text-light: #718096;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+            --shadow-lg: 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+            --radius: 8px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* ---- HEADER ---- */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .header h1 { font-size: 1.5rem; font-weight: 700; }
+        .header .subtitle { font-size: 0.875rem; opacity: 0.85; }
+        .header-controls { display: flex; gap: 12px; align-items: center; }
+        .header-controls select,
+        .header-controls button {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        .header-controls select option { color: var(--text); background: white; }
+        .header-controls button:hover { background: rgba(255,255,255,0.25); }
+        .btn-export {
+            background: var(--accent) !important;
+            border-color: var(--accent) !important;
+            font-weight: 600;
+        }
+
+        /* ---- LAYOUT ---- */
+        .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+        /* ---- TABS ---- */
+        .tab-bar {
+            display: flex;
+            gap: 4px;
+            background: var(--card);
+            padding: 4px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+        .tab {
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-light);
+            white-space: nowrap;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+        }
+        .tab:hover { color: var(--text); background: var(--bg); }
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ---- KPI CARDS ---- */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
+        }
+        .kpi-card.success { border-left-color: var(--success); }
+        .kpi-card.warning { border-left-color: var(--warning); }
+        .kpi-card.danger { border-left-color: var(--danger); }
+        .kpi-card.accent { border-left-color: var(--accent); }
+        .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-light); margin-bottom: 4px; }
+        .kpi-value { font-size: 2rem; font-weight: 700; line-height: 1.2; }
+        .kpi-change { font-size: 0.8rem; margin-top: 4px; }
+        .kpi-change.up { color: var(--success); }
+        .kpi-change.down { color: var(--danger); }
+
+        /* ---- CHARTS ---- */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .chart-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+        .chart-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+        .chart-area {
+            width: 100%;
+            position: relative;
+        }
+
+        /* ---- BAR CHART ---- */
+        .bar-chart { display: flex; flex-direction: column; gap: 12px; }
+        .bar-row { display: flex; align-items: center; gap: 12px; }
+        .bar-label { width: 100px; font-size: 0.8rem; text-align: right; flex-shrink: 0; }
+        .bar-track { flex: 1; height: 28px; background: #edf2f7; border-radius: 4px; overflow: hidden; position: relative; }
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            transition: width 0.8s ease;
+        }
+        .bar-target {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background: var(--text);
+            opacity: 0.4;
+        }
+
+        /* ---- DONUT CHART (CSS) ---- */
+        .donut-container { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+        .donut {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .donut-center {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: var(--card);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .donut-center .big { font-size: 1.5rem; font-weight: 700; }
+        .donut-center .small { font-size: 0.7rem; color: var(--text-light); }
+        .donut-legend { display: flex; flex-direction: column; gap: 8px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+        /* ---- TABLE ---- */
+        .table-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .table-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .table-header h3 { font-size: 1rem; font-weight: 600; }
+        .table-search {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            width: 220px;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: #f7fafc; }
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        th:hover { color: var(--text); }
+        th .sort-arrow { margin-left: 4px; opacity: 0.4; }
+        td { padding: 12px 16px; border-top: 1px solid var(--border); font-size: 0.875rem; }
+        tr:hover { background: #f7fafc; }
+
+        /* ---- STATUS BADGES ---- */
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-green { background: #c6f6d5; color: #22543d; }
+        .badge-yellow { background: #fefcbf; color: #744210; }
+        .badge-red { background: #fed7d7; color: #822727; }
+        .badge-blue { background: #bee3f8; color: #2a4365; }
+
+        /* ---- PROGRESS RING ---- */
+        .progress-ring-container { display: flex; align-items: center; gap: 8px; }
+        .mini-progress {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.65rem; font-weight: 700; color: white;
+        }
+
+        /* ---- FORM / DATA ENTRY ---- */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-light); }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-family: inherit;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(43,108,176,0.15);
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text); }
+        .btn-outline:hover { background: var(--bg); }
+        .btn-row { display: flex; gap: 12px; margin-top: 8px; }
+
+        /* ---- ALERT BOX ---- */
+        .alert {
+            padding: 12px 20px;
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            font-size: 0.875rem;
+            display: none;
+        }
+        .alert-success { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
+        .alert-warning { background: #fefcbf; color: #744210; border: 1px solid #f6e05e; }
+
+        /* ---- COMPLIANCE CHECKLIST ---- */
+        .checklist { list-style: none; }
+        .checklist li {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.875rem;
+        }
+        .checklist li:last-child { border-bottom: none; }
+        .check-icon {
+            width: 24px; height: 24px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+        }
+        .check-done { background: #c6f6d5; color: #22543d; }
+        .check-pending { background: #fefcbf; color: #744210; }
+        .check-overdue { background: #fed7d7; color: #822727; }
+
+        /* ---- RESPONSIVE ---- */
+        @media (max-width: 768px) {
+            .header { padding: 16px; }
+            .header h1 { font-size: 1.2rem; }
+            .container { padding: 16px; }
+            .chart-grid { grid-template-columns: 1fr; }
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .bar-label { width: 70px; font-size: 0.7rem; }
+        }
+
+        /* ---- PRINT ---- */
+        @media print {
+            .header-controls, .tab-bar, .form-grid, .btn-row, .table-search { display: none; }
+            .tab-panel { display: block !important; page-break-inside: avoid; margin-bottom: 32px; }
+            .header { background: var(--primary) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body { font-size: 11pt; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ================================================================ -->
+<!-- HEADER                                                           -->
+<!-- ================================================================ -->
+<div class="header">
+    <div>
+        <h1>Title 1 School Performance Dashboard</h1>
+        <div class="subtitle">TLRW Quality-Assured Reporting System &mdash; NUVABASE</div>
+    </div>
+    <div class="header-controls">
+        <select id="schoolYear" onchange="updateDashboard()">
+            <option value="2025-2026" selected>2025-2026</option>
+            <option value="2024-2025">2024-2025</option>
+            <option value="2023-2024">2023-2024</option>
+        </select>
+        <select id="gradeFilter" onchange="filterByGrade()">
+            <option value="all">All Grades</option>
+            <option value="K">Kindergarten</option>
+            <option value="1">Grade 1</option>
+            <option value="2">Grade 2</option>
+            <option value="3">Grade 3</option>
+            <option value="4">Grade 4</option>
+            <option value="5">Grade 5</option>
+        </select>
+        <button class="btn-export" onclick="exportReport()">Export Report</button>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- TAB BAR                                                          -->
+<!-- ================================================================ -->
+<div class="container">
+    <div class="tab-bar">
+        <button class="tab active" onclick="switchTab('overview')">Overview</button>
+        <button class="tab" onclick="switchTab('academics')">Academics</button>
+        <button class="tab" onclick="switchTab('attendance')">Attendance</button>
+        <button class="tab" onclick="switchTab('interventions')">Interventions</button>
+        <button class="tab" onclick="switchTab('parent')">Parent Engagement</button>
+        <button class="tab" onclick="switchTab('compliance')">Compliance</button>
+        <button class="tab" onclick="switchTab('entry')">Data Entry</button>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: OVERVIEW                                                -->
+    <!-- ============================================================ -->
+    <div id="tab-overview" class="tab-panel active">
+
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <div class="kpi-label">Total Enrollment</div>
+                <div class="kpi-value" id="kpi-enrollment">487</div>
+                <div class="kpi-change up">+12 from last year</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg. Attendance Rate</div>
+                <div class="kpi-value" id="kpi-attendance">91.3%</div>
+                <div class="kpi-change up">+2.1% from last year</div>
+            </div>
+            <div class="kpi-card accent">
+                <div class="kpi-label">Reading Proficiency</div>
+                <div class="kpi-value" id="kpi-reading">67%</div>
+                <div class="kpi-change up">+8% from baseline</div>
+            </div>
+            <div class="kpi-card warning">
+                <div class="kpi-label">Math Proficiency</div>
+                <div class="kpi-value" id="kpi-math">54%</div>
+                <div class="kpi-change up">+5% from baseline</div>
+            </div>
+            <div class="kpi-card success">
+                <div class="kpi-label">Intervention Participation</div>
+                <div class="kpi-value" id="kpi-intervention">142</div>
+                <div class="kpi-change">29% of students</div>
+            </div>
+            <div class="kpi-card danger">
+                <div class="kpi-label">Chronic Absenteeism</div>
+                <div class="kpi-value" id="kpi-chronic">8.4%</div>
+                <div class="kpi-change down">Target: &lt;5%</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Reading Level Distribution by Grade</h3>
+                <div class="chart-area">
+                    <div class="bar-chart" id="reading-bars"></div>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>Budget Allocation (Title 1 Funds)</h3>
+                <div class="chart-area">
+                    <div class="donut-container">
+                        <div class="donut" id="budget-donut"></div>
+                        <div class="donut-legend" id="budget-legend"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Math Proficiency by Grade</h3>
+                <div class="chart-area">
+                    <div class="bar-chart" id="math-bars"></div>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>Monthly Attendance Trend</h3>
+                <div class="chart-area">
+                    <div class="bar-chart" id="attendance-trend"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: ACADEMICS                                               -->
+    <!-- ============================================================ -->
+    <div id="tab-academics" class="tab-panel">
+
+        <div class="kpi-grid">
+            <div class="kpi-card accent">
+                <div class="kpi-label">Reading At/Above Grade</div>
+                <div class="kpi-value">67%</div>
+                <div class="kpi-change up">Target: 75%</div>
+            </div>
+            <div class="kpi-card warning">
+                <div class="kpi-label">Math At/Above Grade</div>
+                <div class="kpi-value">54%</div>
+                <div class="kpi-change up">Target: 65%</div>
+            </div>
+            <div class="kpi-card success">
+                <div class="kpi-label">ELA Growth (Avg)</div>
+                <div class="kpi-value">+1.4</div>
+                <div class="kpi-change">Grade levels gained</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Students Below Grade</div>
+                <div class="kpi-value">161</div>
+                <div class="kpi-change down">33% of enrollment</div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Student Academic Performance</h3>
+                <input type="text" class="table-search" placeholder="Search students..." id="student-search" oninput="filterStudents()">
+            </div>
+            <div style="overflow-x:auto;">
+                <table id="student-table">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('student-table', 0)">Student <span class="sort-arrow">&#9650;</span></th>
+                            <th onclick="sortTable('student-table', 1)">Grade <span class="sort-arrow">&#9650;</span></th>
+                            <th onclick="sortTable('student-table', 2)">Reading Level <span class="sort-arrow">&#9650;</span></th>
+                            <th onclick="sortTable('student-table', 3)">Math Level <span class="sort-arrow">&#9650;</span></th>
+                            <th onclick="sortTable('student-table', 4)">Attendance <span class="sort-arrow">&#9650;</span></th>
+                            <th>Status</th>
+                            <th>Intervention</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: ATTENDANCE                                              -->
+    <!-- ============================================================ -->
+    <div id="tab-attendance" class="tab-panel">
+
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <div class="kpi-label">School-Wide Attendance</div>
+                <div class="kpi-value">91.3%</div>
+                <div class="kpi-change up">+2.1% year-over-year</div>
+            </div>
+            <div class="kpi-card danger">
+                <div class="kpi-label">Chronically Absent (&lt;90%)</div>
+                <div class="kpi-value">41</div>
+                <div class="kpi-change">8.4% of students</div>
+            </div>
+            <div class="kpi-card warning">
+                <div class="kpi-label">At-Risk (90-94%)</div>
+                <div class="kpi-value">63</div>
+                <div class="kpi-change">12.9% of students</div>
+            </div>
+            <div class="kpi-card success">
+                <div class="kpi-label">Satisfactory (&gt;95%)</div>
+                <div class="kpi-value">383</div>
+                <div class="kpi-change">78.6% of students</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Attendance Rate by Grade</h3>
+                <div class="bar-chart" id="attendance-grade-bars"></div>
+            </div>
+            <div class="chart-card">
+                <h3>Attendance vs. Academic Performance Correlation</h3>
+                <div class="bar-chart" id="correlation-bars"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: INTERVENTIONS                                           -->
+    <!-- ============================================================ -->
+    <div id="tab-interventions" class="tab-panel">
+
+        <div class="kpi-grid">
+            <div class="kpi-card accent">
+                <div class="kpi-label">Active Interventions</div>
+                <div class="kpi-value">142</div>
+                <div class="kpi-change">5 programs running</div>
+            </div>
+            <div class="kpi-card success">
+                <div class="kpi-label">Showing Improvement</div>
+                <div class="kpi-value">78%</div>
+                <div class="kpi-change up">+12% from Q1</div>
+            </div>
+            <div class="kpi-card warning">
+                <div class="kpi-label">No Change</div>
+                <div class="kpi-value">15%</div>
+                <div class="kpi-change">Review needed</div>
+            </div>
+            <div class="kpi-card danger">
+                <div class="kpi-label">Declining</div>
+                <div class="kpi-value">7%</div>
+                <div class="kpi-change down">Escalation required</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Intervention Program Effectiveness</h3>
+                <div class="bar-chart" id="intervention-bars"></div>
+            </div>
+            <div class="chart-card">
+                <h3>Students by Intervention Type</h3>
+                <div class="donut-container">
+                    <div class="donut" id="intervention-donut"></div>
+                    <div class="donut-legend" id="intervention-legend"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Intervention Program Details</h3>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Program</th>
+                        <th>Type</th>
+                        <th>Students</th>
+                        <th>Avg. Improvement</th>
+                        <th>Cost per Student</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Reading Recovery</strong></td>
+                        <td>ELA</td>
+                        <td>38</td>
+                        <td>+1.8 grade levels</td>
+                        <td>$1,420</td>
+                        <td><span class="badge badge-green">On Track</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Math Mastery Lab</strong></td>
+                        <td>Math</td>
+                        <td>42</td>
+                        <td>+1.2 grade levels</td>
+                        <td>$980</td>
+                        <td><span class="badge badge-green">On Track</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>After-School Tutoring</strong></td>
+                        <td>Both</td>
+                        <td>35</td>
+                        <td>+0.9 grade levels</td>
+                        <td>$640</td>
+                        <td><span class="badge badge-yellow">Needs Review</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Summer Bridge</strong></td>
+                        <td>ELA</td>
+                        <td>15</td>
+                        <td>+0.7 grade levels</td>
+                        <td>$2,100</td>
+                        <td><span class="badge badge-yellow">Needs Review</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mentoring Program</strong></td>
+                        <td>Behavioral</td>
+                        <td>12</td>
+                        <td>+22% attendance</td>
+                        <td>$350</td>
+                        <td><span class="badge badge-green">On Track</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: PARENT ENGAGEMENT                                       -->
+    <!-- ============================================================ -->
+    <div id="tab-parent" class="tab-panel">
+
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <div class="kpi-label">Parent Meetings (YTD)</div>
+                <div class="kpi-value">14</div>
+                <div class="kpi-change up">Target: 12</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg. Meeting Attendance</div>
+                <div class="kpi-value">67</div>
+                <div class="kpi-change">14% of families</div>
+            </div>
+            <div class="kpi-card accent">
+                <div class="kpi-label">Volunteer Hours (YTD)</div>
+                <div class="kpi-value">1,240</div>
+                <div class="kpi-change up">+18% from last year</div>
+            </div>
+            <div class="kpi-card success">
+                <div class="kpi-label">Survey Response Rate</div>
+                <div class="kpi-value">43%</div>
+                <div class="kpi-change up">+11% from last year</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Monthly Parent Meeting Attendance</h3>
+                <div class="bar-chart" id="parent-attendance-bars"></div>
+            </div>
+            <div class="chart-card">
+                <h3>Engagement Type Breakdown</h3>
+                <div class="donut-container">
+                    <div class="donut" id="parent-donut"></div>
+                    <div class="donut-legend" id="parent-legend"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Parent Communication Log</h3>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Topic</th>
+                        <th>Attendees</th>
+                        <th>Follow-Up</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Jan 28, 2026</td><td><span class="badge badge-blue">Meeting</span></td><td>Title 1 Annual Meeting</td><td>84</td><td><span class="badge badge-green">Complete</span></td></tr>
+                    <tr><td>Jan 15, 2026</td><td><span class="badge badge-blue">Meeting</span></td><td>Reading Night</td><td>72</td><td><span class="badge badge-green">Complete</span></td></tr>
+                    <tr><td>Dec 12, 2025</td><td><span class="badge badge-blue">Meeting</span></td><td>Math Family Night</td><td>58</td><td><span class="badge badge-green">Complete</span></td></tr>
+                    <tr><td>Nov 18, 2025</td><td><span class="badge badge-yellow">Survey</span></td><td>Annual Parent Survey</td><td>209</td><td><span class="badge badge-green">Complete</span></td></tr>
+                    <tr><td>Oct 22, 2025</td><td><span class="badge badge-blue">Meeting</span></td><td>Parent-Teacher Conference</td><td>312</td><td><span class="badge badge-green">Complete</span></td></tr>
+                    <tr><td>Sep 15, 2025</td><td><span class="badge badge-blue">Meeting</span></td><td>Open House / Title 1 Night</td><td>145</td><td><span class="badge badge-green">Complete</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: COMPLIANCE                                              -->
+    <!-- ============================================================ -->
+    <div id="tab-compliance" class="tab-panel">
+
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <div class="kpi-label">Compliance Items Complete</div>
+                <div class="kpi-value">18/22</div>
+                <div class="kpi-change">82% complete</div>
+            </div>
+            <div class="kpi-card warning">
+                <div class="kpi-label">Pending Items</div>
+                <div class="kpi-value">3</div>
+                <div class="kpi-change">Due within 30 days</div>
+            </div>
+            <div class="kpi-card danger">
+                <div class="kpi-label">Overdue Items</div>
+                <div class="kpi-value">1</div>
+                <div class="kpi-change down">Requires immediate action</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Next Audit Date</div>
+                <div class="kpi-value" style="font-size:1.4rem;">Mar 15</div>
+                <div class="kpi-change">36 days remaining</div>
+            </div>
+        </div>
+
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>Title 1 Compliance Checklist</h3>
+            <ul class="checklist">
+                <li><span class="check-icon check-done">&#10003;</span> School-Parent Compact signed and distributed <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Title 1 Annual Meeting held <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Parent Right-to-Know letters sent <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Schoolwide plan developed and on file <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Highly qualified teacher documentation <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Budget expenditure report Q1 submitted <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Budget expenditure report Q2 submitted <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Professional development plan on file <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Needs assessment completed <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Parent involvement policy updated <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Supplement-not-supplant documentation <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Paraprofessional qualifications verified <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Annual parent survey conducted <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Intervention program mid-year review <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Student achievement data analysis <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Title 1 signage posted at school <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> School improvement plan alignment <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Comparability report submitted <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-pending">&#9711;</span> Budget expenditure report Q3 <span class="badge badge-yellow" style="margin-left:auto;">Due Feb 28</span></li>
+                <li><span class="check-icon check-pending">&#9711;</span> End-of-year parent meeting scheduled <span class="badge badge-yellow" style="margin-left:auto;">Due Mar 30</span></li>
+                <li><span class="check-icon check-pending">&#9711;</span> Annual evaluation report draft <span class="badge badge-yellow" style="margin-left:auto;">Due Apr 15</span></li>
+                <li><span class="check-icon check-overdue">!</span> Homeless student identification update <span class="badge badge-red" style="margin-left:auto;">Overdue</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: DATA ENTRY                                              -->
+    <!-- ============================================================ -->
+    <div id="tab-entry" class="tab-panel">
+
+        <div class="alert alert-success" id="entry-success">Record saved successfully.</div>
+
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>Add Student Record</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Student Name</label>
+                    <input type="text" id="entry-name" placeholder="Last, First">
+                </div>
+                <div class="form-group">
+                    <label>Grade</label>
+                    <select id="entry-grade">
+                        <option value="">Select...</option>
+                        <option>K</option><option>1</option><option>2</option>
+                        <option>3</option><option>4</option><option>5</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Reading Level</label>
+                    <select id="entry-reading">
+                        <option value="">Select...</option>
+                        <option>Above Grade</option>
+                        <option>At Grade</option>
+                        <option>Below Grade</option>
+                        <option>Far Below Grade</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Math Level</label>
+                    <select id="entry-math">
+                        <option value="">Select...</option>
+                        <option>Above Grade</option>
+                        <option>At Grade</option>
+                        <option>Below Grade</option>
+                        <option>Far Below Grade</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Attendance Rate (%)</label>
+                    <input type="number" id="entry-attendance" min="0" max="100" placeholder="e.g. 94">
+                </div>
+                <div class="form-group">
+                    <label>Intervention Program</label>
+                    <select id="entry-intervention">
+                        <option value="None">None</option>
+                        <option>Reading Recovery</option>
+                        <option>Math Mastery Lab</option>
+                        <option>After-School Tutoring</option>
+                        <option>Summer Bridge</option>
+                        <option>Mentoring Program</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom:16px;">
+                <label>Notes</label>
+                <textarea id="entry-notes" rows="3" placeholder="Additional notes about this student..."></textarea>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="saveEntry()">Save Record</button>
+                <button class="btn btn-outline" onclick="clearEntry()">Clear Form</button>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Log Parent Engagement Event</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Event Date</label>
+                    <input type="date" id="event-date">
+                </div>
+                <div class="form-group">
+                    <label>Event Type</label>
+                    <select id="event-type">
+                        <option>Parent Meeting</option>
+                        <option>Family Night</option>
+                        <option>Conference</option>
+                        <option>Survey</option>
+                        <option>Volunteer Activity</option>
+                        <option>Home Visit</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Topic / Description</label>
+                    <input type="text" id="event-topic" placeholder="e.g. Reading Night">
+                </div>
+                <div class="form-group">
+                    <label>Number of Attendees</label>
+                    <input type="number" id="event-attendees" min="0" placeholder="e.g. 45">
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-success" onclick="saveEvent()">Log Event</button>
+                <button class="btn btn-outline" onclick="clearEvent()">Clear</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================================================================ -->
+<!-- JAVASCRIPT                                                       -->
+<!-- ================================================================ -->
+<script>
+// ---- DATA ----
+const studentData = [
+    { name: "Anderson, Maya", grade: "3", reading: "At Grade", math: "Below Grade", attendance: 96, intervention: "Math Mastery Lab" },
+    { name: "Brooks, James", grade: "5", reading: "Above Grade", math: "At Grade", attendance: 98, intervention: "None" },
+    { name: "Carter, Destiny", grade: "2", reading: "Below Grade", math: "At Grade", attendance: 87, intervention: "Reading Recovery" },
+    { name: "Davis, Marcus", grade: "4", reading: "Below Grade", math: "Below Grade", attendance: 82, intervention: "After-School Tutoring" },
+    { name: "Edwards, Sofia", grade: "1", reading: "At Grade", math: "Above Grade", attendance: 95, intervention: "None" },
+    { name: "Foster, Aiden", grade: "3", reading: "Far Below Grade", math: "Below Grade", attendance: 78, intervention: "Reading Recovery" },
+    { name: "Garcia, Isabella", grade: "K", reading: "At Grade", math: "At Grade", attendance: 94, intervention: "None" },
+    { name: "Harris, Jaylen", grade: "5", reading: "At Grade", math: "Below Grade", attendance: 91, intervention: "Math Mastery Lab" },
+    { name: "Jackson, Amari", grade: "2", reading: "Above Grade", math: "At Grade", attendance: 97, intervention: "None" },
+    { name: "King, Aaliyah", grade: "4", reading: "Below Grade", math: "Far Below Grade", attendance: 85, intervention: "After-School Tutoring" },
+    { name: "Lopez, Daniel", grade: "3", reading: "At Grade", math: "At Grade", attendance: 93, intervention: "None" },
+    { name: "Martinez, Elena", grade: "1", reading: "Below Grade", math: "Below Grade", attendance: 89, intervention: "Reading Recovery" },
+    { name: "Nelson, Christopher", grade: "5", reading: "Above Grade", math: "Above Grade", attendance: 99, intervention: "None" },
+    { name: "Owens, Zion", grade: "K", reading: "At Grade", math: "Below Grade", attendance: 92, intervention: "None" },
+    { name: "Patel, Anaya", grade: "4", reading: "At Grade", math: "At Grade", attendance: 96, intervention: "None" },
+    { name: "Robinson, Kayla", grade: "2", reading: "Far Below Grade", math: "Below Grade", attendance: 76, intervention: "Reading Recovery" },
+    { name: "Smith, Elijah", grade: "3", reading: "Below Grade", math: "At Grade", attendance: 90, intervention: "Mentoring Program" },
+    { name: "Thomas, Nia", grade: "1", reading: "At Grade", math: "At Grade", attendance: 95, intervention: "None" },
+    { name: "Williams, Devon", grade: "5", reading: "Below Grade", math: "Below Grade", attendance: 83, intervention: "After-School Tutoring" },
+    { name: "Young, Camila", grade: "4", reading: "Above Grade", math: "At Grade", attendance: 97, intervention: "None" },
+];
+
+// ---- TAB SWITCHING ----
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + tabName).classList.add('active');
+    event.target.classList.add('active');
+}
+
+// ---- BAR CHART RENDERER ----
+function renderBarChart(containerId, data, colorFn) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    data.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'bar-row';
+        const targetMark = item.target ? `<div class="bar-target" style="left:${item.target}%"></div>` : '';
+        row.innerHTML = `
+            <div class="bar-label">${item.label}</div>
+            <div class="bar-track">
+                <div class="bar-fill" style="width:${item.value}%;background:${colorFn(item.value)}">${item.value}%</div>
+                ${targetMark}
+            </div>
+        `;
+        container.appendChild(row);
+    });
+}
+
+function gradeColor(v) {
+    if (v >= 75) return '#38a169';
+    if (v >= 60) return '#d69e2e';
+    return '#e53e3e';
+}
+
+function attendanceColor(v) {
+    if (v >= 95) return '#38a169';
+    if (v >= 90) return '#d69e2e';
+    return '#e53e3e';
+}
+
+// ---- DONUT CHART RENDERER ----
+function renderDonut(donutId, legendId, segments) {
+    const donut = document.getElementById(donutId);
+    const legend = document.getElementById(legendId);
+    let gradient = '';
+    let cumulative = 0;
+    segments.forEach(seg => {
+        gradient += `${seg.color} ${cumulative}% ${cumulative + seg.pct}%, `;
+        cumulative += seg.pct;
+    });
+    gradient = gradient.slice(0, -2);
+    donut.style.background = `conic-gradient(${gradient})`;
+
+    const total = segments.reduce((s, seg) => s + seg.pct, 0);
+    donut.innerHTML = `<div class="donut-center"><span class="big">${total > 0 ? segments[0].centerText || '' : ''}</span><span class="small">${segments[0].centerSub || ''}</span></div>`;
+
+    legend.innerHTML = '';
+    segments.forEach(seg => {
+        legend.innerHTML += `<div class="legend-item"><div class="legend-dot" style="background:${seg.color}"></div>${seg.label} (${seg.pct}%)</div>`;
+    });
+}
+
+// ---- STUDENT TABLE ----
+function renderStudentTable(data) {
+    const tbody = document.getElementById('student-body');
+    tbody.innerHTML = '';
+    data.forEach(s => {
+        const statusClass = s.attendance >= 95 ? 'badge-green' : s.attendance >= 90 ? 'badge-yellow' : 'badge-red';
+        const statusText = s.attendance >= 95 ? 'On Track' : s.attendance >= 90 ? 'Monitor' : 'At Risk';
+        const readingClass = (s.reading === 'Above Grade' || s.reading === 'At Grade') ? 'badge-green' : s.reading === 'Below Grade' ? 'badge-yellow' : 'badge-red';
+        const mathClass = (s.math === 'Above Grade' || s.math === 'At Grade') ? 'badge-green' : s.math === 'Below Grade' ? 'badge-yellow' : 'badge-red';
+        const interventionBadge = s.intervention !== 'None' ? `<span class="badge badge-blue">${s.intervention}</span>` : '<span style="color:#a0aec0;">—</span>';
+
+        tbody.innerHTML += `<tr>
+            <td><strong>${s.name}</strong></td>
+            <td>${s.grade}</td>
+            <td><span class="badge ${readingClass}">${s.reading}</span></td>
+            <td><span class="badge ${mathClass}">${s.math}</span></td>
+            <td>${s.attendance}%</td>
+            <td><span class="badge ${statusClass}">${statusText}</span></td>
+            <td>${interventionBadge}</td>
+        </tr>`;
+    });
+}
+
+// ---- TABLE SORT ----
+function sortTable(tableId, colIndex) {
+    const table = document.getElementById(tableId);
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const dir = table.dataset.sortDir === 'asc' ? 'desc' : 'asc';
+    table.dataset.sortDir = dir;
+
+    rows.sort((a, b) => {
+        let aVal = a.cells[colIndex].textContent.trim();
+        let bVal = b.cells[colIndex].textContent.trim();
+        const aNum = parseFloat(aVal);
+        const bNum = parseFloat(bVal);
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+            return dir === 'asc' ? aNum - bNum : bNum - aNum;
+        }
+        return dir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+    });
+    rows.forEach(r => tbody.appendChild(r));
+}
+
+// ---- SEARCH FILTER ----
+function filterStudents() {
+    const query = document.getElementById('student-search').value.toLowerCase();
+    const filtered = studentData.filter(s => s.name.toLowerCase().includes(query) || s.grade.includes(query) || s.intervention.toLowerCase().includes(query));
+    renderStudentTable(filtered);
+}
+
+function filterByGrade() {
+    const grade = document.getElementById('gradeFilter').value;
+    if (grade === 'all') {
+        renderStudentTable(studentData);
+    } else {
+        renderStudentTable(studentData.filter(s => s.grade === grade));
+    }
+}
+
+// ---- DATA ENTRY ----
+function saveEntry() {
+    const name = document.getElementById('entry-name').value;
+    if (!name) { alert('Please enter a student name.'); return; }
+    const newStudent = {
+        name: name,
+        grade: document.getElementById('entry-grade').value,
+        reading: document.getElementById('entry-reading').value,
+        math: document.getElementById('entry-math').value,
+        attendance: parseInt(document.getElementById('entry-attendance').value) || 0,
+        intervention: document.getElementById('entry-intervention').value,
+    };
+    studentData.push(newStudent);
+    renderStudentTable(studentData);
+    const alert_el = document.getElementById('entry-success');
+    alert_el.style.display = 'block';
+    alert_el.textContent = `Record saved: ${name}`;
+    setTimeout(() => { alert_el.style.display = 'none'; }, 3000);
+    clearEntry();
+}
+
+function clearEntry() {
+    ['entry-name','entry-grade','entry-reading','entry-math','entry-attendance','entry-intervention','entry-notes'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el.tagName === 'SELECT') el.selectedIndex = 0;
+        else el.value = '';
+    });
+}
+
+function saveEvent() {
+    const topic = document.getElementById('event-topic').value;
+    if (!topic) { alert('Please enter an event topic.'); return; }
+    const alert_el = document.getElementById('entry-success');
+    alert_el.style.display = 'block';
+    alert_el.textContent = `Event logged: ${topic}`;
+    setTimeout(() => { alert_el.style.display = 'none'; }, 3000);
+    clearEvent();
+}
+
+function clearEvent() {
+    ['event-date','event-type','event-topic','event-attendees'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el.tagName === 'SELECT') el.selectedIndex = 0;
+        else el.value = '';
+    });
+}
+
+// ---- EXPORT ----
+function exportReport() {
+    window.print();
+}
+
+// ---- UPDATE DASHBOARD ----
+function updateDashboard() {
+    // In production, this would fetch data for the selected year.
+    // For demo, re-render with current data.
+    initCharts();
+}
+
+// ---- INIT ----
+function initCharts() {
+    // Reading bars
+    renderBarChart('reading-bars', [
+        { label: 'Kindergarten', value: 72, target: 75 },
+        { label: 'Grade 1', value: 65, target: 75 },
+        { label: 'Grade 2', value: 68, target: 75 },
+        { label: 'Grade 3', value: 63, target: 75 },
+        { label: 'Grade 4', value: 70, target: 75 },
+        { label: 'Grade 5', value: 74, target: 75 },
+    ], gradeColor);
+
+    // Math bars
+    renderBarChart('math-bars', [
+        { label: 'Kindergarten', value: 60, target: 65 },
+        { label: 'Grade 1', value: 52, target: 65 },
+        { label: 'Grade 2', value: 55, target: 65 },
+        { label: 'Grade 3', value: 48, target: 65 },
+        { label: 'Grade 4', value: 57, target: 65 },
+        { label: 'Grade 5', value: 62, target: 65 },
+    ], gradeColor);
+
+    // Attendance trend
+    renderBarChart('attendance-trend', [
+        { label: 'Sep', value: 94 },
+        { label: 'Oct', value: 93 },
+        { label: 'Nov', value: 90 },
+        { label: 'Dec', value: 88 },
+        { label: 'Jan', value: 91 },
+        { label: 'Feb', value: 92 },
+    ], attendanceColor);
+
+    // Attendance by grade
+    renderBarChart('attendance-grade-bars', [
+        { label: 'Kindergarten', value: 93, target: 95 },
+        { label: 'Grade 1', value: 92, target: 95 },
+        { label: 'Grade 2', value: 90, target: 95 },
+        { label: 'Grade 3', value: 89, target: 95 },
+        { label: 'Grade 4', value: 92, target: 95 },
+        { label: 'Grade 5', value: 91, target: 95 },
+    ], attendanceColor);
+
+    // Correlation bars
+    renderBarChart('correlation-bars', [
+        { label: '>95% Attend.', value: 78 },
+        { label: '90-95%', value: 62 },
+        { label: '85-90%', value: 41 },
+        { label: '<85%', value: 23 },
+    ], v => v >= 70 ? '#38a169' : v >= 50 ? '#d69e2e' : '#e53e3e');
+
+    // Intervention bars
+    renderBarChart('intervention-bars', [
+        { label: 'Reading Recovery', value: 82 },
+        { label: 'Math Mastery', value: 74 },
+        { label: 'After-School', value: 61 },
+        { label: 'Summer Bridge', value: 55 },
+        { label: 'Mentoring', value: 78 },
+    ], gradeColor);
+
+    // Parent attendance bars
+    renderBarChart('parent-attendance-bars', [
+        { label: 'Sep', value: 72 },
+        { label: 'Oct', value: 78 },
+        { label: 'Nov', value: 52 },
+        { label: 'Dec', value: 58 },
+        { label: 'Jan', value: 84 },
+    ], v => '#2b6cb0');
+
+    // Budget donut
+    renderDonut('budget-donut', 'budget-legend', [
+        { label: 'Instructional Staff', pct: 42, color: '#1a365d', centerText: '$485K', centerSub: 'Total Budget' },
+        { label: 'Intervention Programs', pct: 24, color: '#2b6cb0' },
+        { label: 'Professional Dev.', pct: 12, color: '#4299e1' },
+        { label: 'Parent Engagement', pct: 8, color: '#ed8936' },
+        { label: 'Materials & Supplies', pct: 10, color: '#38a169' },
+        { label: 'Technology', pct: 4, color: '#d69e2e' },
+    ]);
+
+    // Intervention donut
+    renderDonut('intervention-donut', 'intervention-legend', [
+        { label: 'Reading Recovery', pct: 27, color: '#1a365d', centerText: '142', centerSub: 'Students' },
+        { label: 'Math Mastery Lab', pct: 30, color: '#2b6cb0' },
+        { label: 'After-School Tutoring', pct: 25, color: '#ed8936' },
+        { label: 'Summer Bridge', pct: 10, color: '#38a169' },
+        { label: 'Mentoring', pct: 8, color: '#d69e2e' },
+    ]);
+
+    // Parent engagement donut
+    renderDonut('parent-donut', 'parent-legend', [
+        { label: 'Meetings Attended', pct: 35, color: '#1a365d', centerText: '1,240', centerSub: 'Total Hours' },
+        { label: 'Volunteer Hours', pct: 28, color: '#2b6cb0' },
+        { label: 'Conferences', pct: 22, color: '#ed8936' },
+        { label: 'Surveys Completed', pct: 15, color: '#38a169' },
+    ]);
+
+    // Student table
+    renderStudentTable(studentData);
+}
+
+// Boot
+document.addEventListener('DOMContentLoaded', initCharts);
+</script>
+
+</body>
+</html>
