@@ -396,6 +396,256 @@
         }
         .save-indicator.visible { display: block; }
 
+        /* ---- VISUAL ANALYTICS ---- */
+        .health-gauge-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px 32px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+        .gauge {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .gauge-center {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: var(--card);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .gauge-center .gauge-score {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .gauge-center .gauge-label {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 2px;
+        }
+        .gauge-details {
+            flex: 1;
+            min-width: 220px;
+        }
+        .gauge-details h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .gauge-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .gauge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+        }
+        .gauge-row .gauge-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .gauge-row .gauge-metric-label {
+            width: 100px;
+            flex-shrink: 0;
+        }
+        .gauge-row .gauge-bar-track {
+            flex: 1;
+            height: 8px;
+            background: #edf2f7;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .gauge-row .gauge-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+        .gauge-row .gauge-val {
+            width: 40px;
+            text-align: right;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        /* Progress rings for KPI cards */
+        .visual-kpi {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .progress-ring {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .progress-ring-inner {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        /* Heat-map cells for student table */
+        .heat-cell {
+            font-weight: 600;
+            border-radius: 4px;
+            padding: 4px 10px;
+            display: inline-block;
+            font-size: 0.8rem;
+            min-width: 80px;
+            text-align: center;
+        }
+        .heat-cell.heat-level-high { background: #c6f6d5; color: #22543d; }
+        .heat-cell.heat-level-mid { background: #e2f0cb; color: #3c6e1e; }
+        .heat-cell.heat-level-low { background: #fefcbf; color: #744210; }
+        .heat-cell.heat-level-vlow { background: #fed7d7; color: #822727; }
+
+        /* Attendance heat cell in table */
+        .attendance-cell {
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            font-size: 0.85rem;
+        }
+        .attendance-high { background: #c6f6d5; color: #22543d; }
+        .attendance-mid { background: #fefcbf; color: #744210; }
+        .attendance-low { background: #fed7d7; color: #822727; }
+
+        /* Mini trend indicators */
+        .trend-up { color: var(--success); font-weight: 700; }
+        .trend-down { color: var(--danger); font-weight: 700; }
+        .trend-flat { color: var(--warning); font-weight: 700; }
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .status-dot.green { background: var(--success); }
+        .status-dot.yellow { background: var(--warning); }
+        .status-dot.red { background: var(--danger); }
+        .status-dot.blue { background: var(--primary-light); }
+
+        /* User Manual & Glossary styles */
+        .manual-section {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        .manual-section h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 8px;
+        }
+        .manual-section h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin: 16px 0 8px 0;
+            color: var(--text);
+        }
+        .manual-section p,
+        .manual-section li {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: var(--text);
+        }
+        .manual-section ul,
+        .manual-section ol {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+        .manual-section li {
+            margin-bottom: 6px;
+        }
+        .manual-tip {
+            background: #ebf4ff;
+            border-left: 4px solid var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            margin: 12px 0;
+            font-size: 0.85rem;
+        }
+        .manual-tip strong {
+            color: var(--primary);
+        }
+        .glossary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .glossary-item {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary-light);
+        }
+        .glossary-term {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .glossary-def {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text);
+        }
+        .glossary-category {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 24px 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--accent);
+        }
+        .glossary-category:first-child {
+            margin-top: 0;
+        }
+
         /* ---- PRINT ---- */
         @media print {
             .header-controls, .tab-bar, .form-grid, .btn-row, .table-search { display: none; }
@@ -447,6 +697,8 @@
         <button class="tab" onclick="switchTab('compliance')">Compliance</button>
         <button class="tab" onclick="switchTab('entry')">Data Entry</button>
         <button class="tab" onclick="switchTab('upload')" style="background:rgba(56,161,105,0.1);color:#38a169;font-weight:700;">&#8679; Upload Data</button>
+        <button class="tab" onclick="switchTab('manual')">User Manual</button>
+        <button class="tab" onclick="switchTab('glossary')">Glossary</button>
     </div>
 
     <!-- ============================================================ -->
@@ -1019,6 +1271,169 @@
             <div class="btn-row">
                 <button class="btn btn-success" onclick="saveEvent()">Log Event</button>
                 <button class="btn btn-outline" onclick="clearEvent()">Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: USER MANUAL                                             -->
+    <!-- ============================================================ -->
+    <div id="tab-manual" class="tab-panel">
+        <div class="chart-card manual-section" style="margin-bottom:24px;">
+            <h3>Title 1 School Performance Dashboard &mdash; User Manual</h3>
+            <p style="color:var(--text-light);margin-bottom:16px;">Version 1.0 &bull; NUVABASE Professional Consulting &bull; Service to Service Group, Inc.</p>
+
+            <h4>Getting Started</h4>
+            <p>This dashboard helps Title 1 schools track student performance, attendance, interventions, parent engagement, and federal compliance &mdash; all in one place. No internet connection is needed after you open the file.</p>
+            <div class="manual-tip"><strong>Tip:</strong> Open this file by right-clicking it and choosing "Open With" &rarr; Chrome (or your preferred web browser).</div>
+
+            <h4>Tab-by-Tab Guide</h4>
+
+            <h4>1. Overview Tab</h4>
+            <ul>
+                <li><strong>School Health Score:</strong> A single number (0&ndash;100) that combines reading, math, attendance, and chronic absenteeism into one overall grade for your school.</li>
+                <li><strong>KPI Cards:</strong> The colored cards at the top show your key numbers &mdash; enrollment, attendance rate, reading/math proficiency, intervention count, and chronic absenteeism.</li>
+                <li><strong>Charts:</strong> Bar charts show reading and math proficiency by grade level. The thin dark line on each bar is the target. Donut charts show budget allocation breakdown.</li>
+            </ul>
+
+            <h4>2. Academics Tab</h4>
+            <ul>
+                <li><strong>Student Table:</strong> Lists every student with their reading level, math level, attendance, and intervention status.</li>
+                <li><strong>Search:</strong> Type a student name, grade, or intervention name in the search box to filter the table.</li>
+                <li><strong>Sort:</strong> Click any column header to sort the table by that column.</li>
+                <li><strong>Color Coding:</strong> Green = On Track, Yellow = Monitor, Red = At Risk.</li>
+            </ul>
+
+            <h4>3. Attendance Tab</h4>
+            <ul>
+                <li>Shows school-wide attendance rate and breaks down chronically absent, at-risk, and satisfactory students.</li>
+                <li>The correlation chart shows how attendance directly impacts academic performance.</li>
+            </ul>
+
+            <h4>4. Interventions Tab</h4>
+            <ul>
+                <li>Tracks all active intervention programs (Reading Recovery, Math Mastery, etc.).</li>
+                <li>Shows which programs are working and which need review.</li>
+                <li>The table shows cost per student for each program.</li>
+            </ul>
+
+            <h4>5. Parent Engagement Tab</h4>
+            <ul>
+                <li>Logs all parent meetings, family nights, conferences, and surveys.</li>
+                <li>Tracks volunteer hours and survey response rates.</li>
+                <li>Required for Title 1 compliance reporting.</li>
+            </ul>
+
+            <h4>6. Compliance Tab</h4>
+            <ul>
+                <li><strong>Checklist:</strong> A 22-item Title 1 compliance checklist based on ESSA requirements.</li>
+                <li>Green checkmarks = Complete, Yellow circles = Pending (with due dates), Red exclamation = Overdue.</li>
+                <li>Review this checklist before any audit.</li>
+            </ul>
+
+            <h4>7. Upload Data Tab</h4>
+            <ul>
+                <li><strong>Step 1:</strong> Click "Student Data Template" to download a blank spreadsheet.</li>
+                <li><strong>Step 2:</strong> Open it in Excel or Google Sheets, fill in your students, save as CSV.</li>
+                <li><strong>Step 3:</strong> Drag the CSV file onto the upload area (or click to browse).</li>
+                <li><strong>Step 4:</strong> Preview your data, then click "Confirm &amp; Load."</li>
+                <li>Data saves in your browser automatically &mdash; it'll be there next time you open the dashboard.</li>
+            </ul>
+            <div class="manual-tip"><strong>Privacy:</strong> Your data never leaves your computer. Nothing is sent to the internet. 100% private and secure.</div>
+
+            <h4>8. Data Entry Tab</h4>
+            <ul>
+                <li>Manually add individual student records or log parent engagement events.</li>
+                <li>Fill in the form fields and click "Save Record" or "Log Event."</li>
+            </ul>
+
+            <h4>Printing &amp; Exporting</h4>
+            <ul>
+                <li>Click the <strong>"Export Report"</strong> button in the top header to print the dashboard.</li>
+                <li>When printing, choose "Save as PDF" in the print dialog to create a PDF file.</li>
+                <li>The print layout automatically hides navigation and shows all tabs on one page.</li>
+            </ul>
+
+            <h4>Grade-Level Filtering</h4>
+            <ul>
+                <li>Use the <strong>grade dropdown</strong> in the header to filter all data by a specific grade (K through 5).</li>
+                <li>Select "All Grades" to see the complete picture again.</li>
+            </ul>
+
+            <h4>Troubleshooting</h4>
+            <ul>
+                <li><strong>Dashboard shows code instead of visuals:</strong> Right-click the file &rarr; Open With &rarr; choose your browser (Chrome, Edge, Safari).</li>
+                <li><strong>CSV upload not working:</strong> Make sure your file ends in .csv (not .xlsx). In Excel: File &rarr; Save As &rarr; CSV format.</li>
+                <li><strong>Data disappeared:</strong> Data is saved per-browser. If you switch browsers or clear browsing data, you'll need to re-upload.</li>
+                <li><strong>Charts look wrong:</strong> Refresh the page (F5 or Ctrl+R). If using uploaded data, the charts auto-calculate from your student records.</li>
+            </ul>
+            <div class="manual-tip"><strong>Need Help?</strong> Contact NUVABASE Professional Consulting for support and training.</div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: GLOSSARY                                                -->
+    <!-- ============================================================ -->
+    <div id="tab-glossary" class="tab-panel">
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>Glossary of Terms</h3>
+            <p style="color:var(--text-light);margin-bottom:20px;">Definitions of all terms used in this dashboard, organized by category.</p>
+
+            <div class="glossary-category">Title 1 &amp; Federal Terms</div>
+            <div class="glossary-grid">
+                <div class="glossary-item"><div class="glossary-term">Title 1</div><div class="glossary-def">A federal program (part of ESSA) providing financial assistance to schools with high percentages of low-income students to help all children meet state academic standards.</div></div>
+                <div class="glossary-item"><div class="glossary-term">ESSA</div><div class="glossary-def">Every Student Succeeds Act &mdash; the federal law (2015) governing K-12 public education, replacing No Child Left Behind. Sets requirements for accountability, testing, and Title 1 funding.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Free/Reduced Lunch (FRL)</div><div class="glossary-def">A federal program providing free or discounted school meals to students from low-income families. FRL percentage is used to determine Title 1 eligibility.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Supplement Not Supplant</div><div class="glossary-def">Federal requirement that Title 1 funds must add to (supplement), not replace (supplant), state and local funding. Schools cannot use Title 1 money for things they would have funded anyway.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Schoolwide Program</div><div class="glossary-def">A Title 1 model where schools with 40%+ poverty can use Title 1 funds to improve the entire school program, rather than targeting individual students.</div></div>
+                <div class="glossary-item"><div class="glossary-term">School-Parent Compact</div><div class="glossary-def">A written agreement between the school, parents, and students outlining shared responsibilities for student achievement. Required by Title 1.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Comparability Report</div><div class="glossary-def">Documentation proving that state/local resources are distributed equitably across Title 1 and non-Title 1 schools within a district.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Highly Qualified Teacher (HQT)</div><div class="glossary-def">A teacher who meets state certification requirements, holds a bachelor's degree, and demonstrates subject-area competence.</div></div>
+            </div>
+
+            <div class="glossary-category">Academic Terms</div>
+            <div class="glossary-grid">
+                <div class="glossary-item"><div class="glossary-term">Proficiency</div><div class="glossary-def">The percentage of students meeting or exceeding grade-level standards on state assessments in reading or math.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Above Grade Level</div><div class="glossary-def">Student performing above the expected standard for their grade in a given subject.</div></div>
+                <div class="glossary-item"><div class="glossary-term">At Grade Level</div><div class="glossary-def">Student meeting the expected standard for their grade &mdash; performing where they should be.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Below Grade Level</div><div class="glossary-def">Student performing below expectations. May benefit from intervention support.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Far Below Grade Level</div><div class="glossary-def">Student performing significantly below expectations. Typically requires intensive intervention.</div></div>
+                <div class="glossary-item"><div class="glossary-term">ELA</div><div class="glossary-def">English Language Arts &mdash; the subject area covering reading, writing, speaking, and listening skills.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Growth (Grade Levels Gained)</div><div class="glossary-def">The number of grade levels a student has progressed during the measurement period. A growth of +1.0 means one full year of progress.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Baseline</div><div class="glossary-def">The starting measurement point against which progress is compared. Usually set at the beginning of the school year.</div></div>
+            </div>
+
+            <div class="glossary-category">Attendance Terms</div>
+            <div class="glossary-grid">
+                <div class="glossary-item"><div class="glossary-term">Attendance Rate</div><div class="glossary-def">Percentage of school days a student was present. Calculated as: (Days Present &divide; Total Days) &times; 100.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Chronic Absenteeism</div><div class="glossary-def">Missing 10% or more of school days (approximately 18+ days per year). A key federal accountability indicator under ESSA.</div></div>
+                <div class="glossary-item"><div class="glossary-term">At-Risk (Attendance)</div><div class="glossary-def">Students with 90&ndash;94% attendance rate &mdash; not yet chronically absent but trending toward it.</div></div>
+            </div>
+
+            <div class="glossary-category">Intervention Terms</div>
+            <div class="glossary-grid">
+                <div class="glossary-item"><div class="glossary-term">Intervention</div><div class="glossary-def">A targeted program or strategy designed to address a specific academic or behavioral gap for struggling students.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Reading Recovery</div><div class="glossary-def">An intensive short-term intervention for first-grade students who are the lowest-achieving in reading and writing.</div></div>
+                <div class="glossary-item"><div class="glossary-term">RTI (Response to Intervention)</div><div class="glossary-def">A multi-tier approach to early identification and support of students with learning and behavior needs.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Tier 1 / Tier 2 / Tier 3</div><div class="glossary-def">Levels of intervention intensity. Tier 1 = whole class instruction. Tier 2 = small group targeted support. Tier 3 = intensive one-on-one intervention.</div></div>
+            </div>
+
+            <div class="glossary-category">Dashboard &amp; Analytics Terms</div>
+            <div class="glossary-grid">
+                <div class="glossary-item"><div class="glossary-term">KPI</div><div class="glossary-def">Key Performance Indicator &mdash; a measurable value showing how effectively a school is achieving key objectives.</div></div>
+                <div class="glossary-item"><div class="glossary-term">School Health Score</div><div class="glossary-def">A composite score (0&ndash;100) combining reading proficiency (30%), math proficiency (25%), attendance rate (25%), and inverse chronic absenteeism (20%).</div></div>
+                <div class="glossary-item"><div class="glossary-term">Year-Over-Year (YoY)</div><div class="glossary-def">Comparison of current year performance against the same metrics from the prior year.</div></div>
+                <div class="glossary-item"><div class="glossary-term">CSV</div><div class="glossary-def">Comma-Separated Values &mdash; a simple file format for spreadsheet data. Can be created from Excel or Google Sheets via "Save As &rarr; CSV."</div></div>
+                <div class="glossary-item"><div class="glossary-term">Target Line</div><div class="glossary-def">The thin dark vertical line on bar charts showing the goal or benchmark the school is aiming to reach.</div></div>
+            </div>
+
+            <div class="glossary-category">TLRW Framework Terms</div>
+            <div class="glossary-grid">
+                <div class="glossary-item"><div class="glossary-term">TLRW</div><div class="glossary-def">Think, Learn, Reflect, Write &mdash; NUVABASE's proprietary four-phase decision and execution methodology with 12 quality gates (3 per phase).</div></div>
+                <div class="glossary-item"><div class="glossary-term">Quality Gate</div><div class="glossary-def">A checkpoint within the TLRW process that must be passed before moving to the next step. Each phase has 3 gates (12 total).</div></div>
+                <div class="glossary-item"><div class="glossary-term">Triple Redundancy</div><div class="glossary-def">The TLRW principle of running three independent analysis layers (surface, structural, systemic) to validate every decision.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Continuous Improvement</div><div class="glossary-def">An ongoing process of evaluating and improving school performance using data-driven decision making. Core to both TLRW and Cognia accreditation.</div></div>
+                <div class="glossary-item"><div class="glossary-term">NUVABASE</div><div class="glossary-def">NUVABASE Professional Consulting &mdash; a division of Service to Service Group, Inc. specializing in data analytics, continuous improvement, and TLRW-guided consulting for schools, municipalities, and nonprofits.</div></div>
             </div>
         </div>
     </div>

@@ -52,17 +52,25 @@
             flex: 1; padding: 12px 16px; border-radius: 6px; cursor: pointer; text-align: center;
             font-size: 0.85rem; font-weight: 600; transition: all 0.3s; position: relative; opacity: 0.5;
         }
-        .tlrw-phase.active { opacity: 1; transform: scale(1.02); box-shadow: var(--shadow-lg); }
-        .tlrw-phase.completed { opacity: 0.8; }
-        .tlrw-phase.completed::after { content: ' \2713'; font-weight: 700; }
-        .phase-think { background: rgba(66,153,225,0.15); color: var(--think); border: 2px solid transparent; }
-        .phase-think.active { border-color: var(--think); background: rgba(66,153,225,0.25); }
-        .phase-learn { background: rgba(72,187,120,0.15); color: var(--learn); border: 2px solid transparent; }
-        .phase-learn.active { border-color: var(--learn); background: rgba(72,187,120,0.25); }
-        .phase-reflect { background: rgba(237,137,54,0.15); color: var(--reflect); border: 2px solid transparent; }
-        .phase-reflect.active { border-color: var(--reflect); background: rgba(237,137,54,0.25); }
-        .phase-write { background: rgba(159,122,234,0.15); color: var(--write); border: 2px solid transparent; }
-        .phase-write.active { border-color: var(--write); background: rgba(159,122,234,0.25); }
+        .tlrw-phase.active { opacity: 1; transform: scale(1.04); animation: tlrwPulse 2s ease-in-out infinite; }
+        .tlrw-phase.completed { opacity: 1; }
+        .tlrw-phase.completed::after { content: ' \2713'; font-weight: 700; margin-left: 4px; }
+        .phase-think { background: rgba(66,153,225,0.12); color: var(--think); border: 2px solid transparent; }
+        .phase-think.active { border-color: var(--think); background: rgba(66,153,225,0.25); box-shadow: 0 0 15px rgba(66,153,225,0.5), 0 0 30px rgba(66,153,225,0.2); }
+        .phase-think.completed { background: rgba(66,153,225,0.35); border-color: var(--think); }
+        .phase-learn { background: rgba(72,187,120,0.12); color: var(--learn); border: 2px solid transparent; }
+        .phase-learn.active { border-color: var(--learn); background: rgba(72,187,120,0.25); box-shadow: 0 0 15px rgba(72,187,120,0.5), 0 0 30px rgba(72,187,120,0.2); }
+        .phase-learn.completed { background: rgba(72,187,120,0.35); border-color: var(--learn); }
+        .phase-reflect { background: rgba(237,137,54,0.12); color: var(--reflect); border: 2px solid transparent; }
+        .phase-reflect.active { border-color: var(--reflect); background: rgba(237,137,54,0.25); box-shadow: 0 0 15px rgba(237,137,54,0.5), 0 0 30px rgba(237,137,54,0.2); }
+        .phase-reflect.completed { background: rgba(237,137,54,0.35); border-color: var(--reflect); }
+        .phase-write { background: rgba(159,122,234,0.12); color: var(--write); border: 2px solid transparent; }
+        .phase-write.active { border-color: var(--write); background: rgba(159,122,234,0.25); box-shadow: 0 0 15px rgba(159,122,234,0.5), 0 0 30px rgba(159,122,234,0.2); }
+        .phase-write.completed { background: rgba(159,122,234,0.35); border-color: var(--write); }
+        @keyframes tlrwPulse {
+            0%, 100% { transform: scale(1.04); opacity: 1; }
+            50% { transform: scale(1.07); opacity: 0.92; }
+        }
         .phase-num { font-size: 0.7rem; display: block; opacity: 0.7; }
 
         /* TABS */
@@ -213,6 +221,81 @@
             .bar-label, .compare-label { width: 100px; font-size: 0.7rem; }
         }
 
+        /* DISTRICT HEALTH SCORE GAUGE */
+        .health-gauge-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 24px; overflow: hidden; }
+        .health-gauge-card h3 { font-size: 1rem; font-weight: 600; padding: 20px 24px 0; }
+        .health-gauge-container { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; padding: 20px 24px 24px; }
+        .health-gauge { position: relative; width: 180px; height: 180px; flex-shrink: 0; }
+        .health-gauge svg { width: 180px; height: 180px; transform: rotate(-90deg); }
+        .health-gauge-bg { fill: none; stroke: #edf2f7; stroke-width: 12; }
+        .health-gauge-fill { fill: none; stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+        .health-gauge-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        .health-gauge-text .score { font-size: 2.2rem; font-weight: 800; line-height: 1; }
+        .health-gauge-text .score-label { font-size: 0.7rem; color: var(--text-light); margin-top: 2px; display: block; }
+        .health-gauge-text .score-grade { font-size: 0.85rem; font-weight: 700; margin-top: 4px; display: block; }
+        .health-breakdown { flex: 1; min-width: 250px; }
+        .health-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+        .health-row:last-child { border-bottom: none; }
+        .health-row-label { width: 150px; font-size: 0.82rem; font-weight: 500; }
+        .health-row-bar { flex: 1; height: 10px; background: #edf2f7; border-radius: 5px; overflow: hidden; }
+        .health-row-fill { height: 100%; border-radius: 5px; transition: width 0.8s ease; }
+        .health-row-val { width: 55px; font-size: 0.8rem; font-weight: 700; text-align: right; }
+
+        /* KPI PROGRESS RINGS */
+        .kpi-ring-wrap { display: flex; align-items: center; gap: 14px; margin-top: 8px; }
+        .kpi-ring { position: relative; width: 48px; height: 48px; flex-shrink: 0; }
+        .kpi-ring svg { width: 48px; height: 48px; transform: rotate(-90deg); }
+        .kpi-ring-bg { fill: none; stroke: #edf2f7; stroke-width: 4; }
+        .kpi-ring-fill { fill: none; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 0.8s ease; }
+        .kpi-ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.55rem; font-weight: 700; }
+
+        /* ENHANCED PAIN CARDS */
+        .pain-card-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+        .pain-severity-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; color: white; }
+        .pain-severity-icon.sev-high { background: var(--danger); }
+        .pain-severity-icon.sev-medium { background: var(--warning); }
+        .pain-severity-icon.sev-opportunity { background: var(--success); }
+        .pain-progress-bar { height: 6px; background: #edf2f7; border-radius: 3px; margin-top: 12px; overflow: hidden; }
+        .pain-progress-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+
+        /* HEATMAP TABLE CELLS */
+        td.heatmap-great { background: rgba(56,161,105,0.22); }
+        td.heatmap-good { background: rgba(56,161,105,0.12); }
+        td.heatmap-ok { background: rgba(214,158,46,0.12); }
+        td.heatmap-bad { background: rgba(229,62,62,0.12); }
+        td.heatmap-terrible { background: rgba(229,62,62,0.22); }
+
+        /* VISUAL SUMMARY / INFOGRAPHIC */
+        .visual-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 24px; }
+        .summary-card { background: var(--card); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); text-align: center; position: relative; overflow: hidden; }
+        .summary-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+        .summary-card.sc-danger::before { background: var(--danger); }
+        .summary-card.sc-success::before { background: var(--success); }
+        .summary-card.sc-accent::before { background: var(--accent); }
+        .summary-card.sc-primary::before { background: var(--primary); }
+        .summary-icon { font-size: 2rem; margin-bottom: 8px; }
+        .summary-value { font-size: 1.8rem; font-weight: 800; line-height: 1.2; }
+        .summary-label { font-size: 0.78rem; color: var(--text-light); margin-top: 4px; }
+        .summary-sub { font-size: 0.72rem; color: var(--text-light); margin-top: 6px; font-style: italic; }
+        .vs-arrow { display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: var(--text-light); padding: 10px 0; }
+
+        /* USER MANUAL */
+        .manual-section { background: var(--card); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 20px; }
+        .manual-section h3 { font-size: 1.05rem; color: var(--primary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+        .manual-step { display: flex; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .manual-step:last-child { border-bottom: none; }
+        .manual-step-num { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+        .manual-step-content { flex: 1; }
+        .manual-step-content strong { display: block; font-size: 0.9rem; margin-bottom: 4px; }
+        .manual-step-content p { font-size: 0.84rem; color: var(--text-light); line-height: 1.6; }
+        .manual-tip { background: #ebf4ff; border-left: 4px solid var(--primary-light); padding: 12px 16px; border-radius: 0 6px 6px 0; margin: 12px 0; font-size: 0.84rem; }
+
+        /* GLOSSARY */
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+        .glossary-item { background: var(--card); border-radius: var(--radius); padding: 16px 20px; box-shadow: var(--shadow); border-left: 4px solid var(--primary-light); }
+        .glossary-term { font-size: 0.95rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+        .glossary-def { font-size: 0.84rem; color: var(--text-light); line-height: 1.6; }
+
         /* PRINT */
         @media print {
             .header-controls, .tab-bar, .tlrw-progress, .btn-row, .upload-zone { display: none; }
@@ -265,6 +348,8 @@
         <button class="tab" onclick="switchTab('painpoints')">Pain Points</button>
         <button class="tab" onclick="switchTab('projections')">Projections</button>
         <button class="tab" onclick="switchTab('proposal')">Generate Proposal</button>
+        <button class="tab" onclick="switchTab('manual')">User Manual</button>
+        <button class="tab" onclick="switchTab('glossary')">Glossary</button>
     </div>
 
     <div class="alert alert-success" id="global-success" style="display:none;"></div>
@@ -375,6 +460,52 @@
                 <div class="kpi-label">Title 1 Allocation</div>
                 <div class="kpi-value" id="kpi-dist-budget">$28.5M</div>
                 <div class="kpi-change">Federal funding</div>
+            </div>
+        </div>
+
+        <!-- District Health Score Gauge -->
+        <div class="health-gauge-card" id="health-gauge-card">
+            <h3>Overall District Health Score</h3>
+            <div class="health-gauge-container">
+                <div class="health-gauge">
+                    <svg viewBox="0 0 180 180">
+                        <circle class="health-gauge-bg" cx="90" cy="90" r="78"></circle>
+                        <circle class="health-gauge-fill" id="health-gauge-circle" cx="90" cy="90" r="78"
+                            stroke-dasharray="490" stroke-dashoffset="490" stroke="var(--success)"></circle>
+                    </svg>
+                    <div class="health-gauge-text">
+                        <span class="score" id="health-score-val">--</span>
+                        <span class="score-label">out of 100</span>
+                        <span class="score-grade" id="health-score-grade">--</span>
+                    </div>
+                </div>
+                <div class="health-breakdown" id="health-breakdown">
+                    <div class="health-row">
+                        <div class="health-row-label">Title 1 Coverage</div>
+                        <div class="health-row-bar"><div class="health-row-fill" id="hb-title1" style="width:0%;background:var(--primary-light);"></div></div>
+                        <div class="health-row-val" id="hb-title1-val">--</div>
+                    </div>
+                    <div class="health-row">
+                        <div class="health-row-label">FRL Rate (inverted)</div>
+                        <div class="health-row-bar"><div class="health-row-fill" id="hb-frl" style="width:0%;background:var(--warning);"></div></div>
+                        <div class="health-row-val" id="hb-frl-val">--</div>
+                    </div>
+                    <div class="health-row">
+                        <div class="health-row-label">Budget Adequacy</div>
+                        <div class="health-row-bar"><div class="health-row-fill" id="hb-budget" style="width:0%;background:var(--success);"></div></div>
+                        <div class="health-row-val" id="hb-budget-val">--</div>
+                    </div>
+                    <div class="health-row">
+                        <div class="health-row-label">Data Completeness</div>
+                        <div class="health-row-bar"><div class="health-row-fill" id="hb-data" style="width:0%;background:var(--accent);"></div></div>
+                        <div class="health-row-val" id="hb-data-val">--</div>
+                    </div>
+                    <div class="health-row">
+                        <div class="health-row-label">Leadership Coverage</div>
+                        <div class="health-row-bar"><div class="health-row-fill" id="hb-leaders" style="width:0%;background:var(--write);"></div></div>
+                        <div class="health-row-val" id="hb-leaders-val">--</div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -573,6 +704,34 @@
             </div>
         </div>
 
+        <!-- Visual Summary Infographic -->
+        <div class="visual-summary" id="projection-visual-summary">
+            <div class="summary-card sc-danger">
+                <div class="summary-icon">&#9888;</div>
+                <div class="summary-value" id="vs-schools-at-risk">--</div>
+                <div class="summary-label">Schools At Risk</div>
+                <div class="summary-sub">Below 50% proficiency without intervention</div>
+            </div>
+            <div class="summary-card sc-success">
+                <div class="summary-icon">&#10003;</div>
+                <div class="summary-value" id="vs-students-impacted">--</div>
+                <div class="summary-label">Students Impacted</div>
+                <div class="summary-sub">Estimated with NUVABASE engagement</div>
+            </div>
+            <div class="summary-card sc-accent">
+                <div class="summary-icon">&#36;</div>
+                <div class="summary-value" id="vs-cost-per-student">--</div>
+                <div class="summary-label">Cost Per Student</div>
+                <div class="summary-sub">Total investment / students impacted</div>
+            </div>
+            <div class="summary-card sc-primary">
+                <div class="summary-icon">&#8593;</div>
+                <div class="summary-value" id="vs-pct-meeting-target">--</div>
+                <div class="summary-label">Schools Meeting Target</div>
+                <div class="summary-sub">Projected to reach 65%+ proficiency</div>
+            </div>
+        </div>
+
         <div class="chart-card" style="margin-bottom:24px;">
             <h3>School-by-School Projections</h3>
             <p style="font-size:0.8rem;color:var(--text-light);margin-bottom:16px;">
@@ -628,6 +787,128 @@
         </div>
     </div>
 
+    <!-- ============================================================ -->
+    <!-- TAB: USER MANUAL                                             -->
+    <!-- ============================================================ -->
+    <div id="tab-manual" class="tab-panel">
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>District Intelligence Dashboard &mdash; User Manual</h3>
+            <p style="color:var(--text-light);margin-bottom:16px;">Version 1.0 &bull; NUVABASE Professional Consulting &bull; Service to Service Group, Inc.</p>
+
+            <h4 style="margin-top:20px;margin-bottom:8px;color:var(--primary);">What This Tool Does</h4>
+            <p style="font-size:0.9rem;margin-bottom:16px;">This dashboard is your <strong>business development research tool</strong>. It helps you analyze any school district, identify their pain points, build projections, and generate a professional proposal &mdash; all guided by the TLRW (Think, Learn, Reflect, Write) methodology.</p>
+
+            <h4 style="margin-top:20px;margin-bottom:8px;color:var(--think);">Phase 1: THINK &mdash; District Profile Tab</h4>
+            <ul style="font-size:0.9rem;margin-left:20px;margin-bottom:16px;">
+                <li><strong>Fill in the district information</strong> &mdash; name, state, enrollment, Title 1 stats, budget numbers.</li>
+                <li><strong>Leadership Directory</strong> &mdash; Click "+ Add Person" to build a list of decision makers. Enter names, titles, and which ones are high-priority contacts.</li>
+                <li>Where to find this data: Google the district name + "school report card" or visit your state education department website.</li>
+                <li>When done, click <strong>"Phase 1 Complete"</strong> to light up the THINK box and move forward.</li>
+            </ul>
+
+            <h4 style="margin-top:20px;margin-bottom:8px;color:var(--learn);">Phase 2: LEARN &mdash; Upload Data Tab</h4>
+            <ul style="font-size:0.9rem;margin-left:20px;margin-bottom:16px;">
+                <li>Click <strong>"District School Data Template"</strong> to download a blank spreadsheet.</li>
+                <li>Open it in Excel or Google Sheets. Each row = one school in the district.</li>
+                <li>Fill in: school name, enrollment, reading %, math %, attendance %, FRL %, Title 1 (Y/N), grade.</li>
+                <li>Save as CSV, then <strong>drag it onto the upload area</strong> (or click to browse).</li>
+                <li>Upload <strong>two files</strong>: one for this year, one for last year. This enables year-over-year comparison.</li>
+                <li>When done, click <strong>"Phase 2 Complete"</strong> to light up the LEARN box.</li>
+            </ul>
+
+            <h4 style="margin-top:20px;margin-bottom:8px;color:var(--reflect);">Phase 3: REFLECT &mdash; Year-Over-Year + Pain Points Tabs</h4>
+            <ul style="font-size:0.9rem;margin-left:20px;margin-bottom:16px;">
+                <li><strong>Year-Over-Year tab:</strong> Automatically compares this year vs. last year. Shows which schools improved and which declined. Orange bars = current year, blue = prior year.</li>
+                <li><strong>Pain Points tab:</strong> The system auto-detects problems from the data (low reading, low math, chronic absenteeism, declining schools). Each pain point includes a suggested NUVABASE solution.</li>
+                <li>You can also <strong>add custom pain points</strong> that you've observed from meetings, conversations, or research.</li>
+                <li>Click <strong>"Reflect Complete"</strong> when you've reviewed the analysis.</li>
+            </ul>
+
+            <h4 style="margin-top:20px;margin-bottom:8px;color:var(--write);">Phase 4: WRITE &mdash; Projections + Generate Proposal Tabs</h4>
+            <ul style="font-size:0.9rem;margin-left:20px;margin-bottom:16px;">
+                <li><strong>Projections tab:</strong> Shows what happens WITHOUT intervention vs. WITH NUVABASE. Adjust the improvement rate, duration, contract value, and target schools to customize.</li>
+                <li><strong>Generate Proposal tab:</strong> Click <strong>"Generate Proposal Now"</strong> &mdash; the system builds a complete, formatted business proposal from everything you've entered.</li>
+                <li>Click <strong>"Print Proposal"</strong> to print or save as PDF (choose "Save as PDF" in the print dialog).</li>
+            </ul>
+
+            <h4 style="margin-top:20px;margin-bottom:8px;color:var(--primary);">The TLRW Progress Bar</h4>
+            <p style="font-size:0.9rem;margin-bottom:16px;">The four colored boxes at the top of the dashboard (THINK, LEARN, REFLECT, WRITE) track your progress. As you complete each phase, the box lights up with a glow effect and shows a checkmark. You can click any box to jump to that phase's tab.</p>
+
+            <h4 style="margin-top:20px;margin-bottom:8px;color:var(--primary);">Data Privacy &amp; Storage</h4>
+            <ul style="font-size:0.9rem;margin-left:20px;margin-bottom:16px;">
+                <li>All data stays on <strong>your computer</strong>. Nothing is sent to the internet.</li>
+                <li>Data is saved in your browser automatically. It'll be there when you reopen the file.</li>
+                <li>If you clear your browser data or switch browsers, you'll need to re-upload.</li>
+            </ul>
+
+            <h4 style="margin-top:20px;margin-bottom:8px;color:var(--primary);">Using This for Any District</h4>
+            <p style="font-size:0.9rem;margin-bottom:16px;">This tool is <strong>agnostic</strong> &mdash; it works for any school district, anywhere. To switch districts: change the District Name and info in the Profile tab, upload that district's data, and the entire dashboard recalculates. You can use the dropdown in the header to switch between saved districts.</p>
+
+            <h4 style="margin-top:20px;margin-bottom:8px;color:var(--primary);">Troubleshooting</h4>
+            <ul style="font-size:0.9rem;margin-left:20px;margin-bottom:16px;">
+                <li><strong>TLRW boxes not lighting up:</strong> Make sure you click the "Phase Complete" button at the bottom of each tab.</li>
+                <li><strong>Year-Over-Year shows no data:</strong> Upload BOTH current year and prior year CSV files. School names must match exactly between the two files.</li>
+                <li><strong>Proposal looks incomplete:</strong> Fill in all four phases first. The proposal pulls from District Profile, uploaded data, pain points, and projections.</li>
+                <li><strong>File opens as code:</strong> Right-click &rarr; Open With &rarr; Chrome (or your browser).</li>
+            </ul>
+            <div style="background:rgba(66,153,225,0.08);padding:12px 20px;border-radius:var(--radius);border-left:4px solid var(--think);font-size:0.85rem;">
+                <strong>Need Help?</strong> Contact NUVABASE Professional Consulting for support, training, and custom dashboard development.
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: GLOSSARY                                                -->
+    <!-- ============================================================ -->
+    <div id="tab-glossary" class="tab-panel">
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>Glossary of Terms</h3>
+            <p style="color:var(--text-light);margin-bottom:20px;">Definitions of all terms used in this dashboard.</p>
+
+            <h4 style="margin:20px 0 12px;padding:8px 12px;background:rgba(66,153,225,0.1);border-radius:4px;color:var(--think);">TLRW Framework</h4>
+            <table style="width:100%;margin-bottom:20px;">
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);width:200px;font-weight:700;">TLRW</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Think, Learn, Reflect, Write &mdash; NUVABASE's proprietary four-phase decision and execution methodology with 12 quality gates.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">THINK (Phase 1)</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Define the problem. Gather context. Identify who and what you're dealing with.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">LEARN (Phase 2)</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Collect data. Upload information. Study the numbers and patterns.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">REFLECT (Phase 3)</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Analyze what the data tells you. Compare year over year. Identify pain points and opportunities.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">WRITE (Phase 4)</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Produce the deliverable. Generate projections and a formal proposal.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">Quality Gate</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">A checkpoint within each TLRW phase. 3 gates per phase, 12 total. Must pass before advancing.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">Triple Redundancy</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Three independent validation layers (surface, structural, systemic) applied at every gate.</td></tr>
+            </table>
+
+            <h4 style="margin:20px 0 12px;padding:8px 12px;background:rgba(72,187,120,0.1);border-radius:4px;color:var(--learn);">Title 1 &amp; Federal Education</h4>
+            <table style="width:100%;margin-bottom:20px;">
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);width:200px;font-weight:700;">Title 1</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Federal program providing funds to schools with high percentages of low-income students.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">ESSA</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Every Student Succeeds Act (2015) &mdash; federal law governing K-12 education accountability and funding.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">FRL</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Free/Reduced Lunch &mdash; percentage of students qualifying for meal assistance. Key poverty indicator.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">Title 1 Allocation</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">The specific dollar amount of federal Title 1 funding a district or school receives.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">Cognia</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">A global accreditation organization for schools. Provides quality standards and continuous improvement frameworks.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">Supplement Not Supplant</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Federal rule: Title 1 funds must ADD to existing funding, not replace it.</td></tr>
+            </table>
+
+            <h4 style="margin:20px 0 12px;padding:8px 12px;background:rgba(237,137,54,0.1);border-radius:4px;color:var(--reflect);">Academic &amp; Performance Terms</h4>
+            <table style="width:100%;margin-bottom:20px;">
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);width:200px;font-weight:700;">Proficiency</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Percentage of students meeting or exceeding grade-level standards on state assessments.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">Chronic Absenteeism</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Missing 10%+ of school days. A key ESSA accountability indicator.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">Year-Over-Year (YoY)</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Comparing this year's performance against last year's to measure progress or decline.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">Growth</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">How much students improved over time, measured in grade levels gained.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">Intervention</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">A targeted program to address specific academic or behavioral gaps in struggling students.</td></tr>
+            </table>
+
+            <h4 style="margin:20px 0 12px;padding:8px 12px;background:rgba(159,122,234,0.1);border-radius:4px;color:var(--write);">Business &amp; Dashboard Terms</h4>
+            <table style="width:100%;margin-bottom:20px;">
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);width:200px;font-weight:700;">KPI</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Key Performance Indicator &mdash; a measurable value showing effectiveness.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">Pain Point</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">A specific problem or challenge the district is facing. Each pain point is a potential line item in your proposal.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">Projection</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">A data-based forecast of future performance, with and without NUVABASE intervention.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">ROI</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Return on Investment &mdash; estimated value gained divided by contract cost. A 4.2x ROI means $4.20 returned per $1 spent.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">CSV</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Comma-Separated Values &mdash; a spreadsheet file format. Created from Excel via File &rarr; Save As &rarr; CSV.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">Agnostic</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Works with any district, any school system, any state. Not locked to one vendor or platform.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">Mass Customization</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">NUVABASE's core philosophy: one engine, unlimited customized deployments per client.</td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);font-weight:700;">NUVABASE</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">NUVABASE Professional Consulting, a division of Service to Service Group, Inc. Specializing in data analytics, continuous improvement, and TLRW-guided consulting.</td></tr>
+            </table>
+        </div>
+    </div>
+
 </div>
 
 <!-- ================================================================ -->
@@ -652,7 +933,7 @@ function switchTab(tabName) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.getElementById('tab-' + tabName).classList.add('active');
     const tabs = document.querySelectorAll('.tab');
-    const map = { profile: 0, data: 1, compare: 2, painpoints: 3, projections: 4, proposal: 5 };
+    const map = { profile: 0, data: 1, compare: 2, painpoints: 3, projections: 4, proposal: 5, manual: 6, glossary: 7 };
     if (map[tabName] !== undefined && tabs[map[tabName]]) tabs[map[tabName]].classList.add('active');
 }
 
