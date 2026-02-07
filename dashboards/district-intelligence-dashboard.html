@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>District Intelligence Dashboard &mdash; NUVABASE</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #1a365d;
+            --primary-light: #2b6cb0;
+            --accent: #ed8936;
+            --success: #38a169;
+            --warning: #d69e2e;
+            --danger: #e53e3e;
+            --bg: #f7fafc;
+            --card: #ffffff;
+            --text: #2d3748;
+            --text-light: #718096;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+            --shadow-lg: 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+            --radius: 8px;
+            --think: #4299e1;
+            --learn: #48bb78;
+            --reflect: #ed8936;
+            --write: #9f7aea;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, #2c5282 50%, var(--primary-light) 100%);
+            color: white; padding: 20px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+        }
+        .header h1 { font-size: 1.4rem; font-weight: 700; }
+        .header .subtitle { font-size: 0.8rem; opacity: 0.85; }
+        .header-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .header-controls select, .header-controls button {
+            padding: 8px 16px; border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.15); color: white; font-size: 0.85rem; cursor: pointer;
+        }
+        .header-controls select option { color: var(--text); background: white; }
+        .btn-export { background: var(--accent) !important; border-color: var(--accent) !important; font-weight: 600; }
+
+        /* LAYOUT */
+        .container { max-width: 1440px; margin: 0 auto; padding: 24px; }
+
+        /* TLRW PROGRESS BAR */
+        .tlrw-progress { display: flex; gap: 4px; margin-bottom: 24px; background: var(--card); padding: 8px; border-radius: var(--radius); box-shadow: var(--shadow); }
+        .tlrw-phase {
+            flex: 1; padding: 12px 16px; border-radius: 6px; cursor: pointer; text-align: center;
+            font-size: 0.85rem; font-weight: 600; transition: all 0.3s; position: relative; opacity: 0.5;
+        }
+        .tlrw-phase.active { opacity: 1; transform: scale(1.02); box-shadow: var(--shadow-lg); }
+        .tlrw-phase.completed { opacity: 0.8; }
+        .tlrw-phase.completed::after { content: ' \2713'; font-weight: 700; }
+        .phase-think { background: rgba(66,153,225,0.15); color: var(--think); border: 2px solid transparent; }
+        .phase-think.active { border-color: var(--think); background: rgba(66,153,225,0.25); }
+        .phase-learn { background: rgba(72,187,120,0.15); color: var(--learn); border: 2px solid transparent; }
+        .phase-learn.active { border-color: var(--learn); background: rgba(72,187,120,0.25); }
+        .phase-reflect { background: rgba(237,137,54,0.15); color: var(--reflect); border: 2px solid transparent; }
+        .phase-reflect.active { border-color: var(--reflect); background: rgba(237,137,54,0.25); }
+        .phase-write { background: rgba(159,122,234,0.15); color: var(--write); border: 2px solid transparent; }
+        .phase-write.active { border-color: var(--write); background: rgba(159,122,234,0.25); }
+        .phase-num { font-size: 0.7rem; display: block; opacity: 0.7; }
+
+        /* TABS */
+        .tab-bar { display: flex; gap: 4px; background: var(--card); padding: 4px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 24px; overflow-x: auto; }
+        .tab { padding: 10px 18px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-light); white-space: nowrap; transition: all 0.2s; border: none; background: none; }
+        .tab:hover { color: var(--text); background: var(--bg); }
+        .tab.active { background: var(--primary); color: white; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* KPI CARDS */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi-card { background: var(--card); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border-left: 4px solid var(--primary); }
+        .kpi-card.success { border-left-color: var(--success); }
+        .kpi-card.warning { border-left-color: var(--warning); }
+        .kpi-card.danger { border-left-color: var(--danger); }
+        .kpi-card.accent { border-left-color: var(--accent); }
+        .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-light); margin-bottom: 4px; }
+        .kpi-value { font-size: 1.8rem; font-weight: 700; line-height: 1.2; }
+        .kpi-change { font-size: 0.8rem; margin-top: 4px; }
+        .kpi-change.up { color: var(--success); }
+        .kpi-change.down { color: var(--danger); }
+
+        /* CHART CARDS */
+        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-bottom: 24px; }
+        .chart-card { background: var(--card); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+        .chart-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; }
+
+        /* BAR CHART */
+        .bar-chart { display: flex; flex-direction: column; gap: 10px; }
+        .bar-row { display: flex; align-items: center; gap: 12px; }
+        .bar-label { width: 140px; font-size: 0.8rem; text-align: right; flex-shrink: 0; }
+        .bar-track { flex: 1; height: 28px; background: #edf2f7; border-radius: 4px; overflow: hidden; position: relative; }
+        .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 0.75rem; font-weight: 600; color: white; transition: width 0.8s ease; }
+        .bar-target { position: absolute; top: 0; height: 100%; width: 2px; background: var(--text); opacity: 0.4; }
+
+        /* COMPARISON BAR (year-over-year) */
+        .compare-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .compare-label { width: 140px; font-size: 0.8rem; text-align: right; flex-shrink: 0; }
+        .compare-bars { flex: 1; }
+        .compare-bar-track { height: 16px; background: #edf2f7; border-radius: 3px; overflow: hidden; margin-bottom: 2px; position: relative; }
+        .compare-bar-fill { height: 100%; border-radius: 3px; display: flex; align-items: center; padding-left: 6px; font-size: 0.65rem; font-weight: 600; color: white; }
+        .compare-delta { width: 80px; font-size: 0.8rem; font-weight: 600; text-align: center; flex-shrink: 0; }
+        .delta-up { color: var(--success); }
+        .delta-down { color: var(--danger); }
+        .delta-flat { color: var(--text-light); }
+        .year-legend { display: flex; gap: 16px; margin-bottom: 12px; font-size: 0.8rem; }
+        .year-legend span { display: flex; align-items: center; gap: 6px; }
+        .legend-bar { width: 24px; height: 10px; border-radius: 2px; }
+
+        /* DONUT */
+        .donut-container { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+        .donut { width: 160px; height: 160px; border-radius: 50%; position: relative; flex-shrink: 0; }
+        .donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: var(--card); width: 100px; height: 100px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .donut-center .big { font-size: 1.5rem; font-weight: 700; }
+        .donut-center .small { font-size: 0.7rem; color: var(--text-light); }
+        .donut-legend { display: flex; flex-direction: column; gap: 8px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+        /* TABLE */
+        .table-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 24px; }
+        .table-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .table-header h3 { font-size: 1rem; font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: #f7fafc; }
+        th { padding: 10px 14px; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-light); font-weight: 600; }
+        td { padding: 10px 14px; border-top: 1px solid var(--border); font-size: 0.85rem; }
+        tr:hover { background: #f7fafc; }
+
+        /* BADGES */
+        .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .badge-green { background: #c6f6d5; color: #22543d; }
+        .badge-yellow { background: #fefcbf; color: #744210; }
+        .badge-red { background: #fed7d7; color: #822727; }
+        .badge-blue { background: #bee3f8; color: #2a4365; }
+        .badge-purple { background: #e9d8fd; color: #44337a; }
+
+        /* FORMS */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-light); }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.875rem; font-family: inherit;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(43,108,176,0.15);
+        }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text); }
+        .btn-outline:hover { background: var(--bg); }
+        .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+
+        /* UPLOAD */
+        .upload-zone {
+            border: 3px dashed var(--border); border-radius: var(--radius); padding: 32px 20px;
+            text-align: center; background: #f7fafc; cursor: pointer; transition: all 0.3s; margin-bottom: 16px;
+        }
+        .upload-zone:hover, .upload-zone.dragover { border-color: var(--primary-light); background: #ebf4ff; }
+        .upload-zone .upload-icon { font-size: 2.5rem; margin-bottom: 4px; }
+        .upload-zone .upload-text { font-size: 0.95rem; color: var(--text); font-weight: 600; }
+        .upload-zone .upload-hint { font-size: 0.8rem; color: var(--text-light); margin-top: 4px; }
+
+        /* PROPOSAL OUTPUT */
+        .proposal-output {
+            background: white; border: 2px solid var(--primary); border-radius: var(--radius);
+            padding: 32px; margin-bottom: 24px; font-size: 0.9rem; line-height: 1.8;
+        }
+        .proposal-output h2 { color: var(--primary); font-size: 1.3rem; margin-bottom: 8px; border-bottom: 2px solid var(--primary); padding-bottom: 8px; }
+        .proposal-output h3 { color: var(--primary-light); font-size: 1.05rem; margin: 16px 0 8px 0; }
+        .proposal-output ul { margin-left: 20px; margin-bottom: 12px; }
+        .proposal-output li { margin-bottom: 4px; }
+        .proposal-output .highlight { background: #ebf4ff; padding: 12px 16px; border-radius: 6px; margin: 12px 0; border-left: 4px solid var(--primary); }
+
+        /* PAIN POINT CARDS */
+        .pain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .pain-card { background: var(--card); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border-top: 4px solid var(--danger); }
+        .pain-card.medium { border-top-color: var(--warning); }
+        .pain-card.opportunity { border-top-color: var(--success); }
+        .pain-card h4 { font-size: 0.95rem; margin-bottom: 6px; }
+        .pain-card p { font-size: 0.85rem; color: var(--text-light); }
+        .pain-severity { font-size: 0.75rem; font-weight: 700; margin-top: 8px; }
+
+        /* PROJECTION TABLE */
+        .projection-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+        .projection-label { width: 180px; font-size: 0.85rem; font-weight: 600; flex-shrink: 0; }
+        .projection-actual { width: 80px; text-align: center; font-size: 0.85rem; }
+        .projection-arrow { width: 30px; text-align: center; font-size: 1.1rem; }
+        .projection-projected { width: 80px; text-align: center; font-size: 0.85rem; font-weight: 700; }
+        .projection-bar { flex: 1; height: 8px; background: #edf2f7; border-radius: 4px; overflow: hidden; }
+        .projection-fill { height: 100%; border-radius: 4px; }
+
+        /* ALERT */
+        .alert { padding: 12px 20px; border-radius: var(--radius); margin-bottom: 16px; font-size: 0.875rem; display: none; }
+        .alert-success { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
+        .alert-info { background: #bee3f8; color: #2a4365; border: 1px solid #90cdf4; }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header { padding: 16px; }
+            .container { padding: 16px; }
+            .chart-grid { grid-template-columns: 1fr; }
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .tlrw-progress { flex-direction: column; }
+            .bar-label, .compare-label { width: 100px; font-size: 0.7rem; }
+        }
+
+        /* PRINT */
+        @media print {
+            .header-controls, .tab-bar, .tlrw-progress, .btn-row, .upload-zone { display: none; }
+            .tab-panel { display: block !important; page-break-inside: avoid; margin-bottom: 32px; }
+            .header { background: var(--primary) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .proposal-output { border: 1px solid #ccc; page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div>
+        <h1>District Intelligence Dashboard</h1>
+        <div class="subtitle">TLRW-Powered Research &amp; Business Development &mdash; NUVABASE Professional Consulting</div>
+    </div>
+    <div class="header-controls">
+        <select id="districtSelect" onchange="switchDistrict()">
+            <option value="mps">Montgomery Public Schools (MPS)</option>
+            <option value="custom">Custom District...</option>
+        </select>
+        <button class="btn-export" onclick="window.print()">Print / Export</button>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- TLRW PROGRESS BAR -->
+    <div class="tlrw-progress">
+        <div class="tlrw-phase phase-think active" id="tlrw-think" onclick="goToPhase('think')">
+            <span class="phase-num">Phase 1</span> THINK
+        </div>
+        <div class="tlrw-phase phase-learn" id="tlrw-learn" onclick="goToPhase('learn')">
+            <span class="phase-num">Phase 2</span> LEARN
+        </div>
+        <div class="tlrw-phase phase-reflect" id="tlrw-reflect" onclick="goToPhase('reflect')">
+            <span class="phase-num">Phase 3</span> REFLECT
+        </div>
+        <div class="tlrw-phase phase-write" id="tlrw-write" onclick="goToPhase('write')">
+            <span class="phase-num">Phase 4</span> WRITE
+        </div>
+    </div>
+
+    <!-- TAB BAR -->
+    <div class="tab-bar">
+        <button class="tab active" onclick="switchTab('profile')">District Profile</button>
+        <button class="tab" onclick="switchTab('data')">Upload Data</button>
+        <button class="tab" onclick="switchTab('compare')">Year-Over-Year</button>
+        <button class="tab" onclick="switchTab('painpoints')">Pain Points</button>
+        <button class="tab" onclick="switchTab('projections')">Projections</button>
+        <button class="tab" onclick="switchTab('proposal')">Generate Proposal</button>
+    </div>
+
+    <div class="alert alert-success" id="global-success" style="display:none;"></div>
+    <div class="alert alert-info" id="global-info" style="display:none;"></div>
+
+    <!-- ============================================================ -->
+    <!-- PHASE 1: THINK — District Profile                           -->
+    <!-- ============================================================ -->
+    <div id="tab-profile" class="tab-panel active">
+
+        <div style="background:rgba(66,153,225,0.08);border-left:4px solid var(--think);padding:12px 20px;border-radius:var(--radius);margin-bottom:20px;font-size:0.85rem;">
+            <strong>TLRW Phase 1 — THINK:</strong> Define the target district. Who are they? What do they look like? Enter or upload district profile information.
+        </div>
+
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>District Information</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>District Name</label>
+                    <input type="text" id="dist-name" value="Montgomery Public Schools" onchange="saveDistrictProfile()">
+                </div>
+                <div class="form-group">
+                    <label>State</label>
+                    <input type="text" id="dist-state" value="Alabama" onchange="saveDistrictProfile()">
+                </div>
+                <div class="form-group">
+                    <label>Superintendent</label>
+                    <input type="text" id="dist-super" value="" placeholder="Enter superintendent name" onchange="saveDistrictProfile()">
+                </div>
+                <div class="form-group">
+                    <label>Total Enrollment</label>
+                    <input type="number" id="dist-enrollment" value="28000" onchange="saveDistrictProfile()">
+                </div>
+                <div class="form-group">
+                    <label>Number of Schools</label>
+                    <input type="number" id="dist-schools" value="54" onchange="saveDistrictProfile()">
+                </div>
+                <div class="form-group">
+                    <label>Title 1 Schools</label>
+                    <input type="number" id="dist-title1" value="42" onchange="saveDistrictProfile()">
+                </div>
+                <div class="form-group">
+                    <label>Annual Budget</label>
+                    <input type="text" id="dist-budget" value="$320M" onchange="saveDistrictProfile()">
+                </div>
+                <div class="form-group">
+                    <label>Title 1 Allocation</label>
+                    <input type="text" id="dist-title1budget" value="$28.5M" onchange="saveDistrictProfile()">
+                </div>
+                <div class="form-group">
+                    <label>Free/Reduced Lunch %</label>
+                    <input type="number" id="dist-frl" value="78" onchange="saveDistrictProfile()">
+                </div>
+                <div class="form-group">
+                    <label>District Grade/Rating</label>
+                    <input type="text" id="dist-grade" value="" placeholder="e.g. C, Needs Improvement" onchange="saveDistrictProfile()">
+                </div>
+                <div class="form-group">
+                    <label>Website URL</label>
+                    <input type="text" id="dist-url" value="" placeholder="https://..." onchange="saveDistrictProfile()">
+                </div>
+                <div class="form-group">
+                    <label>Your Contact / Relationship</label>
+                    <input type="text" id="dist-contact" value="PD Vendor" onchange="saveDistrictProfile()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Leadership Directory -->
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>Key Leadership &amp; Decision Makers</h3>
+            <div style="overflow-x:auto;">
+                <table id="leadership-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Title / Role</th>
+                            <th>Department</th>
+                            <th>Priority</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leadership-body"></tbody>
+                </table>
+            </div>
+            <div class="btn-row" style="padding:12px 0;">
+                <button class="btn btn-outline" onclick="addLeaderRow()">+ Add Person</button>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Schools</div>
+                <div class="kpi-value" id="kpi-dist-schools">54</div>
+                <div class="kpi-change">In district</div>
+            </div>
+            <div class="kpi-card accent">
+                <div class="kpi-label">Title 1 Schools</div>
+                <div class="kpi-value" id="kpi-dist-t1">42</div>
+                <div class="kpi-change" id="kpi-dist-t1-pct">78% of district</div>
+            </div>
+            <div class="kpi-card warning">
+                <div class="kpi-label">Free/Reduced Lunch</div>
+                <div class="kpi-value" id="kpi-dist-frl">78%</div>
+                <div class="kpi-change">District average</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Title 1 Allocation</div>
+                <div class="kpi-value" id="kpi-dist-budget">$28.5M</div>
+                <div class="kpi-change">Federal funding</div>
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-primary" onclick="completePhase('think'); switchTab('data');">Phase 1 Complete &rarr; Move to LEARN</button>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PHASE 2: LEARN — Upload & Compare Data                      -->
+    <!-- ============================================================ -->
+    <div id="tab-data" class="tab-panel">
+
+        <div style="background:rgba(72,187,120,0.08);border-left:4px solid var(--learn);padding:12px 20px;border-radius:var(--radius);margin-bottom:20px;font-size:0.85rem;">
+            <strong>TLRW Phase 2 — LEARN:</strong> Gather the data. Upload school performance data for this year and last year. The system will calculate year-over-year changes automatically.
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Upload This Year's Data (Current Year)</h3>
+                <div class="upload-zone" onclick="document.getElementById('current-file').click()"
+                     ondragover="event.preventDefault();this.classList.add('dragover')"
+                     ondragleave="this.classList.remove('dragover')"
+                     ondrop="event.preventDefault();this.classList.remove('dragover');handleDrop(event,'current')">
+                    <div class="upload-icon">&#128200;</div>
+                    <div class="upload-text">Drop Current Year CSV or Click to Browse</div>
+                    <div class="upload-hint">School performance data for this year</div>
+                </div>
+                <input type="file" id="current-file" accept=".csv" style="display:none" onchange="handleFile(this,'current')">
+                <div id="current-status" style="font-size:0.85rem;color:var(--success);"></div>
+            </div>
+
+            <div class="chart-card">
+                <h3>Upload Last Year's Data (Prior Year)</h3>
+                <div class="upload-zone" onclick="document.getElementById('prior-file').click()"
+                     ondragover="event.preventDefault();this.classList.add('dragover')"
+                     ondragleave="this.classList.remove('dragover')"
+                     ondrop="event.preventDefault();this.classList.remove('dragover');handleDrop(event,'prior')">
+                    <div class="upload-icon">&#128202;</div>
+                    <div class="upload-text">Drop Prior Year CSV or Click to Browse</div>
+                    <div class="upload-hint">Same format, prior year data for comparison</div>
+                </div>
+                <input type="file" id="prior-file" accept=".csv" style="display:none" onchange="handleFile(this,'prior')">
+                <div id="prior-status" style="font-size:0.85rem;color:var(--success);"></div>
+            </div>
+        </div>
+
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>Download Template</h3>
+            <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:12px;">
+                Use this template for both current and prior year uploads. Each row = one school in the district.
+            </p>
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="downloadDistrictTemplate()">&#8681; District School Data Template</button>
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-primary" onclick="completePhase('learn'); switchTab('compare');">Phase 2 Complete &rarr; Move to REFLECT</button>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- Year-Over-Year Comparison                                    -->
+    <!-- ============================================================ -->
+    <div id="tab-compare" class="tab-panel">
+
+        <div style="background:rgba(237,137,54,0.08);border-left:4px solid var(--reflect);padding:12px 20px;border-radius:var(--radius);margin-bottom:20px;font-size:0.85rem;">
+            <strong>TLRW Phase 3 — REFLECT:</strong> Analyze the changes. Where did the district improve? Where did they decline? What patterns emerge? These are your selling points.
+        </div>
+
+        <div class="kpi-grid" id="compare-kpis"></div>
+
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>Year-Over-Year: School Performance Comparison</h3>
+            <div class="year-legend">
+                <span><div class="legend-bar" style="background:var(--primary-light);"></div> Prior Year</span>
+                <span><div class="legend-bar" style="background:var(--accent);"></div> Current Year</span>
+            </div>
+            <div id="compare-bars"></div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Biggest Improvements</h3>
+                <div id="improvements-list"></div>
+            </div>
+            <div class="chart-card">
+                <h3>Biggest Declines</h3>
+                <div id="declines-list"></div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">
+                <h3>All Schools Comparison</h3>
+            </div>
+            <div style="overflow-x:auto;">
+                <table id="compare-table">
+                    <thead>
+                        <tr>
+                            <th>School Name</th>
+                            <th>Prior Reading %</th>
+                            <th>Current Reading %</th>
+                            <th>Change</th>
+                            <th>Prior Math %</th>
+                            <th>Current Math %</th>
+                            <th>Change</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody id="compare-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-primary" onclick="completePhase('reflect'); switchTab('painpoints');">Reflect Complete &rarr; Identify Pain Points</button>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- Pain Points                                                  -->
+    <!-- ============================================================ -->
+    <div id="tab-painpoints" class="tab-panel">
+
+        <div style="background:rgba(237,137,54,0.08);border-left:4px solid var(--reflect);padding:12px 20px;border-radius:var(--radius);margin-bottom:20px;font-size:0.85rem;">
+            <strong>TLRW Phase 3 — REFLECT (continued):</strong> Identify district pain points. These are the problems NUVABASE solves. Each pain point = a line item in your proposal.
+        </div>
+
+        <div class="pain-grid" id="auto-pain-points"></div>
+
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>Add Custom Pain Point</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Pain Point Title</label>
+                    <input type="text" id="pain-title" placeholder="e.g. Teacher Retention Crisis">
+                </div>
+                <div class="form-group">
+                    <label>Severity</label>
+                    <select id="pain-severity">
+                        <option value="high">High - Urgent</option>
+                        <option value="medium">Medium - Important</option>
+                        <option value="opportunity">Opportunity - Growth Area</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="pain-desc" placeholder="Brief description of the problem">
+                </div>
+                <div class="form-group">
+                    <label>NUVABASE Solution</label>
+                    <input type="text" id="pain-solution" placeholder="How you solve this">
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="addCustomPainPoint()">Add Pain Point</button>
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-primary" onclick="completePhase('reflect'); switchTab('projections');">Pain Points Complete &rarr; Build Projections</button>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- Projections                                                  -->
+    <!-- ============================================================ -->
+    <div id="tab-projections" class="tab-panel">
+
+        <div style="background:rgba(159,122,234,0.08);border-left:4px solid var(--write);padding:12px 20px;border-radius:var(--radius);margin-bottom:20px;font-size:0.85rem;">
+            <strong>TLRW Phase 4 — WRITE:</strong> Project next year's outcomes. Based on current trends, what happens if the district does nothing? What happens with NUVABASE intervention?
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card danger">
+                <div class="kpi-label">Projected WITHOUT Intervention</div>
+                <div class="kpi-value" id="proj-without">-2.3%</div>
+                <div class="kpi-change down">Continued decline</div>
+            </div>
+            <div class="kpi-card success">
+                <div class="kpi-label">Projected WITH NUVABASE</div>
+                <div class="kpi-value" id="proj-with">+8.5%</div>
+                <div class="kpi-change up">Based on intervention models</div>
+            </div>
+            <div class="kpi-card accent">
+                <div class="kpi-label">Net Impact</div>
+                <div class="kpi-value" id="proj-impact">+10.8%</div>
+                <div class="kpi-change">Difference NUVABASE makes</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">ROI Estimate</div>
+                <div class="kpi-value" id="proj-roi">4.2x</div>
+                <div class="kpi-change">Per dollar invested</div>
+            </div>
+        </div>
+
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>School-by-School Projections</h3>
+            <p style="font-size:0.8rem;color:var(--text-light);margin-bottom:16px;">
+                Based on current trajectory (no intervention) vs. projected with NUVABASE consulting engagement.
+            </p>
+            <div id="projection-rows"></div>
+        </div>
+
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>Projection Parameters</h3>
+            <p style="font-size:0.8rem;color:var(--text-light);margin-bottom:12px;">Adjust these to customize your projections for the proposal.</p>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Avg. Improvement Rate with NUVABASE (%)</label>
+                    <input type="number" id="param-improvement" value="8.5" step="0.5" onchange="recalcProjections()">
+                </div>
+                <div class="form-group">
+                    <label>Engagement Duration (months)</label>
+                    <input type="number" id="param-duration" value="12" onchange="recalcProjections()">
+                </div>
+                <div class="form-group">
+                    <label>Proposed Contract Value ($)</label>
+                    <input type="number" id="param-contract" value="150000" onchange="recalcProjections()">
+                </div>
+                <div class="form-group">
+                    <label>Target Schools (of district)</label>
+                    <input type="number" id="param-target-schools" value="10" onchange="recalcProjections()">
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-primary" onclick="completePhase('write'); switchTab('proposal');">Projections Complete &rarr; Generate Proposal</button>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PHASE 4: WRITE — Generate Proposal                          -->
+    <!-- ============================================================ -->
+    <div id="tab-proposal" class="tab-panel">
+
+        <div style="background:rgba(159,122,234,0.08);border-left:4px solid var(--write);padding:12px 20px;border-radius:var(--radius);margin-bottom:20px;font-size:0.85rem;">
+            <strong>TLRW Phase 4 — WRITE:</strong> Generate your business proposal. All data from Phases 1-3 flows into this document. Print it, save it, present it.
+        </div>
+
+        <div class="btn-row" style="margin-bottom:20px;">
+            <button class="btn btn-success" onclick="generateProposal()" style="font-size:1rem;padding:14px 28px;">Generate Proposal Now</button>
+            <button class="btn btn-outline" onclick="window.print()">Print Proposal</button>
+        </div>
+
+        <div class="proposal-output" id="proposal-output">
+            <p style="color:var(--text-light);text-align:center;padding:40px 0;">Click "Generate Proposal Now" to build your proposal from the data you've entered.</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================================================================ -->
+<!-- JAVASCRIPT ENGINE                                                -->
+<!-- ================================================================ -->
+<script>
+// ===========================================================
+// STATE
+// ===========================================================
+let districtProfile = {};
+let leadershipData = [];
+let currentYearData = [];
+let priorYearData = [];
+let customPainPoints = [];
+let tlrwPhases = { think: false, learn: false, reflect: false, write: false };
+
+// ===========================================================
+// TAB SWITCHING
+// ===========================================================
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + tabName).classList.add('active');
+    const tabs = document.querySelectorAll('.tab');
+    const map = { profile: 0, data: 1, compare: 2, painpoints: 3, projections: 4, proposal: 5 };
+    if (map[tabName] !== undefined && tabs[map[tabName]]) tabs[map[tabName]].classList.add('active');
+}
+
+// ===========================================================
+// TLRW PHASE MANAGEMENT
+// ===========================================================
+function goToPhase(phase) {
+    const map = { think: 'profile', learn: 'data', reflect: 'compare', write: 'proposal' };
+    switchTab(map[phase]);
+}
+
+function completePhase(phase) {
+    tlrwPhases[phase] = true;
+    const el = document.getElementById('tlrw-' + phase);
+    el.classList.add('completed');
+    el.classList.remove('active');
+    // Activate next phase
+    const order = ['think', 'learn', 'reflect', 'write'];
+    const idx = order.indexOf(phase);
+    if (idx < order.length - 1) {
+        document.getElementById('tlrw-' + order[idx + 1]).classList.add('active');
+    }
+    saveAllState();
+}
+
+// ===========================================================
+// CSV PARSER
+// ===========================================================
+function parseCSV(text) {
+    const lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
+    if (lines.length < 2) return { headers: [], rows: [] };
+    const headers = parseCSVLine(lines[0]);
+    const rows = [];
+    for (let i = 1; i < lines.length; i++) {
+        const vals = parseCSVLine(lines[i]);
+        if (vals.length > 0 && vals.some(v => v.trim() !== '')) rows.push(vals);
+    }
+    return { headers, rows };
+}
+
+function parseCSVLine(line) {
+    const result = []; let current = ''; let inQ = false;
+    for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (inQ) {
+            if (c === '"' && line[i+1] === '"') { current += '"'; i++; }
+            else if (c === '"') inQ = false;
+            else current += c;
+        } else {
+            if (c === '"') inQ = true;
+            else if (c === ',') { result.push(current.trim()); current = ''; }
+            else current += c;
+        }
+    }
+    result.push(current.trim());
+    return result;
+}
+
+// ===========================================================
+// FILE UPLOAD HANDLERS
+// ===========================================================
+function handleDrop(event, type) {
+    const file = event.dataTransfer.files[0];
+    if (file) processDistrictFile(file, type);
+}
+function handleFile(input, type) {
+    const file = input.files[0];
+    if (file) processDistrictFile(file, type);
+    input.value = '';
+}
+
+function processDistrictFile(file, type) {
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+        showAlert('Please use a .csv file.');
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const parsed = parseCSV(e.target.result);
+        if (parsed.rows.length === 0) { showAlert('File appears empty.'); return; }
+
+        // Map rows: School Name, Enrollment, Reading %, Math %, Attendance %, FRL %, Title 1 (Y/N), Grade/Rating
+        const schools = parsed.rows.map(r => ({
+            name: r[0] || '',
+            enrollment: parseInt(r[1]) || 0,
+            reading: parseFloat(r[2]) || 0,
+            math: parseFloat(r[3]) || 0,
+            attendance: parseFloat(r[4]) || 0,
+            frl: parseFloat(r[5]) || 0,
+            title1: (r[6] || 'Y').toUpperCase().startsWith('Y'),
+            grade: r[7] || ''
+        }));
+
+        if (type === 'current') {
+            currentYearData = schools;
+            document.getElementById('current-status').textContent = `\u2713 ${schools.length} schools loaded for current year`;
+        } else {
+            priorYearData = schools;
+            document.getElementById('prior-status').textContent = `\u2713 ${schools.length} schools loaded for prior year`;
+        }
+
+        if (currentYearData.length > 0 && priorYearData.length > 0) {
+            buildComparison();
+            buildPainPoints();
+            recalcProjections();
+        } else if (currentYearData.length > 0) {
+            buildPainPoints();
+            recalcProjections();
+        }
+        saveAllState();
+    };
+    reader.readAsText(file);
+}
+
+// ===========================================================
+// TEMPLATE DOWNLOAD
+// ===========================================================
+function downloadDistrictTemplate() {
+    const csv = 'School Name,Enrollment,Reading Proficiency %,Math Proficiency %,Attendance %,Free/Reduced Lunch %,Title 1 (Y/N),Grade/Rating\n'
+        + '"Lincoln Elementary",420,62,48,91,82,Y,C\n'
+        + '"Washington Middle",580,55,42,88,78,Y,D\n'
+        + '"Jefferson High",1200,68,58,85,71,Y,C\n';
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'district-school-data-template.csv';
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+}
+
+// ===========================================================
+// BAR CHART RENDERER
+// ===========================================================
+function renderBarChart(containerId, data, colorFn) {
+    const c = document.getElementById(containerId);
+    if (!c) return;
+    c.innerHTML = '';
+    data.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'bar-row';
+        const tgt = item.target ? `<div class="bar-target" style="left:${item.target}%"></div>` : '';
+        row.innerHTML = `<div class="bar-label">${item.label}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(item.value,100)}%;background:${colorFn(item.value)}">${item.value}%</div>${tgt}</div>`;
+        c.appendChild(row);
+    });
+}
+
+function gradeColor(v) { return v >= 75 ? '#38a169' : v >= 60 ? '#d69e2e' : '#e53e3e'; }
+
+// ===========================================================
+// DONUT RENDERER
+// ===========================================================
+function renderDonut(donutId, legendId, segments) {
+    const donut = document.getElementById(donutId);
+    const legend = document.getElementById(legendId);
+    if (!donut || !legend) return;
+    let grad = '', cum = 0;
+    segments.forEach(s => { grad += `${s.color} ${cum}% ${cum + s.pct}%, `; cum += s.pct; });
+    donut.style.background = `conic-gradient(${grad.slice(0,-2)})`;
+    donut.innerHTML = `<div class="donut-center"><span class="big">${segments[0].centerText||''}</span><span class="small">${segments[0].centerSub||''}</span></div>`;
+    legend.innerHTML = segments.map(s => `<div class="legend-item"><div class="legend-dot" style="background:${s.color}"></div>${s.label} (${s.pct}%)</div>`).join('');
+}
+
+// ===========================================================
+// YEAR-OVER-YEAR COMPARISON
+// ===========================================================
+function buildComparison() {
+    const container = document.getElementById('compare-bars');
+    const kpis = document.getElementById('compare-kpis');
+    const tbody = document.getElementById('compare-body');
+    const improvList = document.getElementById('improvements-list');
+    const declineList = document.getElementById('declines-list');
+
+    // Match schools by name
+    const matched = [];
+    currentYearData.forEach(curr => {
+        const prior = priorYearData.find(p => p.name.toLowerCase() === curr.name.toLowerCase());
+        if (prior) {
+            matched.push({
+                name: curr.name,
+                priorReading: prior.reading, currReading: curr.reading, deltaReading: curr.reading - prior.reading,
+                priorMath: prior.math, currMath: curr.math, deltaMath: curr.math - prior.math,
+                priorAttendance: prior.attendance, currAttendance: curr.attendance, deltaAttendance: curr.attendance - prior.attendance,
+                enrollment: curr.enrollment
+            });
+        }
+    });
+
+    if (matched.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-light);">No matching schools found between years. Make sure school names match exactly.</p>';
+        return;
+    }
+
+    // Aggregate KPIs
+    const avgPriorReading = (matched.reduce((s, m) => s + m.priorReading, 0) / matched.length).toFixed(1);
+    const avgCurrReading = (matched.reduce((s, m) => s + m.currReading, 0) / matched.length).toFixed(1);
+    const avgPriorMath = (matched.reduce((s, m) => s + m.priorMath, 0) / matched.length).toFixed(1);
+    const avgCurrMath = (matched.reduce((s, m) => s + m.currMath, 0) / matched.length).toFixed(1);
+    const readingDelta = (avgCurrReading - avgPriorReading).toFixed(1);
+    const mathDelta = (avgCurrMath - avgPriorMath).toFixed(1);
+
+    kpis.innerHTML = `
+        <div class="kpi-card ${readingDelta >= 0 ? 'success' : 'danger'}">
+            <div class="kpi-label">Reading Change</div>
+            <div class="kpi-value">${readingDelta > 0 ? '+' : ''}${readingDelta}%</div>
+            <div class="kpi-change">${avgPriorReading}% &rarr; ${avgCurrReading}%</div>
+        </div>
+        <div class="kpi-card ${mathDelta >= 0 ? 'success' : 'danger'}">
+            <div class="kpi-label">Math Change</div>
+            <div class="kpi-value">${mathDelta > 0 ? '+' : ''}${mathDelta}%</div>
+            <div class="kpi-change">${avgPriorMath}% &rarr; ${avgCurrMath}%</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Schools Compared</div>
+            <div class="kpi-value">${matched.length}</div>
+            <div class="kpi-change">Matched by name</div>
+        </div>
+        <div class="kpi-card accent">
+            <div class="kpi-label">Schools Improving</div>
+            <div class="kpi-value">${matched.filter(m => m.deltaReading > 0).length}</div>
+            <div class="kpi-change">In reading proficiency</div>
+        </div>
+    `;
+
+    // Comparison bars
+    container.innerHTML = '';
+    matched.forEach(m => {
+        const row = document.createElement('div');
+        row.className = 'compare-row';
+        const dClass = m.deltaReading > 0 ? 'delta-up' : m.deltaReading < 0 ? 'delta-down' : 'delta-flat';
+        row.innerHTML = `
+            <div class="compare-label">${m.name}</div>
+            <div class="compare-bars">
+                <div class="compare-bar-track"><div class="compare-bar-fill" style="width:${m.priorReading}%;background:var(--primary-light);">${m.priorReading}%</div></div>
+                <div class="compare-bar-track"><div class="compare-bar-fill" style="width:${m.currReading}%;background:var(--accent);">${m.currReading}%</div></div>
+            </div>
+            <div class="compare-delta ${dClass}">${m.deltaReading > 0 ? '+' : ''}${m.deltaReading.toFixed(1)}%</div>
+        `;
+        container.appendChild(row);
+    });
+
+    // Table
+    tbody.innerHTML = '';
+    matched.forEach(m => {
+        const rClass = m.deltaReading > 0 ? 'delta-up' : m.deltaReading < 0 ? 'delta-down' : 'delta-flat';
+        const mClass = m.deltaMath > 0 ? 'delta-up' : m.deltaMath < 0 ? 'delta-down' : 'delta-flat';
+        const overall = m.deltaReading + m.deltaMath;
+        const trend = overall > 2 ? '<span class="badge badge-green">Improving</span>' : overall < -2 ? '<span class="badge badge-red">Declining</span>' : '<span class="badge badge-yellow">Flat</span>';
+        tbody.innerHTML += `<tr>
+            <td><strong>${m.name}</strong></td>
+            <td>${m.priorReading}%</td><td>${m.currReading}%</td>
+            <td class="${rClass}" style="font-weight:600;">${m.deltaReading > 0 ? '+' : ''}${m.deltaReading.toFixed(1)}%</td>
+            <td>${m.priorMath}%</td><td>${m.currMath}%</td>
+            <td class="${mClass}" style="font-weight:600;">${m.deltaMath > 0 ? '+' : ''}${m.deltaMath.toFixed(1)}%</td>
+            <td>${trend}</td>
+        </tr>`;
+    });
+
+    // Improvements & Declines
+    const sorted = [...matched].sort((a, b) => (b.deltaReading + b.deltaMath) - (a.deltaReading + a.deltaMath));
+    improvList.innerHTML = sorted.slice(0, 5).filter(m => m.deltaReading + m.deltaMath > 0)
+        .map(m => `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:0.85rem;"><strong>${m.name}</strong> &mdash; Reading: +${m.deltaReading.toFixed(1)}%, Math: +${m.deltaMath.toFixed(1)}%</div>`).join('')
+        || '<p style="color:var(--text-light);font-size:0.85rem;">No improving schools found.</p>';
+
+    const declining = [...matched].sort((a, b) => (a.deltaReading + a.deltaMath) - (b.deltaReading + b.deltaMath));
+    declineList.innerHTML = declining.slice(0, 5).filter(m => m.deltaReading + m.deltaMath < 0)
+        .map(m => `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:0.85rem;"><strong>${m.name}</strong> &mdash; Reading: ${m.deltaReading.toFixed(1)}%, Math: ${m.deltaMath.toFixed(1)}%</div>`).join('')
+        || '<p style="color:var(--text-light);font-size:0.85rem;">No declining schools found.</p>';
+}
+
+// ===========================================================
+// PAIN POINT ENGINE
+// ===========================================================
+function buildPainPoints() {
+    const container = document.getElementById('auto-pain-points');
+    const data = currentYearData.length > 0 ? currentYearData : [];
+    const pains = [];
+
+    if (data.length > 0) {
+        // Auto-detect pain points from data
+        const avgReading = data.reduce((s, d) => s + d.reading, 0) / data.length;
+        const avgMath = data.reduce((s, d) => s + d.math, 0) / data.length;
+        const avgAttendance = data.reduce((s, d) => s + d.attendance, 0) / data.length;
+        const lowSchools = data.filter(d => d.reading < 50 || d.math < 40);
+        const lowAttendance = data.filter(d => d.attendance < 90);
+        const highFRL = data.filter(d => d.frl > 80);
+
+        if (avgReading < 65) {
+            pains.push({ title: 'Below-Target Reading Proficiency', severity: 'high',
+                desc: `District average reading proficiency is ${avgReading.toFixed(1)}%, below the 65% benchmark.`,
+                solution: 'NUVABASE reading intervention consulting with data-driven progress monitoring.' });
+        }
+        if (avgMath < 55) {
+            pains.push({ title: 'Math Proficiency Gap', severity: 'high',
+                desc: `District average math proficiency is ${avgMath.toFixed(1)}%, significantly below the 55% target.`,
+                solution: 'Targeted math intervention strategies with TLRW-guided implementation.' });
+        }
+        if (lowSchools.length > 0) {
+            pains.push({ title: `${lowSchools.length} Schools in Critical Performance Zone`, severity: 'high',
+                desc: `${lowSchools.length} of ${data.length} schools have reading below 50% or math below 40%.`,
+                solution: 'Priority turnaround consulting for lowest-performing campuses.' });
+        }
+        if (avgAttendance < 92) {
+            pains.push({ title: 'Chronic Attendance Challenge', severity: 'medium',
+                desc: `District attendance averages ${avgAttendance.toFixed(1)}%. ${lowAttendance.length} schools below 90%.`,
+                solution: 'Attendance improvement framework with parent engagement strategies.' });
+        }
+        if (highFRL.length > data.length * 0.5) {
+            pains.push({ title: 'High-Poverty Concentration', severity: 'medium',
+                desc: `${highFRL.length} of ${data.length} schools have 80%+ free/reduced lunch rates.`,
+                solution: 'Poverty-aware instructional strategies and resource allocation optimization.' });
+        }
+        // Year-over-year specific pain points
+        if (priorYearData.length > 0) {
+            const matched = currentYearData.map(c => {
+                const p = priorYearData.find(pr => pr.name.toLowerCase() === c.name.toLowerCase());
+                return p ? { name: c.name, delta: c.reading - p.reading } : null;
+            }).filter(Boolean);
+            const declining = matched.filter(m => m.delta < -3);
+            if (declining.length > 0) {
+                pains.push({ title: `${declining.length} Schools Declining Year-Over-Year`, severity: 'high',
+                    desc: `${declining.map(d => d.name).join(', ')} dropped more than 3% in reading.`,
+                    solution: 'Targeted recovery plans with NUVABASE continuous improvement monitoring.' });
+            }
+        }
+        pains.push({ title: 'Data-Driven Decision Making Gap', severity: 'opportunity',
+            desc: 'District lacks unified analytics dashboard for real-time performance monitoring.',
+            solution: 'NUVABASE Title 1 Performance Dashboard — deployed per-school with district rollup.' });
+        pains.push({ title: 'Professional Development ROI', severity: 'opportunity',
+            desc: 'PD spending not tied to measurable student outcome improvements.',
+            solution: 'NUVABASE PD effectiveness tracking with pre/post performance correlation.' });
+    }
+
+    container.innerHTML = pains.map(p => `
+        <div class="pain-card ${p.severity === 'medium' ? 'medium' : p.severity === 'opportunity' ? 'opportunity' : ''}">
+            <h4>${p.title}</h4>
+            <p>${p.desc}</p>
+            <p style="margin-top:8px;"><strong>NUVABASE Solution:</strong> ${p.solution}</p>
+            <div class="pain-severity" style="color:${p.severity === 'high' ? 'var(--danger)' : p.severity === 'medium' ? 'var(--warning)' : 'var(--success)'};">
+                ${p.severity.toUpperCase()}
+            </div>
+        </div>
+    `).join('');
+
+    // Append custom pain points
+    customPainPoints.forEach(p => {
+        container.innerHTML += `
+            <div class="pain-card ${p.severity === 'medium' ? 'medium' : p.severity === 'opportunity' ? 'opportunity' : ''}">
+                <h4>${p.title}</h4>
+                <p>${p.desc}</p>
+                <p style="margin-top:8px;"><strong>NUVABASE Solution:</strong> ${p.solution}</p>
+                <div class="pain-severity" style="color:${p.severity === 'high' ? 'var(--danger)' : p.severity === 'medium' ? 'var(--warning)' : 'var(--success)'};">
+                    ${p.severity.toUpperCase()} (Custom)
+                </div>
+            </div>`;
+    });
+}
+
+function addCustomPainPoint() {
+    const title = document.getElementById('pain-title').value;
+    const severity = document.getElementById('pain-severity').value;
+    const desc = document.getElementById('pain-desc').value;
+    const solution = document.getElementById('pain-solution').value;
+    if (!title) { alert('Enter a pain point title.'); return; }
+    customPainPoints.push({ title, severity, desc, solution });
+    buildPainPoints();
+    saveAllState();
+    document.getElementById('pain-title').value = '';
+    document.getElementById('pain-desc').value = '';
+    document.getElementById('pain-solution').value = '';
+}
+
+// ===========================================================
+// PROJECTION ENGINE
+// ===========================================================
+function recalcProjections() {
+    const data = currentYearData.length > 0 ? currentYearData : [];
+    const improvementRate = parseFloat(document.getElementById('param-improvement').value) || 8.5;
+    const duration = parseInt(document.getElementById('param-duration').value) || 12;
+    const contract = parseInt(document.getElementById('param-contract').value) || 150000;
+    const targetSchools = parseInt(document.getElementById('param-target-schools').value) || 10;
+
+    if (data.length === 0) {
+        document.getElementById('projection-rows').innerHTML = '<p style="color:var(--text-light);">Upload district data first to see projections.</p>';
+        return;
+    }
+
+    // Calculate natural trajectory (based on prior year comparison if available)
+    let naturalTrend = -1.5; // default assumption: slight decline without intervention
+    if (priorYearData.length > 0) {
+        const matched = currentYearData.map(c => {
+            const p = priorYearData.find(pr => pr.name.toLowerCase() === c.name.toLowerCase());
+            return p ? c.reading - p.reading : null;
+        }).filter(Boolean);
+        if (matched.length > 0) naturalTrend = matched.reduce((s, d) => s + d, 0) / matched.length;
+    }
+
+    document.getElementById('proj-without').textContent = (naturalTrend > 0 ? '+' : '') + naturalTrend.toFixed(1) + '%';
+    document.getElementById('proj-without').parentElement.className = naturalTrend >= 0 ? 'kpi-card success' : 'kpi-card danger';
+    document.getElementById('proj-with').textContent = '+' + improvementRate.toFixed(1) + '%';
+    document.getElementById('proj-impact').textContent = '+' + (improvementRate - naturalTrend).toFixed(1) + '%';
+
+    // ROI: improvement in students at grade level * value per student
+    const totalStudents = data.reduce((s, d) => s + d.enrollment, 0);
+    const avgReading = data.reduce((s, d) => s + d.reading, 0) / data.length;
+    const studentsImproved = Math.round(totalStudents * (improvementRate / 100));
+    const estimatedValue = studentsImproved * 1200; // $1,200 value per student improved (conservative)
+    const roi = contract > 0 ? (estimatedValue / contract).toFixed(1) : 'N/A';
+    document.getElementById('proj-roi').textContent = roi + 'x';
+
+    // School-by-school projections
+    const container = document.getElementById('projection-rows');
+    container.innerHTML = '';
+    const topTarget = [...data].sort((a, b) => a.reading - b.reading).slice(0, targetSchools);
+    topTarget.forEach(school => {
+        const projected = Math.min(100, school.reading + improvementRate);
+        const withoutProj = Math.max(0, school.reading + naturalTrend);
+        const fillColor = projected >= 65 ? '#38a169' : projected >= 50 ? '#d69e2e' : '#e53e3e';
+        container.innerHTML += `
+            <div class="projection-row">
+                <div class="projection-label">${school.name}</div>
+                <div class="projection-actual">${school.reading}%</div>
+                <div class="projection-arrow" style="color:var(--danger);">&rarr; ${withoutProj.toFixed(0)}%</div>
+                <div class="projection-arrow" style="color:var(--success);">&rarr; ${projected.toFixed(0)}%</div>
+                <div class="projection-bar"><div class="projection-fill" style="width:${projected}%;background:${fillColor};"></div></div>
+                <div style="width:80px;text-align:center;font-size:0.8rem;font-weight:600;color:var(--success);">+${improvementRate}%</div>
+            </div>`;
+    });
+}
+
+// ===========================================================
+// PROPOSAL GENERATOR
+// ===========================================================
+function generateProposal() {
+    const distName = document.getElementById('dist-name').value || 'Target District';
+    const distState = document.getElementById('dist-state').value || '';
+    const enrollment = document.getElementById('dist-enrollment').value || '0';
+    const t1Schools = document.getElementById('dist-title1').value || '0';
+    const frl = document.getElementById('dist-frl').value || '0';
+    const budget = document.getElementById('dist-title1budget').value || '$0';
+    const contract = document.getElementById('param-contract').value || '150000';
+    const duration = document.getElementById('param-duration').value || '12';
+    const improvement = document.getElementById('param-improvement').value || '8.5';
+    const targetSchools = document.getElementById('param-target-schools').value || '10';
+    const superName = document.getElementById('dist-super').value || '[Superintendent]';
+    const contact = document.getElementById('dist-contact').value || '';
+
+    const data = currentYearData;
+    const avgReading = data.length > 0 ? (data.reduce((s, d) => s + d.reading, 0) / data.length).toFixed(1) : 'N/A';
+    const avgMath = data.length > 0 ? (data.reduce((s, d) => s + d.math, 0) / data.length).toFixed(1) : 'N/A';
+    const lowSchools = data.filter(d => d.reading < 50 || d.math < 40);
+
+    // Gather pain points
+    const painContainer = document.getElementById('auto-pain-points');
+    const painCards = painContainer.querySelectorAll('.pain-card h4');
+    const painList = Array.from(painCards).map(h => h.textContent);
+
+    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    const proposalHTML = `
+        <h2>NUVABASE Professional Consulting</h2>
+        <p style="font-size:0.85rem;color:var(--text-light);">Service to Service Group, Inc. &mdash; Continuous Improvement Division</p>
+        <p style="margin-top:12px;"><strong>Proposal For:</strong> ${distName}${distState ? ', ' + distState : ''}</p>
+        <p><strong>Prepared:</strong> ${today}</p>
+        <p><strong>Prepared By:</strong> NUVABASE Professional Consulting</p>
+        ${contact ? `<p><strong>Current Relationship:</strong> ${contact}</p>` : ''}
+
+        <h3>1. Executive Summary</h3>
+        <p>NUVABASE Professional Consulting proposes a ${duration}-month engagement with ${distName} to deliver measurable improvements in student academic performance, compliance readiness, and data-driven decision-making across ${targetSchools} targeted Title 1 schools.</p>
+
+        <div class="highlight">
+            <strong>Key Value Proposition:</strong> Based on our analysis, ${distName} serves ${parseInt(enrollment).toLocaleString()} students across ${t1Schools} Title 1 schools with ${frl}% free/reduced lunch eligibility. Our TLRW-guided approach projects a <strong>+${improvement}% improvement</strong> in reading and math proficiency within the engagement period.
+        </div>
+
+        <h3>2. District Analysis</h3>
+        <ul>
+            <li><strong>Enrollment:</strong> ${parseInt(enrollment).toLocaleString()} students</li>
+            <li><strong>Title 1 Schools:</strong> ${t1Schools}</li>
+            <li><strong>Title 1 Allocation:</strong> ${budget}</li>
+            <li><strong>Average Reading Proficiency:</strong> ${avgReading}%</li>
+            <li><strong>Average Math Proficiency:</strong> ${avgMath}%</li>
+            ${lowSchools.length > 0 ? `<li><strong>Schools in Critical Zone:</strong> ${lowSchools.length} (reading &lt;50% or math &lt;40%)</li>` : ''}
+        </ul>
+
+        <h3>3. Identified Needs &amp; Pain Points</h3>
+        <ul>
+            ${painList.map(p => `<li>${p}</li>`).join('\n            ')}
+        </ul>
+
+        <h3>4. Proposed Services</h3>
+        <ul>
+            <li><strong>TLRW Continuous Improvement Framework</strong> &mdash; Four-phase, 12-gate quality assurance methodology deployed per campus</li>
+            <li><strong>Title 1 Performance Dashboard</strong> &mdash; Custom interactive dashboards for each target school with real-time KPI monitoring</li>
+            <li><strong>Professional Development</strong> &mdash; Ongoing PD for instructional staff aligned to identified gaps</li>
+            <li><strong>Data Analytics &amp; Reporting</strong> &mdash; Year-over-year comparison, projection modeling, compliance tracking</li>
+            <li><strong>Parent Engagement Strategy</strong> &mdash; Structured engagement plans meeting Title 1 requirements</li>
+        </ul>
+
+        <h3>5. Projected Outcomes</h3>
+        <div class="highlight">
+            <strong>Without Intervention:</strong> Based on current trajectory, proficiency rates are projected to ${parseFloat(document.getElementById('proj-without').textContent) >= 0 ? 'grow only marginally' : 'continue declining'}.<br>
+            <strong>With NUVABASE:</strong> Targeted +${improvement}% reading/math improvement across ${targetSchools} schools, impacting approximately ${Math.round(parseInt(enrollment) * (parseInt(targetSchools) / parseInt(document.getElementById('dist-schools').value || 54))).toLocaleString()} students.
+        </div>
+
+        <h3>6. Investment</h3>
+        <table style="width:100%;margin:12px 0;">
+            <tr><td style="padding:6px 12px;border:1px solid var(--border);"><strong>Engagement Duration</strong></td><td style="padding:6px 12px;border:1px solid var(--border);">${duration} months</td></tr>
+            <tr><td style="padding:6px 12px;border:1px solid var(--border);"><strong>Target Schools</strong></td><td style="padding:6px 12px;border:1px solid var(--border);">${targetSchools} campuses</td></tr>
+            <tr><td style="padding:6px 12px;border:1px solid var(--border);"><strong>Total Investment</strong></td><td style="padding:6px 12px;border:1px solid var(--border);font-weight:700;">$${parseInt(contract).toLocaleString()}</td></tr>
+            <tr><td style="padding:6px 12px;border:1px solid var(--border);"><strong>Per School / Month</strong></td><td style="padding:6px 12px;border:1px solid var(--border);">$${Math.round(parseInt(contract) / parseInt(targetSchools) / parseInt(duration)).toLocaleString()}</td></tr>
+            <tr><td style="padding:6px 12px;border:1px solid var(--border);"><strong>Estimated ROI</strong></td><td style="padding:6px 12px;border:1px solid var(--border);">${document.getElementById('proj-roi').textContent}</td></tr>
+        </table>
+
+        <h3>7. Why NUVABASE</h3>
+        <ul>
+            <li>Proprietary TLRW methodology with 12 quality gates — not guesswork</li>
+            <li>Existing ${contact ? contact + ' relationship' : 'relationship'} with ${distName}</li>
+            <li>Interactive dashboards delivered per-school — no other vendor provides this</li>
+            <li>Data-driven approach with measurable outcomes tied to contract deliverables</li>
+            <li>Proven continuous improvement framework aligned with Cognia/ESSA requirements</li>
+        </ul>
+
+        <h3>8. Next Steps</h3>
+        <ol>
+            <li>Schedule presentation with ${superName} and district leadership team</li>
+            <li>Conduct 2-week discovery engagement at 2 pilot schools (no cost)</li>
+            <li>Deliver preliminary findings and refined proposal</li>
+            <li>Execute engagement contract</li>
+        </ol>
+
+        <div style="margin-top:32px;padding-top:16px;border-top:2px solid var(--primary);font-size:0.85rem;color:var(--text-light);">
+            <strong>NUVABASE Professional Consulting</strong> &mdash; Service to Service Group, Inc.<br>
+            Continuous Improvement &bull; Data Analytics &bull; TLRW Framework<br>
+            <em>"Mass Customization &mdash; One Engine, Unlimited Outcomes"</em>
+        </div>
+    `;
+
+    document.getElementById('proposal-output').innerHTML = proposalHTML;
+    completePhase('write');
+    showAlert('Proposal generated! Scroll down to review. Click "Print Proposal" to save as PDF.');
+}
+
+// ===========================================================
+// LEADERSHIP TABLE
+// ===========================================================
+function addLeaderRow() {
+    leadershipData.push({ name: '', title: '', dept: '', priority: 'Medium', notes: '' });
+    renderLeadership();
+}
+
+function renderLeadership() {
+    const tbody = document.getElementById('leadership-body');
+    tbody.innerHTML = '';
+    leadershipData.forEach((leader, i) => {
+        tbody.innerHTML += `<tr>
+            <td><input type="text" value="${leader.name}" style="border:1px solid var(--border);padding:4px 8px;border-radius:4px;width:100%;" onchange="leadershipData[${i}].name=this.value;saveAllState()"></td>
+            <td><input type="text" value="${leader.title}" style="border:1px solid var(--border);padding:4px 8px;border-radius:4px;width:100%;" onchange="leadershipData[${i}].title=this.value;saveAllState()"></td>
+            <td><input type="text" value="${leader.dept}" style="border:1px solid var(--border);padding:4px 8px;border-radius:4px;width:100%;" onchange="leadershipData[${i}].dept=this.value;saveAllState()"></td>
+            <td><select style="border:1px solid var(--border);padding:4px;border-radius:4px;" onchange="leadershipData[${i}].priority=this.value;saveAllState()">
+                <option ${leader.priority==='High'?'selected':''}>High</option>
+                <option ${leader.priority==='Medium'?'selected':''}>Medium</option>
+                <option ${leader.priority==='Low'?'selected':''}>Low</option>
+            </select></td>
+            <td><input type="text" value="${leader.notes}" style="border:1px solid var(--border);padding:4px 8px;border-radius:4px;width:100%;" onchange="leadershipData[${i}].notes=this.value;saveAllState()"></td>
+        </tr>`;
+    });
+}
+
+// ===========================================================
+// DISTRICT SWITCHING
+// ===========================================================
+function switchDistrict() {
+    const sel = document.getElementById('districtSelect').value;
+    if (sel === 'custom') {
+        document.getElementById('dist-name').value = '';
+        document.getElementById('dist-state').value = '';
+        document.getElementById('dist-enrollment').value = '';
+        document.getElementById('dist-schools').value = '';
+        document.getElementById('dist-title1').value = '';
+    }
+}
+
+// ===========================================================
+// DISTRICT PROFILE KPI UPDATE
+// ===========================================================
+function saveDistrictProfile() {
+    const schools = document.getElementById('dist-schools').value || 0;
+    const t1 = document.getElementById('dist-title1').value || 0;
+    const pct = schools > 0 ? Math.round(t1 / schools * 100) : 0;
+    document.getElementById('kpi-dist-schools').textContent = schools;
+    document.getElementById('kpi-dist-t1').textContent = t1;
+    document.getElementById('kpi-dist-t1-pct').textContent = pct + '% of district';
+    document.getElementById('kpi-dist-frl').textContent = (document.getElementById('dist-frl').value || 0) + '%';
+    document.getElementById('kpi-dist-budget').textContent = document.getElementById('dist-title1budget').value || '$0';
+    saveAllState();
+}
+
+// ===========================================================
+// LOCAL STORAGE
+// ===========================================================
+function saveAllState() {
+    try {
+        const state = {
+            districtProfile: {
+                name: document.getElementById('dist-name').value,
+                state: document.getElementById('dist-state').value,
+                super: document.getElementById('dist-super').value,
+                enrollment: document.getElementById('dist-enrollment').value,
+                schools: document.getElementById('dist-schools').value,
+                title1: document.getElementById('dist-title1').value,
+                budget: document.getElementById('dist-budget').value,
+                title1budget: document.getElementById('dist-title1budget').value,
+                frl: document.getElementById('dist-frl').value,
+                grade: document.getElementById('dist-grade').value,
+                url: document.getElementById('dist-url').value,
+                contact: document.getElementById('dist-contact').value,
+            },
+            leadershipData,
+            currentYearData,
+            priorYearData,
+            customPainPoints,
+            tlrwPhases
+        };
+        localStorage.setItem('tlrw_district_intel', JSON.stringify(state));
+    } catch (e) { console.warn('Save failed:', e); }
+}
+
+function loadAllState() {
+    try {
+        const saved = localStorage.getItem('tlrw_district_intel');
+        if (!saved) return;
+        const state = JSON.parse(saved);
+        if (state.districtProfile) {
+            const p = state.districtProfile;
+            document.getElementById('dist-name').value = p.name || '';
+            document.getElementById('dist-state').value = p.state || '';
+            document.getElementById('dist-super').value = p.super || '';
+            document.getElementById('dist-enrollment').value = p.enrollment || '';
+            document.getElementById('dist-schools').value = p.schools || '';
+            document.getElementById('dist-title1').value = p.title1 || '';
+            document.getElementById('dist-budget').value = p.budget || '';
+            document.getElementById('dist-title1budget').value = p.title1budget || '';
+            document.getElementById('dist-frl').value = p.frl || '';
+            document.getElementById('dist-grade').value = p.grade || '';
+            document.getElementById('dist-url').value = p.url || '';
+            document.getElementById('dist-contact').value = p.contact || '';
+            saveDistrictProfile();
+        }
+        if (state.leadershipData) { leadershipData = state.leadershipData; renderLeadership(); }
+        if (state.currentYearData) { currentYearData = state.currentYearData; document.getElementById('current-status').textContent = `\u2713 ${currentYearData.length} schools loaded`; }
+        if (state.priorYearData) { priorYearData = state.priorYearData; document.getElementById('prior-status').textContent = `\u2713 ${priorYearData.length} schools loaded`; }
+        if (state.customPainPoints) customPainPoints = state.customPainPoints;
+        if (state.tlrwPhases) {
+            tlrwPhases = state.tlrwPhases;
+            Object.keys(tlrwPhases).forEach(phase => {
+                if (tlrwPhases[phase]) document.getElementById('tlrw-' + phase).classList.add('completed');
+            });
+        }
+        if (currentYearData.length > 0 && priorYearData.length > 0) buildComparison();
+        if (currentYearData.length > 0) { buildPainPoints(); recalcProjections(); }
+    } catch (e) { console.warn('Load failed:', e); }
+}
+
+// ===========================================================
+// ALERTS
+// ===========================================================
+function showAlert(msg) {
+    const el = document.getElementById('global-success');
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 6000);
+}
+
+// ===========================================================
+// BOOT
+// ===========================================================
+document.addEventListener('DOMContentLoaded', function() {
+    loadAllState();
+    if (leadershipData.length === 0) {
+        leadershipData = [
+            { name: '', title: 'Superintendent', dept: 'Administration', priority: 'High', notes: '' },
+            { name: '', title: 'Deputy Superintendent', dept: 'Administration', priority: 'High', notes: '' },
+            { name: '', title: 'Chief Academic Officer', dept: 'Academics', priority: 'High', notes: '' },
+            { name: '', title: 'Title 1 Director', dept: 'Federal Programs', priority: 'High', notes: '' },
+            { name: '', title: 'Director of Assessment', dept: 'Academics', priority: 'Medium', notes: '' },
+            { name: '', title: 'Director of PD', dept: 'Human Resources', priority: 'Medium', notes: '' },
+        ];
+        renderLeadership();
+    }
+    recalcProjections();
+});
+</script>
+</body>
+</html>
