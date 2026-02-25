@@ -3,299 +3,426 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NUVABASE &mdash; App Launcher</title>
+    <title>NUVABASE &mdash; Cognitive Infrastructure Platform</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
-            --primary: #1a365d;
-            --primary-light: #2b6cb0;
-            --accent: #ed8936;
+            --navy: #0a1628;
+            --navy-mid: #132240;
+            --navy-light: #1a365d;
+            --gold: #c9a84c;
+            --gold-light: #e2c97e;
+            --gold-dim: rgba(201,168,76,0.15);
+            --white: #ffffff;
+            --off-white: #f0f2f5;
+            --text: #e8ecf1;
+            --text-muted: #8899aa;
+            --border: #1e3a5f;
+            --card: #111d33;
+            --card-hover: #172847;
             --success: #38a169;
-            --bg: #0f172a;
-            --card: #1e293b;
-            --card-hover: #334155;
-            --text: #f1f5f9;
-            --text-light: #94a3b8;
-            --border: #334155;
-            --radius: 12px;
+            --radius: 10px;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg); color: var(--text); min-height: 100vh;
-            display: flex; flex-direction: column; overflow-x: hidden;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, sans-serif;
+            background: var(--navy); color: var(--text); line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* ── HEADER ── */
-        .header {
-            background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #4299e1 100%);
-            padding: 40px 32px 32px; text-align: center;
+        /* ─── HEADER ─── */
+        .site-header {
+            background: linear-gradient(180deg, #0d1b2e 0%, var(--navy) 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            display: flex; justify-content: space-between; align-items: center;
         }
-        .header h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
-        .header .subtitle { font-size: 1rem; opacity: 0.85; }
-        .header .motto { font-size: 0.85rem; opacity: 0.6; margin-top: 8px; font-style: italic; }
+        .logo-area { display: flex; align-items: center; gap: 14px; }
+        .logo-mark {
+            width: 42px; height: 42px; border-radius: 8px;
+            background: linear-gradient(135deg, var(--gold), #a88a3a);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 1.1rem; color: var(--navy);
+        }
+        .logo-text { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.08em; color: var(--white); }
+        .logo-sub { font-size: 0.7rem; color: var(--text-muted); letter-spacing: 0.04em; }
+        .header-right { font-size: 0.75rem; color: var(--text-muted); text-align: right; }
+        .header-right .status-dot {
+            display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+            background: var(--success); margin-right: 5px; vertical-align: middle;
+        }
 
-        /* ── CONTAINER ── */
-        .container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; flex: 1; }
-        .section-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-light); margin-bottom: 20px; padding-left: 4px; }
+        /* ─── HERO / TLRW ─── */
+        .hero {
+            background: linear-gradient(135deg, #0d1b2e 0%, #162d4f 50%, #1a365d 100%);
+            padding: 56px 32px 48px; text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .hero-tagline {
+            font-size: 1.8rem; font-weight: 300; color: var(--white);
+            letter-spacing: -0.01em; margin-bottom: 6px; line-height: 1.3;
+        }
+        .hero-tagline strong { font-weight: 700; color: var(--gold); }
+        .hero-subtitle {
+            font-size: 0.95rem; color: var(--text-muted); margin-bottom: 40px;
+            max-width: 600px; margin-left: auto; margin-right: auto;
+        }
+        .tlrw-hero {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+            max-width: 960px; margin: 0 auto;
+        }
+        .tlrw-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 24px 18px; text-align: center; position: relative; overflow: hidden;
+            transition: all 0.3s;
+        }
+        .tlrw-card:hover { transform: translateY(-3px); border-color: var(--gold); }
+        .tlrw-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+        }
+        .tlrw-think::before { background: #4a90d9; }
+        .tlrw-learn::before { background: #48bb78; }
+        .tlrw-reflect::before { background: var(--gold); }
+        .tlrw-write::before { background: #9f7aea; }
+        .tlrw-phase-num { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; }
+        .tlrw-phase-name { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; }
+        .tlrw-think .tlrw-phase-name { color: #6aadeb; }
+        .tlrw-learn .tlrw-phase-name { color: #68d391; }
+        .tlrw-reflect .tlrw-phase-name { color: var(--gold-light); }
+        .tlrw-write .tlrw-phase-name { color: #b794f4; }
+        .tlrw-phase-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
+        .tlrw-gates { font-size: 0.65rem; color: var(--text-muted); margin-top: 10px; opacity: 0.7; }
 
-        /* ── APP GRID ── */
-        .app-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 48px; }
-        .app-card {
-            background: var(--card); border-radius: var(--radius); padding: 28px;
-            cursor: pointer; transition: all 0.3s ease; border: 1px solid var(--border);
-            text-decoration: none; color: var(--text); display: block; position: relative; overflow: hidden;
+        /* ─── CREDENTIALS BAR ─── */
+        .cred-bar {
+            background: var(--card); border-bottom: 1px solid var(--border);
+            padding: 14px 32px; display: flex; justify-content: center;
+            gap: 32px; flex-wrap: wrap;
         }
-        .app-card:hover {
-            background: var(--card-hover); transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.3); border-color: var(--accent);
-        }
-        .app-card::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0;
-            height: 4px; border-radius: var(--radius) var(--radius) 0 0;
-        }
-        .app-card.blue::before { background: linear-gradient(90deg, #4299e1, #2b6cb0); }
-        .app-card.orange::before { background: linear-gradient(90deg, #ed8936, #dd6b20); }
-        .app-card.green::before { background: linear-gradient(90deg, #48bb78, #38a169); }
-        .app-card.purple::before { background: linear-gradient(90deg, #9f7aea, #805ad5); }
-        .app-card.red::before { background: linear-gradient(90deg, #fc8181, #e53e3e); }
-        .app-card.teal::before { background: linear-gradient(90deg, #38b2ac, #319795); }
-        .app-icon { font-size: 2.5rem; margin-bottom: 16px; display: block; }
-        .app-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
-        .app-desc { font-size: 0.85rem; color: var(--text-light); line-height: 1.5; margin-bottom: 16px; }
-        .app-tags { display: flex; gap: 8px; flex-wrap: wrap; }
-        .app-tag { font-size: 0.7rem; padding: 3px 10px; border-radius: 20px; background: rgba(255,255,255,0.08); color: var(--text-light); font-weight: 500; }
-        .app-tag.new { background: rgba(72,187,120,0.2); color: #48bb78; }
-        .click-hint { position: absolute; top: 28px; right: 28px; font-size: 0.75rem; color: var(--text-light); opacity: 0; transition: opacity 0.3s; }
-        .app-card:hover .click-hint { opacity: 1; }
+        .cred-item { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
+        .cred-item strong { color: var(--gold); font-weight: 600; }
 
-        /* ── QUICK BAR ── */
-        .quick-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 48px; }
-        .quick-btn {
-            padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border);
-            background: var(--card); color: var(--text); font-size: 0.85rem;
-            cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block;
+        /* ─── MAIN CONTENT ─── */
+        .main { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+        .section-label {
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em;
+            color: var(--gold); margin-bottom: 8px; font-weight: 600;
         }
-        .quick-btn:hover { background: var(--card-hover); border-color: var(--accent); }
-
-        /* ── STATUS BAR ── */
-        .status-bar {
-            background: var(--card); border-radius: var(--radius); padding: 16px 24px;
-            margin-bottom: 32px; display: flex; justify-content: space-between;
-            align-items: center; flex-wrap: wrap; gap: 12px; border: 1px solid var(--border);
+        .section-title-lg {
+            font-size: 1.4rem; font-weight: 700; color: var(--white); margin-bottom: 24px;
         }
-        .status-item { font-size: 0.85rem; }
-        .status-item strong { color: var(--accent); }
-        .status-dot {
-            display: inline-block; width: 8px; height: 8px; border-radius: 50%;
-            background: var(--success); margin-right: 6px; animation: pulse 2s ease-in-out infinite;
+
+        /* ─── MARKET LANES ─── */
+        .market-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 48px; }
+        .market-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 28px 24px; cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden;
+            text-decoration: none; color: var(--text); display: block;
         }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .market-card:hover { background: var(--card-hover); transform: translateY(-3px); border-color: var(--gold); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        .market-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gold); }
+        .market-icon { font-size: 2rem; margin-bottom: 14px; display: block; }
+        .market-name { font-size: 1.1rem; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+        .market-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px; }
+        .market-proof {
+            font-size: 0.72rem; color: var(--gold); padding: 8px 12px;
+            background: var(--gold-dim); border-radius: 6px; line-height: 1.5;
+        }
+        .market-badge {
+            position: absolute; top: 16px; right: 16px; font-size: 0.6rem;
+            padding: 3px 10px; border-radius: 10px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.06em;
+        }
+        .badge-demo { background: rgba(201,168,76,0.2); color: var(--gold); }
+        .badge-live { background: rgba(56,161,105,0.2); color: var(--success); }
+        .click-hint-sm {
+            font-size: 0.7rem; color: var(--text-muted); margin-top: 12px;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .market-card:hover .click-hint-sm { opacity: 1; }
 
-        /* ── FOOTER ── */
-        .footer { text-align: center; padding: 24px; font-size: 0.8rem; color: var(--text-light); border-top: 1px solid var(--border); }
-        .footer strong { color: var(--text); }
+        /* ─── SECONDARY GRID ─── */
+        .secondary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 48px; }
+        .sec-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 22px 20px; cursor: pointer; transition: all 0.3s;
+            text-decoration: none; color: var(--text); display: block;
+        }
+        .sec-card:hover { background: var(--card-hover); border-color: var(--gold); transform: translateY(-2px); }
+        .sec-icon { font-size: 1.6rem; margin-bottom: 10px; display: block; }
+        .sec-name { font-size: 0.95rem; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+        .sec-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
 
-        /* ── HELP BOX ── */
+        /* ─── DIVIDER ─── */
+        .divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+        /* ─── FOOTER ─── */
+        .site-footer {
+            background: #080e1a; border-top: 1px solid var(--border);
+            padding: 24px 32px; text-align: center;
+            font-size: 0.75rem; color: var(--text-muted);
+        }
+        .site-footer strong { color: var(--white); }
+        .site-footer .footer-gold { color: var(--gold); }
+
+        /* ─── HELP BOX ─── */
         .help-box {
-            background: #1a2332; border: 2px solid #ed8936; border-radius: var(--radius);
-            padding: 24px; margin-bottom: 32px;
+            background: var(--card); border: 1px solid var(--gold); border-radius: var(--radius);
+            padding: 20px 24px; margin-bottom: 24px; display: none;
         }
-        .help-box h3 { color: #ed8936; margin-bottom: 12px; font-size: 1rem; }
-        .help-box ol { padding-left: 20px; line-height: 2; }
-        .help-box li { font-size: 0.9rem; }
-        .help-box .highlight {
-            background: #ed8936; color: #000; padding: 2px 8px; border-radius: 4px;
-            font-weight: 700; display: inline;
-        }
+        .help-box h3 { color: var(--gold); margin-bottom: 10px; font-size: 0.9rem; }
+        .help-box ol { padding-left: 18px; line-height: 2; font-size: 0.85rem; }
+        .help-box .hl { background: var(--gold); color: var(--navy); padding: 1px 6px; border-radius: 3px; font-weight: 700; font-size: 0.8rem; }
 
-        /* ── APP VIEWER (full-page overlay for loading dashboards) ── */
+        /* ─── APP VIEWER ─── */
         #app-viewer {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            z-index: 9999; background: var(--bg); flex-direction: column;
+            z-index: 9999; background: var(--navy); flex-direction: column;
         }
         #app-viewer.active { display: flex; }
         #app-toolbar {
-            background: linear-gradient(135deg, #1a365d, #2b6cb0);
+            background: linear-gradient(90deg, #0d1b2e, var(--navy-light));
             padding: 10px 20px; display: flex; align-items: center; gap: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3); z-index: 10;
+            border-bottom: 1px solid var(--border); z-index: 10;
         }
         #back-btn {
-            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
-            color: white; padding: 8px 20px; border-radius: 8px; cursor: pointer;
-            font-size: 0.9rem; font-weight: 600; transition: all 0.2s;
+            background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.3);
+            color: var(--gold); padding: 7px 18px; border-radius: 6px; cursor: pointer;
+            font-size: 0.85rem; font-weight: 600; transition: all 0.2s;
         }
-        #back-btn:hover { background: rgba(255,255,255,0.25); }
-        #app-viewer-title { color: white; font-weight: 600; font-size: 1rem; }
-        #app-frame {
-            flex: 1; border: none; width: 100%; background: white;
-        }
-
-        /* ── ERROR PANEL ── */
+        #back-btn:hover { background: rgba(201,168,76,0.25); }
+        #app-viewer-title { color: var(--white); font-weight: 600; font-size: 0.95rem; }
+        #app-frame { flex: 1; border: none; width: 100%; background: white; }
         #error-panel {
             display: none; flex: 1; justify-content: center; align-items: center;
             padding: 40px; text-align: center;
         }
         #error-panel.active { display: flex; }
         .error-content {
-            background: var(--card); border: 2px solid #e53e3e; border-radius: var(--radius);
-            padding: 40px; max-width: 600px;
+            background: var(--card); border: 1px solid #c53030; border-radius: var(--radius);
+            padding: 36px; max-width: 520px;
         }
-        .error-content h2 { color: #fc8181; margin-bottom: 16px; }
-        .error-content p { color: var(--text-light); line-height: 1.8; margin-bottom: 16px; }
-        .error-content ol { text-align: left; padding-left: 24px; line-height: 2.2; color: var(--text); }
+        .error-content h2 { color: #fc8181; margin-bottom: 14px; font-size: 1.2rem; }
+        .error-content p { color: var(--text-muted); line-height: 1.7; margin-bottom: 14px; font-size: 0.9rem; }
+        .error-content ol { text-align: left; padding-left: 20px; line-height: 2; color: var(--text); font-size: 0.85rem; }
         .error-content .fix-btn {
-            display: inline-block; margin-top: 20px; padding: 12px 28px;
-            background: var(--accent); color: #000; border-radius: 8px;
-            font-weight: 700; cursor: pointer; border: none; font-size: 1rem;
+            display: inline-block; margin-top: 16px; padding: 10px 24px;
+            background: var(--gold); color: var(--navy); border-radius: 6px;
+            font-weight: 700; cursor: pointer; border: none; font-size: 0.9rem;
         }
 
-        /* ── RESPONSIVE ── */
-        @media (max-width: 768px) {
-            .header h1 { font-size: 1.6rem; }
-            .app-grid { grid-template-columns: 1fr; }
-            .container { padding: 24px 16px; }
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 900px) {
+            .tlrw-hero { grid-template-columns: repeat(2, 1fr); }
+            .market-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 600px) {
+            .tlrw-hero { grid-template-columns: 1fr; }
+            .hero { padding: 36px 20px 32px; }
+            .hero-tagline { font-size: 1.3rem; }
+            .site-header { padding: 12px 16px; flex-direction: column; gap: 8px; text-align: center; }
+            .main { padding: 24px 16px; }
+            .cred-bar { gap: 16px; padding: 12px 16px; }
+        }
+
+        /* ─── PRINT ─── */
+        @media print {
+            body { background: white; color: #222; }
+            .site-header, .site-footer, #app-viewer, .help-box { display: none; }
+            .hero { background: none; border: none; padding: 20px 0; }
+            .hero-tagline { color: #222; }
+            .hero-tagline strong { color: #8b7328; }
+            .tlrw-card, .market-card, .sec-card { border: 1px solid #ccc; background: #fafafa; color: #222; }
+            .tlrw-phase-name, .market-name, .sec-name { color: #222; }
+            .tlrw-phase-desc, .market-desc, .sec-desc, .cred-item { color: #555; }
         }
     </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- HUB VIEW  (main launcher page)                     -->
-<!-- ═══════════════════════════════════════════════════ -->
-<div id="hub-view">
-
-    <div class="header">
-        <h1>NUVABASE</h1>
-        <div class="subtitle">Professional Consulting &mdash; Service to Service Group, Inc.</div>
-        <div class="motto">"Mass Customization &mdash; One Engine, Unlimited Outcomes"</div>
+<!-- ═══════════════════════════════════════════════ -->
+<!-- HEADER                                         -->
+<!-- ═══════════════════════════════════════════════ -->
+<header class="site-header">
+    <div class="logo-area">
+        <div class="logo-mark">N</div>
+        <div>
+            <div class="logo-text">NUVABASE</div>
+            <div class="logo-sub">Professional Consulting &mdash; Service to Service Group, Inc.</div>
+        </div>
     </div>
-
-    <div class="container">
-
-        <div class="status-bar">
-            <div class="status-item"><span class="status-dot"></span> All Systems Ready</div>
-            <div class="status-item"><strong>6</strong> Applications Available</div>
-            <div class="status-item">TLRW Framework v2.0</div>
-        </div>
-
-        <!-- HELP BOX: only shows if files might be missing -->
-        <div class="help-box" id="setup-help" style="display:none;">
-            <h3>SETUP REMINDER</h3>
-            <ol>
-                <li>Download the ZIP file from GitHub</li>
-                <li><span class="highlight">RIGHT-CLICK</span> the ZIP file, then click <span class="highlight">Extract All</span></li>
-                <li>Open the <strong>extracted folder</strong> (not the ZIP itself)</li>
-                <li>Double-click <strong>NUVABASE-Launcher.html</strong> from inside that folder</li>
-            </ol>
-            <p style="margin-top:12px;font-size:0.85rem;color:#94a3b8;">
-                All files must be in the same folder for the apps to find each other.
-            </p>
-        </div>
-
-        <div class="section-title">Dashboards &amp; Tools &mdash; Click Any Card to Open</div>
-        <div class="app-grid">
-
-            <a class="app-card blue" onclick="loadApp('dashboards/title1-school-dashboard.html', 'Title 1 School Dashboard')">
-                <span class="click-hint">Click to Open &rarr;</span>
-                <span class="app-icon">&#127979;</span>
-                <div class="app-name">Title 1 School Dashboard</div>
-                <div class="app-desc">Track student performance, attendance, interventions, parent engagement, and ESSA compliance for individual Title 1 schools.</div>
-                <div class="app-tags">
-                    <span class="app-tag">Student Tracking</span>
-                    <span class="app-tag">10 Tabs</span>
-                    <span class="app-tag">CSV Upload</span>
-                    <span class="app-tag">Compliance</span>
-                </div>
-            </a>
-
-            <a class="app-card orange" onclick="loadApp('dashboards/district-intelligence-dashboard.html', 'District Intelligence Dashboard')">
-                <span class="click-hint">Click to Open &rarr;</span>
-                <span class="app-icon">&#128200;</span>
-                <div class="app-name">District Intelligence Dashboard</div>
-                <div class="app-desc">Research any school district, compare year-over-year data, identify pain points, and auto-generate business proposals using TLRW workflow.</div>
-                <div class="app-tags">
-                    <span class="app-tag">TLRW Workflow</span>
-                    <span class="app-tag">YoY Compare</span>
-                    <span class="app-tag">Proposal Generator</span>
-                </div>
-            </a>
-
-            <a class="app-card purple" onclick="loadApp('dashboards/tlrw-fixer-dashboard.html', 'TLRW Code Fixer')">
-                <span class="click-hint">Click to Open &rarr;</span>
-                <span class="app-icon">&#128295;</span>
-                <div class="app-name">TLRW Code Fixer</div>
-                <div class="app-desc">Paste Python code, run the TLRW Redundancy Cascade, see visual reports of issues found and fixes applied. No command line needed.</div>
-                <div class="app-tags">
-                    <span class="app-tag">Code Analysis</span>
-                    <span class="app-tag">25+ Patterns</span>
-                    <span class="app-tag">Triple Redundancy</span>
-                    <span class="app-tag new">NEW</span>
-                </div>
-            </a>
-
-            <a class="app-card teal" onclick="loadApp('index.html', 'Touch Companion')">
-                <span class="click-hint">Click to Open &rarr;</span>
-                <span class="app-icon">&#128241;</span>
-                <div class="app-name">Touch Companion</div>
-                <div class="app-desc">Original Touch Companion product page &mdash; classroom efficiency platform for teachers and students with touch-first interfaces.</div>
-                <div class="app-tags">
-                    <span class="app-tag">Product Page</span>
-                    <span class="app-tag">EdTech</span>
-                    <span class="app-tag">Demo Ready</span>
-                </div>
-            </a>
-
-        </div>
-
-        <div class="section-title">Documents &amp; Strategy</div>
-        <div class="app-grid">
-
-            <a class="app-card green" onclick="loadApp('docs/00-Document-Index.md', 'Strategy Documents')">
-                <span class="click-hint">Click to Open &rarr;</span>
-                <span class="app-icon">&#128196;</span>
-                <div class="app-name">Strategy Documents</div>
-                <div class="app-desc">Five formal NUVABASE documents: Product Assessment, Chatbot Wrapper, Feasibility Analysis, Vertical Markets, Nonprofit Strategy.</div>
-                <div class="app-tags">
-                    <span class="app-tag">5 Documents</span>
-                    <span class="app-tag">Google Docs Ready</span>
-                </div>
-            </a>
-
-            <a class="app-card red" onclick="loadApp('TLRW-Framework.md', 'TLRW Framework')">
-                <span class="click-hint">Click to Open &rarr;</span>
-                <span class="app-icon">&#128218;</span>
-                <div class="app-name">TLRW Framework</div>
-                <div class="app-desc">Complete TLRW methodology: public definition, patent-ready description, technical diagram, client brochure, and AI multi-agent prompt.</div>
-                <div class="app-tags">
-                    <span class="app-tag">Patent Ready</span>
-                    <span class="app-tag">5 Deliverables</span>
-                    <span class="app-tag">IP Documentation</span>
-                </div>
-            </a>
-
-        </div>
-
-        <div class="section-title">Quick Actions &mdash; Download Templates</div>
-        <div class="quick-bar">
-            <a class="quick-btn" href="javascript:void(0)" onclick="downloadTemplate('student')">&#8681; Student Data Template</a>
-            <a class="quick-btn" href="javascript:void(0)" onclick="downloadTemplate('events')">&#8681; Parent Events Template</a>
-            <a class="quick-btn" href="javascript:void(0)" onclick="downloadTemplate('district')">&#8681; District Data Template</a>
-            <a class="quick-btn" href="javascript:void(0)" onclick="loadApp('dashboards/templates/README-FOR-SCHOOLS.txt', 'School Instructions')">&#128221; School Instructions</a>
-        </div>
-
+    <div class="header-right">
+        <span class="status-dot"></span> Platform Ready<br>
+        TLRW Framework v2.0
     </div>
+</header>
 
-    <div class="footer">
-        <strong>NUVABASE Professional Consulting</strong> &mdash; Service to Service Group, Inc.<br>
-        Continuous Improvement &bull; Data Analytics &bull; TLRW Framework<br>
-        All applications run locally on your computer. No internet required. 100% private and secure.
+<!-- ═══════════════════════════════════════════════ -->
+<!-- TLRW HERO                                      -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="hero">
+    <div class="hero-tagline"><strong>Cognitive Infrastructure.</strong> One Framework. Unlimited Outcomes.</div>
+    <div class="hero-subtitle">The TLRW methodology powers every engagement &mdash; a four-phase, twelve-gate quality system that transforms data into decisions and decisions into results.</div>
+
+    <div class="tlrw-hero">
+        <div class="tlrw-card tlrw-think">
+            <div class="tlrw-phase-num">Phase 1</div>
+            <div class="tlrw-phase-name">THINK</div>
+            <div class="tlrw-phase-desc">Problem framing, assumption challenge, and predictive outcome forecasting.</div>
+            <div class="tlrw-gates">3 Quality Gates</div>
+        </div>
+        <div class="tlrw-card tlrw-learn">
+            <div class="tlrw-phase-num">Phase 2</div>
+            <div class="tlrw-phase-name">LEARN</div>
+            <div class="tlrw-phase-desc">Data collection, cross-verification, and accuracy confirmation from live sources.</div>
+            <div class="tlrw-gates">3 Quality Gates</div>
+        </div>
+        <div class="tlrw-card tlrw-reflect">
+            <div class="tlrw-phase-num">Phase 3</div>
+            <div class="tlrw-phase-name">REFLECT</div>
+            <div class="tlrw-phase-desc">Solution validation, consistency checking, and risk stress-testing.</div>
+            <div class="tlrw-gates">3 Quality Gates</div>
+        </div>
+        <div class="tlrw-card tlrw-write">
+            <div class="tlrw-phase-num">Phase 4</div>
+            <div class="tlrw-phase-name">WRITE</div>
+            <div class="tlrw-phase-desc">Execution, documentation, and final verification before delivery.</div>
+            <div class="tlrw-gates">3 Quality Gates</div>
+        </div>
     </div>
+</section>
 
+<!-- ═══════════════════════════════════════════════ -->
+<!-- CREDENTIALS BAR                                -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="cred-bar">
+    <div class="cred-item"><strong>$90M</strong> SBA Portfolio Managed</div>
+    <div class="cred-item"><strong>$7M</strong> Savings &mdash; Chicago Public Schools</div>
+    <div class="cred-item"><strong>1,500+</strong> Employees Managed</div>
+    <div class="cred-item"><strong>9.1/10</strong> GBCA AI Dashboard</div>
+    <div class="cred-item"><strong>20+ Years</strong> Telecom Infrastructure (Bell Labs)</div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- APP VIEWER  (full-screen overlay with iframe)      -->
-<!-- ═══════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════ -->
+<!-- MAIN CONTENT                                   -->
+<!-- ═══════════════════════════════════════════════ -->
+<main class="main">
+
+    <!-- HELP BOX (hidden by default) -->
+    <div class="help-box" id="setup-help">
+        <h3>SETUP REMINDER</h3>
+        <ol>
+            <li>Download the full ZIP file</li>
+            <li><span class="hl">RIGHT-CLICK</span> the ZIP &rarr; <span class="hl">Extract All</span></li>
+            <li>Open the extracted folder</li>
+            <li>Double-click <strong>NUVABASE-Launcher.html</strong></li>
+        </ol>
+    </div>
+
+    <!-- MARKET INTELLIGENCE -->
+    <div class="section-label">TLRW Applications</div>
+    <div class="section-title-lg">Market Intelligence Platforms</div>
+
+    <div class="market-grid">
+
+        <a class="market-card" onclick="loadApp('dashboards/construction-intelligence.html', 'Construction Intelligence')">
+            <span class="market-badge badge-demo">DEMO</span>
+            <span class="market-icon">&#127959;</span>
+            <div class="market-name">Construction Intelligence</div>
+            <div class="market-desc">Bid analysis, project management oversight, compliance tracking, and competitive intelligence for construction firms and general contractors.</div>
+            <div class="market-proof">Proof: GBCA AI Dashboard deployed &mdash; 9.1/10 rating. Federal contracting experience via SAM.gov and state procurement portals.</div>
+            <div class="click-hint-sm">Click to Open &rarr;</div>
+        </a>
+
+        <a class="market-card" onclick="loadApp('dashboards/municipal-intelligence.html', 'Municipal Intelligence')">
+            <span class="market-badge badge-demo">DEMO</span>
+            <span class="market-icon">&#127963;</span>
+            <div class="market-name">Municipal Intelligence</div>
+            <div class="market-desc">Workforce development analytics, operational efficiency metrics, grant capture opportunities, and civic performance dashboards for city governments.</div>
+            <div class="market-proof">Proof: Puerto Rico RFP engagement. Atlanta Mayor's Office. 20+ years infrastructure management at Bell Labs scale.</div>
+            <div class="click-hint-sm">Click to Open &rarr;</div>
+        </a>
+
+        <a class="market-card" onclick="loadApp('dashboards/small-business-intelligence.html', 'Small Business Intelligence')">
+            <span class="market-badge badge-demo">DEMO</span>
+            <span class="market-icon">&#128188;</span>
+            <div class="market-name">Small Business Intelligence</div>
+            <div class="market-desc">SBA portfolio optimization, growth trajectory analysis, revenue projection, operational efficiency scoring, and strategic planning for business owners.</div>
+            <div class="market-proof">Proof: $90M SBA portfolio managed. 1,500 employees across portfolio. Growth strategy and financing optimization.</div>
+            <div class="click-hint-sm">Click to Open &rarr;</div>
+        </a>
+
+    </div>
+
+    <hr class="divider">
+
+    <!-- TOOLS & RESOURCES -->
+    <div class="section-label">Tools &amp; Resources</div>
+    <div class="section-title-lg">Platform Utilities</div>
+
+    <div class="secondary-grid">
+
+        <a class="sec-card" onclick="loadApp('dashboards/tlrw-fixer-dashboard.html', 'TLRW Process Engine')">
+            <span class="sec-icon">&#9881;</span>
+            <div class="sec-name">See TLRW in Action</div>
+            <div class="sec-desc">Live demonstration of the TLRW 4-phase, 12-gate quality process executing in real time. The same methodology powers all NUVABASE engagements.</div>
+        </a>
+
+        <a class="sec-card" onclick="loadApp('index.html', 'Touch Companion')">
+            <span class="sec-icon">&#128241;</span>
+            <div class="sec-name">Operations Management Platform</div>
+            <div class="sec-desc">AI-powered administrative automation. Reduce operational burden by 70%. Integrates with existing systems.</div>
+        </a>
+
+        <a class="sec-card" onclick="loadApp('docs/00-Document-Index.md', 'Strategy Documents')">
+            <span class="sec-icon">&#128196;</span>
+            <div class="sec-name">Strategy Documents</div>
+            <div class="sec-desc">Product assessments, feasibility analyses, vertical market strategies, and IP documentation.</div>
+        </a>
+
+        <a class="sec-card" onclick="loadApp('TLRW-Framework.md', 'TLRW Framework IP')">
+            <span class="sec-icon">&#128218;</span>
+            <div class="sec-name">TLRW Framework IP</div>
+            <div class="sec-desc">Patent-ready methodology documentation. Technical diagrams, client brochure, and AI multi-agent execution prompt.</div>
+        </a>
+
+    </div>
+
+    <hr class="divider">
+
+    <!-- EDUCATION PIPELINE (legacy) -->
+    <div class="section-label">Education Pipeline</div>
+    <div class="section-title-lg" style="font-size:1.1rem;">School &amp; District Analytics</div>
+
+    <div class="secondary-grid">
+
+        <a class="sec-card" onclick="loadApp('dashboards/title1-school-dashboard.html', 'Title 1 School Dashboard')">
+            <span class="sec-icon">&#127979;</span>
+            <div class="sec-name">Title 1 School Dashboard</div>
+            <div class="sec-desc">Student performance, attendance, interventions, parent engagement, and ESSA compliance tracking.</div>
+        </a>
+
+        <a class="sec-card" onclick="loadApp('dashboards/district-intelligence-dashboard.html', 'District Intelligence Dashboard')">
+            <span class="sec-icon">&#128200;</span>
+            <div class="sec-name">District Intelligence Dashboard</div>
+            <div class="sec-desc">District-level research, year-over-year comparison, pain point detection, and proposal generation.</div>
+        </a>
+
+    </div>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- FOOTER                                         -->
+<!-- ═══════════════════════════════════════════════ -->
+<footer class="site-footer">
+    <strong>NUVABASE Professional Consulting</strong> &mdash; Service to Service Group, Inc.<br>
+    <span class="footer-gold">Powered by TLRW Cognitive Infrastructure</span><br>
+    All applications run locally. No internet required for operation. 100% data privacy.
+</footer>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- APP VIEWER (full-screen overlay)               -->
+<!-- ═══════════════════════════════════════════════ -->
 <div id="app-viewer">
     <div id="app-toolbar">
         <button id="back-btn" onclick="backToHub()">&#9664; Back to Hub</button>
@@ -305,28 +432,19 @@
     <div id="error-panel">
         <div class="error-content">
             <h2>&#9888; File Not Found</h2>
-            <p>The app could not be loaded. This usually means the files are not in the right place.</p>
-            <p><strong>How to fix it:</strong></p>
+            <p>This application could not be loaded. Ensure all files are extracted in the same folder.</p>
             <ol>
-                <li>Go back and download the <strong>full ZIP file</strong></li>
-                <li><strong>RIGHT-CLICK</strong> the ZIP &rarr; click <strong>"Extract All"</strong></li>
-                <li>Open the <strong>extracted folder</strong></li>
-                <li>Double-click <strong>NUVABASE-Launcher.html</strong> from <em>inside</em> that folder</li>
+                <li>Download the <strong>full ZIP file</strong></li>
+                <li><strong>RIGHT-CLICK</strong> the ZIP &rarr; <strong>"Extract All"</strong></li>
+                <li>Open the extracted folder</li>
+                <li>Double-click <strong>NUVABASE-Launcher.html</strong></li>
             </ol>
-            <p style="margin-top:16px; font-size:0.85rem;">
-                The key: all files must be <strong>extracted</strong> and in the <strong>same folder</strong>.
-                Do NOT open files directly from inside the ZIP.
-            </p>
             <button class="fix-btn" onclick="backToHub()">&#9664; Back to Hub</button>
         </div>
     </div>
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════════ */
-/* APP LOADING                                        */
-/* ═══════════════════════════════════════════════════ */
-
 function loadApp(path, name) {
     var viewer = document.getElementById('app-viewer');
     var hubView = document.getElementById('hub-view');
@@ -334,26 +452,25 @@ function loadApp(path, name) {
     var title = document.getElementById('app-viewer-title');
     var errorPanel = document.getElementById('error-panel');
 
-    /* Reset state */
     errorPanel.style.display = 'none';
     errorPanel.classList.remove('active');
     frame.style.display = 'block';
     title.textContent = name;
 
-    /* Show the viewer overlay */
-    hubView.style.display = 'none';
+    document.querySelector('.site-header').style.display = 'none';
+    document.querySelector('.hero').style.display = 'none';
+    document.querySelector('.cred-bar').style.display = 'none';
+    document.querySelector('.main').style.display = 'none';
+    document.querySelector('.site-footer').style.display = 'none';
+
     viewer.style.display = 'flex';
     viewer.classList.add('active');
-
-    /* Load the file in the iframe */
     frame.src = path;
 
-    /* After a short delay, check if the frame loaded successfully */
     setTimeout(function() {
         try {
             var doc = frame.contentDocument || frame.contentWindow.document;
             var bodyText = doc && doc.body ? doc.body.innerText || '' : '';
-            /* Detect browser error pages (Chrome, Edge, Firefox) */
             if (bodyText.indexOf('is not available') > -1 ||
                 bodyText.indexOf('File not found') > -1 ||
                 bodyText.indexOf('ERR_FILE_NOT_FOUND') > -1 ||
@@ -361,81 +478,39 @@ function loadApp(path, name) {
                 (doc && doc.body && doc.body.innerHTML.length < 20)) {
                 showFileError();
             }
-        } catch(e) {
-            /* Cross-origin means something loaded — that's good */
-        }
+        } catch(e) { /* cross-origin = loaded */ }
     }, 2000);
 }
 
 function showFileError() {
     document.getElementById('app-frame').style.display = 'none';
-    var errorPanel = document.getElementById('error-panel');
-    errorPanel.style.display = 'flex';
-    errorPanel.classList.add('active');
-
-    /* Also show the setup help on the hub for next time */
+    var ep = document.getElementById('error-panel');
+    ep.style.display = 'flex';
+    ep.classList.add('active');
     document.getElementById('setup-help').style.display = 'block';
 }
 
 function backToHub() {
-    var viewer = document.getElementById('app-viewer');
-    var hubView = document.getElementById('hub-view');
-    var frame = document.getElementById('app-frame');
-
-    viewer.style.display = 'none';
-    viewer.classList.remove('active');
-    hubView.style.display = 'block';
-    frame.src = 'about:blank';
+    document.getElementById('app-viewer').style.display = 'none';
+    document.getElementById('app-viewer').classList.remove('active');
+    document.getElementById('app-frame').src = 'about:blank';
     document.getElementById('error-panel').style.display = 'none';
     document.getElementById('error-panel').classList.remove('active');
+
+    document.querySelector('.site-header').style.display = '';
+    document.querySelector('.hero').style.display = '';
+    document.querySelector('.cred-bar').style.display = '';
+    document.querySelector('.main').style.display = '';
+    document.querySelector('.site-footer').style.display = '';
 }
 
-/* ═══════════════════════════════════════════════════ */
-/* TEMPLATE DOWNLOADS                                 */
-/* ═══════════════════════════════════════════════════ */
-
-function downloadTemplate(type) {
-    var csv, filename;
-    if (type === 'student') {
-        csv = 'Student Name,Grade,Reading Level,Math Level,Attendance Rate,Intervention Program,Notes\n"Last, First",K,At Grade,At Grade,95,None,\n"Last, First",1,Above Grade,At Grade,98,None,\n';
-        filename = 'student-data-template.csv';
-    } else if (type === 'events') {
-        csv = 'Event Date,Event Type,Topic,Number of Attendees,Follow-Up Status\n2026-01-28,Parent Meeting,Title 1 Annual Meeting,84,Complete\n';
-        filename = 'parent-events-template.csv';
-    } else {
-        csv = 'School Name,Enrollment,Reading Proficiency %,Math Proficiency %,Attendance %,Free/Reduced Lunch %,Title 1 (Y/N),Grade/Rating\n"Lincoln Elementary",420,62,48,91,82,Y,C\n';
-        filename = 'district-school-data-template.csv';
-    }
-    var blob = new Blob([csv], { type: 'text/csv' });
-    var link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-/* ═══════════════════════════════════════════════════ */
-/* STARTUP: Quick check if files are accessible       */
-/* ═══════════════════════════════════════════════════ */
 (function() {
-    /* Check if we're running from a ZIP viewer (no dashboards folder) */
-    var testPath = 'dashboards/title1-school-dashboard.html';
     try {
         var xhr = new XMLHttpRequest();
-        xhr.open('HEAD', testPath, true);
-        xhr.onload = function() {
-            /* File accessible — all good */
-        };
-        xhr.onerror = function() {
-            /* File not accessible — show setup help */
-            document.getElementById('setup-help').style.display = 'block';
-        };
+        xhr.open('HEAD', 'dashboards/title1-school-dashboard.html', true);
+        xhr.onerror = function() { document.getElementById('setup-help').style.display = 'block'; };
         xhr.send();
-    } catch(e) {
-        /* XHR not available — show setup help as precaution */
-        document.getElementById('setup-help').style.display = 'block';
-    }
+    } catch(e) { document.getElementById('setup-help').style.display = 'block'; }
 })();
 </script>
 

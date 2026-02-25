@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Construction Intelligence — NUVABASE Professional Consulting</title>
+<style>
+:root {
+    --navy: #0a1628;
+    --navy-mid: #132240;
+    --navy-light: #1a365d;
+    --gold: #c9a84c;
+    --gold-light: #e2c97e;
+    --gold-dim: rgba(201,168,76,0.15);
+    --white: #ffffff;
+    --text: #e8ecf1;
+    --text-muted: #8899aa;
+    --border: #1e3a5f;
+    --card: #111d33;
+    --card-hover: #172847;
+    --success: #38a169;
+    --radius: 10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, sans-serif;
+    background: var(--navy);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Hub Nav ─── */
+#hub-nav {
+    background: var(--navy);
+    padding: 8px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+#hub-nav a {
+    background: var(--gold-dim);
+    border: 1px solid rgba(201,168,76,0.3);
+    color: var(--gold);
+    padding: 6px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+#hub-nav a:hover { background: rgba(201,168,76,0.25); }
+#hub-nav span { color: var(--text-muted); font-size: 0.8rem; }
+
+/* ─── Header ─── */
+.page-header {
+    background: linear-gradient(135deg, var(--navy-mid) 0%, var(--navy-light) 100%);
+    padding: 28px 32px 20px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+}
+.page-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 4px;
+}
+.page-header .subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+.demo-badge {
+    position: absolute;
+    top: 20px;
+    right: 32px;
+    background: rgba(201,168,76,0.2);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 4px 14px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+.tlrw-phases {
+    display: flex;
+    gap: 16px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+}
+.tlrw-phase {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+.tlrw-phase .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.tlrw-phase.think .dot { background: #4da6ff; }
+.tlrw-phase.learn .dot { background: #38a169; }
+.tlrw-phase.reflect .dot { background: #c9a84c; }
+.tlrw-phase.write .dot { background: #e05577; }
+.tlrw-phase strong { color: var(--text); font-weight: 600; }
+
+/* ─── Tab Navigation ─── */
+.tab-nav {
+    display: flex;
+    background: var(--navy-mid);
+    border-bottom: 2px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--navy-light) transparent;
+}
+.tab-nav::-webkit-scrollbar { height: 4px; }
+.tab-nav::-webkit-scrollbar-track { background: transparent; }
+.tab-nav::-webkit-scrollbar-thumb { background: var(--navy-light); border-radius: 2px; }
+.tab-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    padding: 14px 22px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.2s, border-color 0.2s;
+    font-family: inherit;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+    font-weight: 600;
+}
+
+/* ─── Tab Content ─── */
+.tab-content { display: none; padding: 28px 32px 60px; max-width: 1400px; margin: 0 auto; }
+.tab-content.active { display: block; }
+
+/* ─── Cards & Grid ─── */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 28px;
+}
+.kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    transition: background 0.2s;
+}
+.kpi-card:hover { background: var(--card-hover); }
+.kpi-card .label { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; }
+.kpi-card .value { font-size: 1.7rem; font-weight: 700; color: var(--white); }
+.kpi-card .change { font-size: 0.8rem; margin-top: 4px; }
+.kpi-card .change.up { color: var(--success); }
+.kpi-card .change.neutral { color: var(--text-muted); }
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+}
+.card:hover { background: var(--card-hover); }
+.card h3 {
+    font-size: 1.05rem;
+    color: var(--white);
+    margin-bottom: 12px;
+}
+
+/* ─── Section Titles ─── */
+.section-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 18px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+}
+
+/* ─── Bar Chart ─── */
+.bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    height: 140px;
+    padding-top: 10px;
+    margin-bottom: 6px;
+}
+.bar-chart .bar-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    height: 100%;
+    justify-content: flex-end;
+}
+.bar-chart .bar {
+    width: 100%;
+    max-width: 42px;
+    background: linear-gradient(180deg, var(--gold), rgba(201,168,76,0.4));
+    border-radius: 4px 4px 0 0;
+    min-height: 6px;
+    transition: height 0.3s;
+}
+.bar-chart .bar-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+}
+.bar-chart .bar-val {
+    font-size: 0.7rem;
+    color: var(--gold-light);
+    margin-bottom: 4px;
+}
+
+/* ─── Quick Actions ─── */
+.quick-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ─── Buttons ─── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 22px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s, transform 0.1s;
+    font-family: inherit;
+}
+.btn:active { transform: scale(0.97); }
+.btn-gold {
+    background: var(--gold);
+    color: var(--navy);
+}
+.btn-gold:hover { background: var(--gold-light); }
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+.btn-outline:hover { background: var(--navy-light); border-color: var(--gold); color: var(--gold); }
+.btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+
+/* ─── Tables ─── */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+.data-table thead th {
+    background: var(--navy-mid);
+    color: var(--text-muted);
+    text-align: left;
+    padding: 12px 14px;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+}
+.data-table tbody tr {
+    border-bottom: 1px solid rgba(30,58,95,0.5);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.data-table tbody tr:hover { background: var(--card-hover); }
+.data-table td { padding: 12px 14px; }
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+
+/* ─── Status Badges ─── */
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.badge-won { background: rgba(56,161,105,0.2); color: #68d391; }
+.badge-active { background: var(--gold-dim); color: var(--gold); }
+.badge-pending { background: rgba(136,153,170,0.2); color: var(--text-muted); }
+.badge-lost { background: rgba(224,85,119,0.2); color: #fc8181; }
+.badge-demo { background: rgba(201,168,76,0.2); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+.badge-live { background: rgba(56,161,105,0.2); color: #68d391; border: 1px solid rgba(56,161,105,0.3); }
+
+/* ─── Progress Bars ─── */
+.progress-track {
+    width: 100%;
+    height: 10px;
+    background: var(--navy);
+    border-radius: 5px;
+    overflow: hidden;
+}
+.progress-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.4s;
+}
+.progress-fill.green { background: linear-gradient(90deg, #38a169, #68d391); }
+.progress-fill.gold { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+.progress-fill.warn { background: linear-gradient(90deg, #dd6b20, #f6ad55); }
+
+/* ─── Gantt ─── */
+.gantt-container { margin-top: 28px; }
+.gantt-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 12px;
+}
+.gantt-label {
+    min-width: 200px;
+    font-size: 0.82rem;
+    color: var(--text);
+    text-align: right;
+}
+.gantt-track {
+    flex: 1;
+    height: 22px;
+    background: var(--navy);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+.gantt-bar {
+    position: absolute;
+    height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--navy);
+}
+.gantt-months {
+    display: flex;
+    margin-left: 212px;
+    margin-bottom: 8px;
+}
+.gantt-months span {
+    flex: 1;
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+/* ─── Compliance ─── */
+.compliance-score-lg {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--gold);
+    text-align: center;
+    margin: 10px 0;
+}
+.compliance-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(30,58,95,0.4);
+    transition: background 0.15s;
+}
+.compliance-item:hover { background: var(--card-hover); }
+.compliance-item:last-child { border-bottom: none; }
+.compliance-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+.compliance-icon { font-size: 1.2rem; }
+.compliance-name { font-weight: 600; color: var(--white); font-size: 0.9rem; }
+.compliance-detail { font-size: 0.8rem; color: var(--text-muted); }
+.compliance-right { display: flex; align-items: center; gap: 12px; }
+
+/* ─── ROI Calculator ─── */
+.roi-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+.roi-results {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.roi-result-card {
+    background: var(--navy);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+}
+.roi-result-card .label { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px; }
+.roi-result-card .value { font-size: 1.6rem; font-weight: 800; color: var(--gold); }
+.roi-result-card.highlight {
+    border-color: var(--gold);
+    background: var(--gold-dim);
+}
+.roi-result-card.highlight .value { font-size: 2rem; }
+
+/* ─── Form Fields ─── */
+.form-group { margin-bottom: 16px; }
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--navy);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+}
+.form-group textarea { resize: vertical; min-height: 90px; }
+.form-group select { cursor: pointer; }
+.form-group select option { background: var(--navy-mid); color: var(--text); }
+
+/* ─── API Connection Cards ─── */
+.api-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 20px;
+}
+.api-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    position: relative;
+}
+.api-card .api-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+.api-card .api-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--white);
+}
+.api-card .api-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+.api-card .api-fields { margin-bottom: 16px; }
+.api-card .api-fields input {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--navy);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text);
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    font-family: inherit;
+}
+.api-card .api-fields input:focus { outline: none; border-color: var(--gold); }
+.api-card .api-actions { display: flex; gap: 10px; align-items: center; }
+
+/* ─── Drag Drop ─── */
+.drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+.drop-zone:hover { border-color: var(--gold); background: var(--gold-dim); }
+.drop-zone .drop-icon { font-size: 2rem; margin-bottom: 8px; }
+.drop-zone .drop-text { font-size: 0.9rem; }
+.drop-zone .drop-sub { font-size: 0.78rem; margin-top: 6px; }
+
+/* ─── TLRW Detail Panel ─── */
+.detail-panel {
+    background: var(--card);
+    border: 1px solid var(--gold);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-top: 20px;
+    display: none;
+}
+.detail-panel.visible { display: block; }
+.detail-panel h3 { color: var(--gold); font-size: 1.1rem; margin-bottom: 16px; }
+.detail-panel .close-detail {
+    float: right;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+}
+.detail-panel .close-detail:hover { color: var(--white); }
+.tlrw-section { margin-bottom: 14px; }
+.tlrw-section h4 {
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.tlrw-section h4.think { color: #4da6ff; }
+.tlrw-section h4.learn { color: #38a169; }
+.tlrw-section h4.reflect { color: #c9a84c; }
+.tlrw-section h4.write { color: #e05577; }
+.tlrw-section p { font-size: 0.85rem; color: var(--text-muted); }
+
+/* ─── Project Cards ─── */
+.project-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 16px;
+}
+.project-card:hover { background: var(--card-hover); }
+.project-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+.project-name { font-size: 1rem; font-weight: 700; color: var(--white); }
+.project-value { font-size: 0.9rem; color: var(--gold); font-weight: 600; }
+.project-meta { display: flex; gap: 20px; margin-top: 12px; flex-wrap: wrap; }
+.project-meta-item { font-size: 0.82rem; color: var(--text-muted); }
+.project-meta-item strong { color: var(--text); }
+
+/* ─── Proposal Output ─── */
+.proposal-output {
+    display: none;
+    background: var(--white);
+    color: #1a1a1a;
+    padding: 48px;
+    border-radius: var(--radius);
+    margin-top: 24px;
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+.proposal-output.visible { display: block; }
+.proposal-output h2 { color: var(--navy); font-size: 1.4rem; margin: 24px 0 10px; border-bottom: 2px solid var(--gold); padding-bottom: 6px; }
+.proposal-output h3 { color: var(--navy-light); font-size: 1.1rem; margin: 18px 0 8px; }
+.proposal-output .letterhead { text-align: center; margin-bottom: 32px; border-bottom: 3px solid var(--gold); padding-bottom: 20px; }
+.proposal-output .letterhead h1 { font-size: 1.6rem; color: var(--navy); margin-bottom: 2px; letter-spacing: 2px; }
+.proposal-output .letterhead p { font-size: 0.85rem; color: #666; }
+.proposal-output .sig-block { margin-top: 40px; border-top: 1px solid #ddd; padding-top: 20px; }
+.proposal-output ul { margin: 8px 0 8px 24px; }
+.proposal-output li { margin-bottom: 4px; }
+
+/* ─── Accordion ─── */
+.accordion-item { border-bottom: 1px solid var(--border); }
+.accordion-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--white);
+    padding: 16px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: inherit;
+}
+.accordion-btn:hover { color: var(--gold); }
+.accordion-btn .arrow { transition: transform 0.2s; font-size: 0.8rem; color: var(--text-muted); }
+.accordion-btn.open .arrow { transform: rotate(90deg); }
+.accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+.accordion-body.open { max-height: 800px; }
+.accordion-body-inner { padding: 0 0 20px; font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; }
+.accordion-body-inner p { margin-bottom: 10px; }
+
+/* ─── Glossary ─── */
+.glossary-item { padding: 14px 0; border-bottom: 1px solid rgba(30,58,95,0.4); }
+.glossary-item:last-child { border-bottom: none; }
+.glossary-term { font-weight: 700; color: var(--gold); font-size: 0.95rem; margin-bottom: 4px; }
+.glossary-def { font-size: 0.88rem; color: var(--text-muted); }
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .roi-inputs { grid-template-columns: 1fr; }
+    .roi-results { grid-template-columns: 1fr; }
+    .api-grid { grid-template-columns: 1fr; }
+    .gantt-label { min-width: 120px; font-size: 0.75rem; }
+    .gantt-months { margin-left: 132px; }
+    .tab-content { padding: 20px 16px 40px; }
+    .page-header { padding: 20px 16px 16px; }
+    .proposal-output { padding: 24px; }
+}
+@media (max-width: 600px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+    .gantt-label { min-width: 90px; }
+    .gantt-months { margin-left: 102px; }
+    .project-header { flex-direction: column; align-items: flex-start; }
+}
+
+/* ─── Print ─── */
+@media print {
+    body { background: white; color: #1a1a1a; }
+    #hub-nav, .tab-nav, .demo-badge, .tlrw-phases, .btn, .quick-actions, .no-print { display: none !important; }
+    .page-header { background: none; border-bottom: 2px solid #1a365d; padding: 10px 0; }
+    .page-header h1 { color: #1a365d; }
+    .page-header .subtitle { color: #666; }
+    .tab-content { display: none !important; padding: 0; }
+    .tab-content.print-active { display: block !important; }
+    .kpi-card, .card, .project-card, .roi-result-card {
+        background: white;
+        border: 1px solid #ccc;
+        color: #1a1a1a;
+        break-inside: avoid;
+    }
+    .kpi-card .value, .section-title, .compliance-name { color: #1a365d; }
+    .kpi-card .label, .kpi-card .change, .compliance-detail, .project-meta-item { color: #666; }
+    .roi-result-card .value { color: #1a365d; }
+    .proposal-output { box-shadow: none; border: none; padding: 0; }
+    .data-table thead th { background: #f5f5f5; color: #333; }
+    .data-table td { color: #333; border-bottom: 1px solid #ddd; }
+    .progress-track { background: #eee; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════ HUB NAV ════════════════════════════════════ -->
+<div id="hub-nav">
+    <a href="../NUVABASE-Launcher.html">&#9664; Back to Hub</a>
+    <span>NUVABASE Launcher</span>
+</div>
+
+<!-- ════════════════════════════════════ HEADER ════════════════════════════════════ -->
+<header class="page-header">
+    <h1>Construction Intelligence</h1>
+    <p class="subtitle">Bid Analysis &bull; Project Management &bull; Compliance Tracking &mdash; NUVABASE Professional Consulting</p>
+    <span class="demo-badge">DEMO</span>
+    <div class="tlrw-phases">
+        <span class="tlrw-phase think"><span class="dot"></span> <strong>Think</strong> = Analysis</span>
+        <span class="tlrw-phase learn"><span class="dot"></span> <strong>Learn</strong> = Data</span>
+        <span class="tlrw-phase reflect"><span class="dot"></span> <strong>Reflect</strong> = Evaluate</span>
+        <span class="tlrw-phase write"><span class="dot"></span> <strong>Write</strong> = Proposal</span>
+    </div>
+</header>
+
+<!-- ════════════════════════════════════ TAB NAV ════════════════════════════════════ -->
+<nav class="tab-nav" id="tabNav">
+    <button class="tab-btn active" data-tab="dashboard" type="button">Dashboard</button>
+    <button class="tab-btn" data-tab="api" type="button">API Connections</button>
+    <button class="tab-btn" data-tab="bids" type="button">Bid Intelligence</button>
+    <button class="tab-btn" data-tab="projects" type="button">Project Tracking</button>
+    <button class="tab-btn" data-tab="compliance" type="button">Compliance &amp; Bonding</button>
+    <button class="tab-btn" data-tab="roi" type="button">ROI Calculator</button>
+    <button class="tab-btn" data-tab="proposal" type="button">Generate Proposal</button>
+    <button class="tab-btn" data-tab="manual" type="button">User Manual</button>
+    <button class="tab-btn" data-tab="glossary" type="button">Glossary</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════════
+     TAB 1: DASHBOARD OVERVIEW
+     ═══════════════════════════════════════════════════════════════════════════════════ -->
+<section class="tab-content active" id="tab-dashboard">
+    <h2 class="section-title">Key Performance Indicators</h2>
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="label">Active Bids</div>
+            <div class="value">12</div>
+            <div class="change up">&#9650; 3 this month</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Win Rate</div>
+            <div class="value">34.2%</div>
+            <div class="change up">&#9650; 2.1% vs last quarter</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Active Projects</div>
+            <div class="value">8</div>
+            <div class="change neutral">$47.3M total value</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Avg Bid Size</div>
+            <div class="value">$3.8M</div>
+            <div class="change neutral">Range: $500K &ndash; $15M</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Compliance Score</div>
+            <div class="value">94%</div>
+            <div class="change up">2 items pending</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Pipeline Value</div>
+            <div class="value">$156M</div>
+            <div class="change neutral">Next 90 days</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Monthly Bid Volume</h3>
+        <div class="bar-chart">
+            <div class="bar-col"><span class="bar-val">5</span><div class="bar" style="height:36%"></div><span class="bar-label">Sep</span></div>
+            <div class="bar-col"><span class="bar-val">7</span><div class="bar" style="height:50%"></div><span class="bar-label">Oct</span></div>
+            <div class="bar-col"><span class="bar-val">4</span><div class="bar" style="height:29%"></div><span class="bar-label">Nov</span></div>
+            <div class="bar-col"><span class="bar-val">8</span><div class="bar" style="height:57%"></div><span class="bar-label">Dec</span></div>
+            <div class="bar-col"><span class="bar-val">10</span><div class="bar" style="height:71%"></div><span class="bar-label">Jan</span></div>
+            <div class="bar-col"><span class="bar-val">12</span><div class="bar" style="height:86%"></div><span class="bar-label">Feb</span></div>
+            <div class="bar-col"><span class="bar-val">14</span><div class="bar" style="height:100%"></div><span class="bar-label">Mar</span></div>
+        </div>
+    </div>
+
+    <h2 class="section-title" style="margin-top:28px;">Quick Actions</h2>
+    <div class="quick-actions">
+        <button class="btn btn-gold" type="button" onclick="switchTab('bids')">View All Bids</button>
+        <button class="btn btn-gold" type="button" onclick="switchTab('proposal')">Generate Proposal</button>
+        <button class="btn btn-outline" type="button" onclick="switchTab('compliance')">Check Compliance</button>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════════
+     TAB 2: API CONNECTIONS
+     ═══════════════════════════════════════════════════════════════════════════════════ -->
+<section class="tab-content" id="tab-api">
+    <h2 class="section-title">Data Source Connections</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:22px;">Connect your live data sources below. When no credentials are entered, the dashboard operates in DEMO mode with sample data. Credentials are stored locally in your browser.</p>
+
+    <div class="api-grid">
+        <!-- Procore -->
+        <div class="api-card" id="api-procore">
+            <div class="api-header">
+                <span class="api-title">Procore</span>
+                <span class="badge badge-demo" id="badge-procore">DEMO</span>
+            </div>
+            <p class="api-desc">Project Management &mdash; sync project data, RFIs, change orders, and schedules directly from Procore.</p>
+            <div class="api-fields">
+                <input type="text" id="procore-apikey" placeholder="API Key" autocomplete="off">
+                <input type="text" id="procore-companyid" placeholder="Company ID" autocomplete="off">
+            </div>
+            <div class="api-actions">
+                <button class="btn btn-gold btn-sm" type="button" onclick="saveApiCreds('procore',['procore-apikey','procore-companyid'])">Connect</button>
+                <button class="btn btn-outline btn-sm" type="button" onclick="clearApiCreds('procore',['procore-apikey','procore-companyid'])">Disconnect</button>
+            </div>
+        </div>
+
+        <!-- SAM.gov -->
+        <div class="api-card" id="api-samgov">
+            <div class="api-header">
+                <span class="api-title">SAM.gov</span>
+                <span class="badge badge-demo" id="badge-samgov">DEMO</span>
+            </div>
+            <p class="api-desc">Federal Contracts &mdash; access federal contract opportunities, entity registrations, and exclusion records.</p>
+            <div class="api-fields">
+                <input type="text" id="samgov-apikey" placeholder="API Key" autocomplete="off">
+            </div>
+            <div class="api-actions">
+                <button class="btn btn-gold btn-sm" type="button" onclick="saveApiCreds('samgov',['samgov-apikey'])">Connect</button>
+                <button class="btn btn-outline btn-sm" type="button" onclick="clearApiCreds('samgov',['samgov-apikey'])">Disconnect</button>
+            </div>
+        </div>
+
+        <!-- State Procurement Portal -->
+        <div class="api-card" id="api-state">
+            <div class="api-header">
+                <span class="api-title">State Procurement Portal</span>
+                <span class="badge badge-demo" id="badge-state">DEMO</span>
+            </div>
+            <p class="api-desc">State-level procurement &mdash; access state RFPs, bid solicitations, and contract awards from your local portal.</p>
+            <div class="api-fields">
+                <input type="text" id="state-state" placeholder="State (e.g., PA, IL, GA)" autocomplete="off">
+                <input type="text" id="state-portal" placeholder="Portal URL" autocomplete="off">
+                <input type="text" id="state-creds" placeholder="Credentials / API Token" autocomplete="off">
+            </div>
+            <div class="api-actions">
+                <button class="btn btn-gold btn-sm" type="button" onclick="saveApiCreds('state',['state-state','state-portal','state-creds'])">Connect</button>
+                <button class="btn btn-outline btn-sm" type="button" onclick="clearApiCreds('state',['state-state','state-portal','state-creds'])">Disconnect</button>
+            </div>
+        </div>
+
+        <!-- Dodge Data -->
+        <div class="api-card" id="api-dodge">
+            <div class="api-header">
+                <span class="api-title">Dodge Data &amp; Analytics</span>
+                <span class="badge badge-demo" id="badge-dodge">DEMO</span>
+            </div>
+            <p class="api-desc">Construction market intelligence &mdash; project leads, building permits, and market forecasts from Dodge.</p>
+            <div class="api-fields">
+                <input type="text" id="dodge-apikey" placeholder="API Key" autocomplete="off">
+            </div>
+            <div class="api-actions">
+                <button class="btn btn-gold btn-sm" type="button" onclick="saveApiCreds('dodge',['dodge-apikey'])">Connect</button>
+                <button class="btn btn-outline btn-sm" type="button" onclick="clearApiCreds('dodge',['dodge-apikey'])">Disconnect</button>
+            </div>
+        </div>
+
+        <!-- CSV Upload -->
+        <div class="api-card">
+            <div class="api-header">
+                <span class="api-title">CSV Upload (Fallback)</span>
+                <span class="badge badge-demo">MANUAL</span>
+            </div>
+            <p class="api-desc">Upload your bid data, project lists, or compliance records via CSV. Use this when direct API access is unavailable.</p>
+            <div class="drop-zone" id="csvDropZone" onclick="document.getElementById('csvFileInput').click()">
+                <div class="drop-icon">&#128196;</div>
+                <div class="drop-text">Drag &amp; drop CSV file here, or click to browse</div>
+                <div class="drop-sub">Supports .csv files up to 10MB</div>
+            </div>
+            <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="handleCsvUpload(this)">
+            <div id="csvStatus" style="margin-top:10px;font-size:0.85rem;color:var(--text-muted);"></div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════════
+     TAB 3: BID INTELLIGENCE
+     ═══════════════════════════════════════════════════════════════════════════════════ -->
+<section class="tab-content" id="tab-bids">
+    <h2 class="section-title">Bid Intelligence</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:18px;">Click any row for a full TLRW analysis. Data shown is demonstration data when no live API is connected.</p>
+
+    <div class="table-wrap">
+        <table class="data-table" id="bidTable">
+            <thead>
+                <tr>
+                    <th>Bid Name</th>
+                    <th>Client</th>
+                    <th>Value</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Win Prob</th>
+                </tr>
+            </thead>
+            <tbody id="bidTableBody">
+                <!-- Populated by JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="detail-panel" id="bidDetail">
+        <button class="close-detail" type="button" onclick="closeBidDetail()">&times;</button>
+        <h3 id="detailTitle">Bid Analysis</h3>
+        <div id="detailContent"></div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════════
+     TAB 4: PROJECT TRACKING
+     ═══════════════════════════════════════════════════════════════════════════════════ -->
+<section class="tab-content" id="tab-projects">
+    <h2 class="section-title">Active Projects</h2>
+
+    <div id="projectList">
+        <!-- Populated by JS -->
+    </div>
+
+    <div class="card" style="margin-top:28px;">
+        <h3>Project Timeline (Gantt View)</h3>
+        <div class="gantt-container">
+            <div class="gantt-months">
+                <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span>
+            </div>
+            <div class="gantt-row">
+                <span class="gantt-label">Water Treatment</span>
+                <div class="gantt-track">
+                    <div class="gantt-bar" style="left:0%;width:70%;background:linear-gradient(90deg,#38a169,#68d391);">67%</div>
+                </div>
+            </div>
+            <div class="gantt-row">
+                <span class="gantt-label">Office Foundation</span>
+                <div class="gantt-track">
+                    <div class="gantt-bar" style="left:5%;width:55%;background:linear-gradient(90deg,#38a169,#68d391);">45%</div>
+                </div>
+            </div>
+            <div class="gantt-row">
+                <span class="gantt-label">HVAC Modernization</span>
+                <div class="gantt-track">
+                    <div class="gantt-bar" style="left:15%;width:40%;background:linear-gradient(90deg,#dd6b20,#f6ad55);">23%</div>
+                </div>
+            </div>
+            <div class="gantt-row">
+                <span class="gantt-label">Industrial Park Prep</span>
+                <div class="gantt-track">
+                    <div class="gantt-bar" style="left:0%;width:90%;background:linear-gradient(90deg,#38a169,#68d391);">89%</div>
+                </div>
+            </div>
+            <div class="gantt-row">
+                <span class="gantt-label">Highway Bridge Ph. I</span>
+                <div class="gantt-track">
+                    <div class="gantt-bar" style="left:10%;width:58%;background:linear-gradient(90deg,#38a169,#68d391);">52%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════════
+     TAB 5: COMPLIANCE & BONDING
+     ═══════════════════════════════════════════════════════════════════════════════════ -->
+<section class="tab-content" id="tab-compliance">
+    <h2 class="section-title">Compliance &amp; Bonding Status</h2>
+
+    <div style="text-align:center;margin-bottom:24px;">
+        <div style="color:var(--text-muted);font-size:0.9rem;">Overall Compliance Score</div>
+        <div class="compliance-score-lg">94%</div>
+        <div style="color:var(--text-muted);font-size:0.85rem;">6 of 8 items current &mdash; 2 items require attention</div>
+    </div>
+
+    <div class="card" style="padding:0;">
+        <div class="compliance-item">
+            <div class="compliance-left">
+                <span class="compliance-icon" style="color:#38a169;">&#10004;</span>
+                <div>
+                    <div class="compliance-name">OSHA Safety Training</div>
+                    <div class="compliance-detail">Current through December 2025</div>
+                </div>
+            </div>
+            <div class="compliance-right">
+                <span class="badge badge-won">Current</span>
+            </div>
+        </div>
+        <div class="compliance-item">
+            <div class="compliance-left">
+                <span class="compliance-icon" style="color:#38a169;">&#10004;</span>
+                <div>
+                    <div class="compliance-name">General Liability Insurance</div>
+                    <div class="compliance-detail">$5M coverage &mdash; Policy active</div>
+                </div>
+            </div>
+            <div class="compliance-right">
+                <span class="badge badge-won">Current</span>
+            </div>
+        </div>
+        <div class="compliance-item">
+            <div class="compliance-left">
+                <span class="compliance-icon" style="color:#38a169;">&#10004;</span>
+                <div>
+                    <div class="compliance-name">Workers Compensation</div>
+                    <div class="compliance-detail">Active coverage for all employees</div>
+                </div>
+            </div>
+            <div class="compliance-right">
+                <span class="badge badge-won">Active</span>
+            </div>
+        </div>
+        <div class="compliance-item">
+            <div class="compliance-left">
+                <span class="compliance-icon" style="color:#dd6b20;">&#9888;</span>
+                <div>
+                    <div class="compliance-name">Surety Bond Renewal</div>
+                    <div class="compliance-detail">Due in 45 days &mdash; requires action</div>
+                </div>
+            </div>
+            <div class="compliance-right">
+                <span class="badge badge-active">Pending</span>
+                <button class="btn btn-outline btn-sm" type="button" onclick="alert('Surety bond renewal reminder set. Contact your bonding agent to initiate renewal.')">Renew</button>
+            </div>
+        </div>
+        <div class="compliance-item">
+            <div class="compliance-left">
+                <span class="compliance-icon" style="color:#38a169;">&#10004;</span>
+                <div>
+                    <div class="compliance-name">State Contractor License</div>
+                    <div class="compliance-detail">Valid through 2026</div>
+                </div>
+            </div>
+            <div class="compliance-right">
+                <span class="badge badge-won">Current</span>
+            </div>
+        </div>
+        <div class="compliance-item">
+            <div class="compliance-left">
+                <span class="compliance-icon" style="color:#dd6b20;">&#9888;</span>
+                <div>
+                    <div class="compliance-name">DBE Certification Renewal</div>
+                    <div class="compliance-detail">Due in 60 days &mdash; requires documentation update</div>
+                </div>
+            </div>
+            <div class="compliance-right">
+                <span class="badge badge-active">Pending</span>
+                <button class="btn btn-outline btn-sm" type="button" onclick="alert('DBE certification renewal reminder set. Gather updated financials and ownership documentation.')">Renew</button>
+            </div>
+        </div>
+        <div class="compliance-item">
+            <div class="compliance-left">
+                <span class="compliance-icon" style="color:#38a169;">&#10004;</span>
+                <div>
+                    <div class="compliance-name">Environmental Compliance</div>
+                    <div class="compliance-detail">All environmental permits current</div>
+                </div>
+            </div>
+            <div class="compliance-right">
+                <span class="badge badge-won">Current</span>
+            </div>
+        </div>
+        <div class="compliance-item">
+            <div class="compliance-left">
+                <span class="compliance-icon" style="color:#38a169;">&#10004;</span>
+                <div>
+                    <div class="compliance-name">SAM.gov Registration</div>
+                    <div class="compliance-detail">Entity registration active &mdash; eligible for federal contracts</div>
+                </div>
+            </div>
+            <div class="compliance-right">
+                <span class="badge badge-won">Active</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════════
+     TAB 6: ROI CALCULATOR
+     ═══════════════════════════════════════════════════════════════════════════════════ -->
+<section class="tab-content" id="tab-roi">
+    <h2 class="section-title">NUVABASE ROI Projection</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:22px;">Adjust the inputs below to model the financial impact of NUVABASE intelligence on your construction operations. Results update automatically.</p>
+
+    <div class="card">
+        <h3>Input Assumptions</h3>
+        <div class="roi-inputs">
+            <div class="form-group">
+                <label for="roiBidVolume">Annual Bid Volume</label>
+                <input type="number" id="roiBidVolume" value="45" min="1" oninput="calculateROI()">
+            </div>
+            <div class="form-group">
+                <label for="roiBidSize">Average Bid Size ($)</label>
+                <input type="number" id="roiBidSize" value="3800000" min="1" oninput="calculateROI()">
+            </div>
+            <div class="form-group">
+                <label for="roiWinRate">Current Win Rate (%)</label>
+                <input type="number" id="roiWinRate" value="32" min="1" max="100" oninput="calculateROI()">
+            </div>
+            <div class="form-group">
+                <label for="roiImprovement">Estimated Win Rate Improvement (%)</label>
+                <input type="number" id="roiImprovement" value="8" min="1" max="50" oninput="calculateROI()">
+            </div>
+            <div class="form-group">
+                <label for="roiOpCosts">Annual Operating Costs ($)</label>
+                <input type="number" id="roiOpCosts" value="12500000" min="1" oninput="calculateROI()">
+            </div>
+            <div class="form-group">
+                <label for="roiEfficiency">Estimated Efficiency Gain (%)</label>
+                <input type="number" id="roiEfficiency" value="15" min="1" max="50" oninput="calculateROI()">
+            </div>
+        </div>
+    </div>
+
+    <h3 style="color:var(--white);margin-bottom:16px;margin-top:8px;">Projected Results</h3>
+    <div class="roi-results">
+        <div class="roi-result-card">
+            <div class="label">Additional Revenue / Year</div>
+            <div class="value" id="roiRevenue">$13,680,000</div>
+        </div>
+        <div class="roi-result-card">
+            <div class="label">Cost Savings / Year</div>
+            <div class="value" id="roiSavings">$1,875,000</div>
+        </div>
+        <div class="roi-result-card highlight">
+            <div class="label">Total Annual Impact</div>
+            <div class="value" id="roiTotal">$15,555,000</div>
+        </div>
+        <div class="roi-result-card">
+            <div class="label">3-Year Projected Impact</div>
+            <div class="value" id="roi3Year">$46,665,000</div>
+        </div>
+        <div class="roi-result-card">
+            <div class="label">ROI Multiple</div>
+            <div class="value" id="roiMultiple">31x</div>
+        </div>
+    </div>
+
+    <div style="text-align:center;margin-top:12px;">
+        <p style="color:var(--text-muted);font-size:0.85rem;font-style:italic;margin-bottom:18px;">Based on methodology that delivered $7M savings for Chicago Public Schools</p>
+        <button class="btn btn-gold" type="button" onclick="printROI()">Print ROI Summary</button>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════════
+     TAB 7: GENERATE PROPOSAL
+     ═══════════════════════════════════════════════════════════════════════════════════ -->
+<section class="tab-content" id="tab-proposal">
+    <h2 class="section-title">Generate TLRW Proposal</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:22px;">Fill in the details below and click Generate to create a professional, print-ready proposal using the TLRW methodology framework.</p>
+
+    <div class="card" id="proposalForm">
+        <div class="roi-inputs">
+            <div class="form-group">
+                <label for="propClient">Client Name</label>
+                <input type="text" id="propClient" placeholder="e.g., Metro Development Corp">
+            </div>
+            <div class="form-group">
+                <label for="propType">Project Type</label>
+                <select id="propType">
+                    <option value="Infrastructure">Infrastructure</option>
+                    <option value="Commercial">Commercial</option>
+                    <option value="Residential">Residential</option>
+                    <option value="Industrial">Industrial</option>
+                    <option value="Government">Government</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="propValue">Estimated Value ($)</label>
+                <input type="number" id="propValue" placeholder="e.g., 5000000">
+            </div>
+            <div class="form-group">
+                <label for="propTimeline">Timeline</label>
+                <select id="propTimeline">
+                    <option value="3 months">3 months</option>
+                    <option value="6 months" selected>6 months</option>
+                    <option value="12 months">12 months</option>
+                    <option value="18+ months">18+ months</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="propReqs">Key Requirements</label>
+            <textarea id="propReqs" placeholder="Describe the project scope, special requirements, certifications needed, etc."></textarea>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:8px;">
+            <button class="btn btn-gold" type="button" onclick="generateProposal()">Generate TLRW Proposal</button>
+        </div>
+    </div>
+
+    <div class="proposal-output" id="proposalOutput">
+        <div id="proposalContent"></div>
+        <div style="text-align:center;margin-top:32px;" class="no-print">
+            <button class="btn btn-gold" type="button" onclick="printProposal()">Print Proposal</button>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════════
+     TAB 8: USER MANUAL
+     ═══════════════════════════════════════════════════════════════════════════════════ -->
+<section class="tab-content" id="tab-manual">
+    <h2 class="section-title">User Manual</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:22px;">Everything you need to know about using the Construction Intelligence dashboard. Click any section to expand.</p>
+
+    <div class="card" style="padding:0 24px;">
+        <div class="accordion-item">
+            <button class="accordion-btn" type="button" onclick="toggleAccordion(this)">
+                Getting Started <span class="arrow">&#9654;</span>
+            </button>
+            <div class="accordion-body">
+                <div class="accordion-body-inner">
+                    <p>Welcome to the NUVABASE Construction Intelligence dashboard. This tool is designed to give you a comprehensive view of your construction business operations, from bid tracking to compliance management.</p>
+                    <p><strong>Quick Start:</strong></p>
+                    <p>1. Review your Dashboard tab to see key performance indicators at a glance.</p>
+                    <p>2. Check the API Connections tab to connect your live data sources (Procore, SAM.gov, etc.) or continue using demo data.</p>
+                    <p>3. Browse Bid Intelligence to review active and historical bids.</p>
+                    <p>4. Use the ROI Calculator to quantify the value NUVABASE brings to your operations.</p>
+                    <p>5. Generate professional proposals using the TLRW methodology framework.</p>
+                    <p>The dashboard works offline and stores your settings locally in your browser. No internet connection is required after initial load.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <button class="accordion-btn" type="button" onclick="toggleAccordion(this)">
+                Understanding Your Dashboard <span class="arrow">&#9654;</span>
+            </button>
+            <div class="accordion-body">
+                <div class="accordion-body-inner">
+                    <p>The Dashboard tab provides six key performance indicators (KPIs) that summarize your current business state:</p>
+                    <p><strong>Active Bids</strong> &mdash; the number of bids currently in progress. A green arrow indicates growth from the previous period.</p>
+                    <p><strong>Win Rate</strong> &mdash; your historical percentage of bids won. This is a critical metric tracked over rolling quarters.</p>
+                    <p><strong>Active Projects</strong> &mdash; how many projects you are currently executing, along with their combined contract value.</p>
+                    <p><strong>Avg Bid Size</strong> &mdash; the average dollar value of your submitted bids, with the range showing your market segment.</p>
+                    <p><strong>Compliance Score</strong> &mdash; a weighted average of your compliance and bonding status. Keep this above 90% to remain bid-eligible.</p>
+                    <p><strong>Pipeline Value</strong> &mdash; the total dollar value of opportunities you are tracking over the next 90 days.</p>
+                    <p>The bar chart below the KPIs shows your monthly bid volume trend, helping you identify seasonal patterns and capacity planning needs.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <button class="accordion-btn" type="button" onclick="toggleAccordion(this)">
+                Connecting Live Data Sources <span class="arrow">&#9654;</span>
+            </button>
+            <div class="accordion-body">
+                <div class="accordion-body-inner">
+                    <p>The API Connections tab allows you to connect four external data sources:</p>
+                    <p><strong>Procore</strong> &mdash; enter your Procore API Key and Company ID to sync project data, RFIs, and change orders automatically.</p>
+                    <p><strong>SAM.gov</strong> &mdash; enter your SAM.gov API Key to access federal contract opportunities and verify entity registrations.</p>
+                    <p><strong>State Procurement Portal</strong> &mdash; configure your state, portal URL, and credentials to pull state-level bid solicitations.</p>
+                    <p><strong>Dodge Data &amp; Analytics</strong> &mdash; enter your Dodge API Key to access construction market intelligence and project leads.</p>
+                    <p>When credentials are saved, the status badge changes from yellow "DEMO" to green "LIVE". Credentials are stored only in your browser's local storage and are never transmitted to any server.</p>
+                    <p>If you don't have API access, use the CSV Upload fallback to import your data manually.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <button class="accordion-btn" type="button" onclick="toggleAccordion(this)">
+                Reading Bid Intelligence <span class="arrow">&#9654;</span>
+            </button>
+            <div class="accordion-body">
+                <div class="accordion-body-inner">
+                    <p>The Bid Intelligence tab displays all tracked bids in a sortable table. Each row shows:</p>
+                    <p><strong>Bid Name</strong> &mdash; the official project or solicitation name.</p>
+                    <p><strong>Client</strong> &mdash; the entity issuing the bid (government agency, private owner, etc.).</p>
+                    <p><strong>Value</strong> &mdash; the estimated contract value.</p>
+                    <p><strong>Due Date</strong> &mdash; the bid submission deadline.</p>
+                    <p><strong>Status</strong> &mdash; color-coded badges: green for Won, gold for Active, gray for Pending, red for Lost.</p>
+                    <p><strong>Win Probability</strong> &mdash; an AI-estimated likelihood of winning the bid based on historical data and competitive analysis.</p>
+                    <p>Click any row to open the TLRW Analysis panel, which breaks down the bid using the Think-Learn-Reflect-Write methodology, giving you strategic insight for each phase of your pursuit.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <button class="accordion-btn" type="button" onclick="toggleAccordion(this)">
+                Using the ROI Calculator <span class="arrow">&#9654;</span>
+            </button>
+            <div class="accordion-body">
+                <div class="accordion-body-inner">
+                    <p>The ROI Calculator helps you quantify the financial impact of using NUVABASE intelligence in your operations.</p>
+                    <p><strong>Inputs:</strong></p>
+                    <p>&bull; Annual Bid Volume &mdash; how many bids you submit per year.</p>
+                    <p>&bull; Average Bid Size &mdash; the typical contract value you bid on.</p>
+                    <p>&bull; Current Win Rate &mdash; your existing win percentage without NUVABASE.</p>
+                    <p>&bull; Estimated Win Rate Improvement &mdash; the projected increase from better intelligence (8% is conservative based on client results).</p>
+                    <p>&bull; Annual Operating Costs &mdash; your current annual overhead.</p>
+                    <p>&bull; Estimated Efficiency Gain &mdash; the projected reduction in waste and overhead.</p>
+                    <p>Results calculate automatically as you adjust any input. The methodology is based on real results, including $7M in savings delivered for Chicago Public Schools. Use the Print button to create a clean PDF for stakeholder presentations.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <button class="accordion-btn" type="button" onclick="toggleAccordion(this)">
+                Generating Proposals <span class="arrow">&#9654;</span>
+            </button>
+            <div class="accordion-body">
+                <div class="accordion-body-inner">
+                    <p>The Generate Proposal tab creates professional, TLRW-structured proposals ready for printing or PDF export.</p>
+                    <p><strong>Steps:</strong></p>
+                    <p>1. Enter the client name and select the project type from the dropdown.</p>
+                    <p>2. Specify the estimated project value and desired timeline.</p>
+                    <p>3. Describe the key requirements in the text area &mdash; include scope, certifications, special conditions, etc.</p>
+                    <p>4. Click "Generate TLRW Proposal" to create the document.</p>
+                    <p>The generated proposal includes: NUVABASE letterhead, executive summary, TLRW methodology breakdown (how each phase applies to the project), deliverables, timeline, investment details, credentials, and a signature block.</p>
+                    <p>Click "Print Proposal" to open the browser print dialog. Use "Save as PDF" in the print dialog to create a PDF version for email distribution.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <button class="accordion-btn" type="button" onclick="toggleAccordion(this)">
+                Troubleshooting <span class="arrow">&#9654;</span>
+            </button>
+            <div class="accordion-body">
+                <div class="accordion-body-inner">
+                    <p><strong>Dashboard shows DEMO data:</strong> This is normal if you haven't connected live API sources. The dashboard is fully functional with demo data for evaluation purposes.</p>
+                    <p><strong>API connection shows DEMO after saving credentials:</strong> Verify your API key is correct. The badge updates to LIVE only when valid credentials are stored. In this demo version, any non-empty value will register as LIVE.</p>
+                    <p><strong>CSV upload not working:</strong> Ensure your file is a valid .csv format under 10MB. The file should have headers matching the expected fields (bid name, client, value, due date, status).</p>
+                    <p><strong>Print layout looks wrong:</strong> Use Chrome or Edge for best print results. Safari and Firefox may render slightly differently. Always use "Save as PDF" rather than direct printing for consistent results.</p>
+                    <p><strong>Settings lost after closing browser:</strong> This dashboard stores data in localStorage. Clearing browser data or using incognito/private mode will reset all settings. Use a standard browser session for persistent data.</p>
+                    <p><strong>Need help?</strong> Contact NUVABASE Professional Consulting at the information provided in your service agreement.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════════
+     TAB 9: GLOSSARY
+     ═══════════════════════════════════════════════════════════════════════════════════ -->
+<section class="tab-content" id="tab-glossary">
+    <h2 class="section-title">Glossary of Terms</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:22px;">Key construction and NUVABASE terminology used throughout this dashboard.</p>
+
+    <div class="card">
+        <div class="glossary-item">
+            <div class="glossary-term">Bid Bond</div>
+            <div class="glossary-def">A surety bond submitted with a bid proposal that guarantees the bidder will enter into the contract at the bid price if awarded. Typically 5-10% of the bid amount. Required on most public construction projects to protect the project owner from bid withdrawal.</div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">Change Order</div>
+            <div class="glossary-def">A formal document that modifies the original construction contract. Change orders adjust the scope, cost, or timeline of a project and must be approved by all parties. Tracking change orders is critical for maintaining project profitability.</div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">Compliance Score</div>
+            <div class="glossary-def">A weighted metric calculated by NUVABASE that reflects the current status of all required certifications, licenses, insurance policies, and registrations. A score of 90% or above is considered bid-eligible; below 80% indicates significant risk.</div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">DBE (Disadvantaged Business Enterprise)</div>
+            <div class="glossary-def">A federal certification program for small businesses owned and controlled by socially and economically disadvantaged individuals. Many government contracts include DBE participation requirements, typically ranging from 10-30% of contract value.</div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">General Contractor (GC)</div>
+            <div class="glossary-def">The primary contractor responsible for overall management and coordination of a construction project. The GC holds the prime contract with the project owner and manages all subcontractors, suppliers, and day-to-day operations on the job site.</div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">Liquidated Damages</div>
+            <div class="glossary-def">A pre-determined amount of money specified in the contract that the contractor must pay the owner for each day the project extends beyond the agreed completion date. Amounts typically range from $500 to $10,000+ per day depending on project size.</div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">OSHA (Occupational Safety and Health Administration)</div>
+            <div class="glossary-def">The federal agency responsible for ensuring safe and healthy working conditions. OSHA sets and enforces workplace safety standards. Construction companies must maintain OSHA compliance including safety training records, site safety plans, and incident reporting.</div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">Prevailing Wage</div>
+            <div class="glossary-def">The minimum wage rate that must be paid to workers on public construction projects, as determined by the Department of Labor. Prevailing wage rates vary by trade, location, and project type. Required under the Davis-Bacon Act for federal projects and many state equivalents.</div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">RFP (Request for Proposal)</div>
+            <div class="glossary-def">A formal solicitation document issued by a project owner that invites contractors to submit proposals for a construction project. RFPs typically include project scope, requirements, evaluation criteria, submission deadlines, and contract terms.</div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">SAM.gov</div>
+            <div class="glossary-def">The System for Award Management &mdash; the official U.S. government system for entity registration and contract opportunity searching. All businesses must register in SAM.gov to be eligible for federal contracts. Registration must be renewed annually.</div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">Subcontractor</div>
+            <div class="glossary-def">A specialized contractor hired by the general contractor to perform a specific portion of the construction work (e.g., electrical, plumbing, concrete). Subcontractors operate under agreements with the GC rather than directly with the project owner.</div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">Surety Bond</div>
+            <div class="glossary-def">A three-party agreement between the contractor (principal), the project owner (obligee), and the surety company that guarantees the contractor will fulfill contractual obligations. Common types include bid bonds, performance bonds, and payment bonds.</div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">TLRW Framework</div>
+            <div class="glossary-def">The NUVABASE proprietary methodology: Think, Learn, Reflect, Write. A structured approach to construction intelligence where Think = Analysis (strategic assessment), Learn = Data (gathering and processing information), Reflect = Evaluate (risk assessment and decision support), and Write = Proposal (deliverable generation and documentation).</div>
+        </div>
+        <div class="glossary-item">
+            <div class="glossary-term">Win Rate</div>
+            <div class="glossary-def">The percentage of submitted bids that result in contract awards. Industry average for construction is typically 15-25%. NUVABASE clients using the TLRW framework have achieved win rates of 30-40% through better bid targeting and intelligence-driven pursuit decisions.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════════════════════════════ -->
+<script>
+(function() {
+    'use strict';
+
+    /* ─── BID DATA ─── */
+    var BIDS = [
+        { name:'Municipal Water Treatment Plant Expansion', client:'City of Springfield', value:12500000, due:'Mar 2025', status:'Active', prob:72 },
+        { name:'Highway Bridge Rehabilitation Phase II', client:'State DOT', value:8300000, due:'Apr 2025', status:'Active', prob:45 },
+        { name:'Commercial Office Complex Foundation', client:'Metro Development Corp', value:4700000, due:'Feb 2025', status:'Won', prob:100 },
+        { name:'School District HVAC Modernization', client:'Unified School District', value:2100000, due:'Mar 2025', status:'Active', prob:68 },
+        { name:'Airport Terminal Concrete Work', client:'Regional Airport Authority', value:15200000, due:'May 2025', status:'Pending', prob:35 },
+        { name:'Residential Development Infrastructure', client:'Oakwood Properties', value:3400000, due:'Mar 2025', status:'Active', prob:58 },
+        { name:'Hospital Wing Addition', client:'Regional Medical Center', value:9800000, due:'Jun 2025', status:'Pending', prob:42 },
+        { name:'Industrial Park Site Preparation', client:'Commerce Industrial LLC', value:1900000, due:'Feb 2025', status:'Won', prob:100 },
+        { name:'County Courthouse Renovation', client:'County Government', value:6200000, due:'Apr 2025', status:'Active', prob:55 },
+        { name:'Waterfront Mixed-Use Development', client:'Harbor City Partners', value:7600000, due:'May 2025', status:'Active', prob:48 }
+    ];
+
+    /* ─── PROJECT DATA ─── */
+    var PROJECTS = [
+        { name:'Municipal Water Treatment', value:12500000, pct:67, status:'On Schedule', milestones:'8/12', budgetActual:'$8.1M / $8.4M budgeted', risk:'Low', barClass:'green' },
+        { name:'Commercial Office Foundation', value:4700000, pct:45, status:'On Schedule', milestones:'5/11', budgetActual:'$2.0M / $2.1M budgeted', risk:'Low', barClass:'green' },
+        { name:'HVAC Modernization', value:2100000, pct:23, status:'Behind Schedule', milestones:'2/9', budgetActual:'$520K / $480K budgeted', risk:'Medium', barClass:'warn' },
+        { name:'Industrial Park Prep', value:1900000, pct:89, status:'On Schedule', milestones:'8/9', budgetActual:'$1.65M / $1.7M budgeted', risk:'Low', barClass:'green' },
+        { name:'Highway Bridge Phase I', value:5800000, pct:52, status:'On Schedule', milestones:'6/12', budgetActual:'$2.9M / $3.0M budgeted', risk:'Low', barClass:'green' }
+    ];
+
+    /* ─── TLRW Analysis Templates ─── */
+    function getTLRWAnalysis(bid) {
+        var statusNote = bid.status === 'Won' ? 'This bid has been won. The analysis below reflects the pursuit strategy that led to the successful award.' :
+                         bid.status === 'Pending' ? 'This bid is pending review. The analysis below supports the pursuit decision.' :
+                         'This bid is actively being pursued. The analysis below guides ongoing strategy.';
+        return '<p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:16px;">' + statusNote + '</p>' +
+            '<div class="tlrw-section"><h4 class="think">THINK &mdash; Strategic Analysis</h4>' +
+            '<p>Assess competitive landscape for ' + bid.client + '. The $' + formatCurrency(bid.value) + ' project falls within our target range. ' +
+            'Win probability of ' + bid.prob + '% is based on historical performance with similar ' + (bid.value > 5000000 ? 'large-scale' : 'mid-range') + ' projects. ' +
+            'Key competitors likely include 3-5 regional firms. Our differentiator: TLRW-driven intelligence and proven delivery track record.</p></div>' +
+            '<div class="tlrw-section"><h4 class="learn">LEARN &mdash; Data Gathering</h4>' +
+            '<p>Collect project specifications, client history, and site conditions for "' + bid.name + '". ' +
+            'Review ' + bid.client + ' past awards, payment history, and project preferences. ' +
+            'Analyze subcontractor availability and material pricing for the ' + bid.due + ' timeline. ' +
+            'Cross-reference SAM.gov and state procurement data for compliance requirements.</p></div>' +
+            '<div class="tlrw-section"><h4 class="reflect">REFLECT &mdash; Risk Evaluation</h4>' +
+            '<p>Evaluate risk factors: bonding capacity for $' + formatCurrency(bid.value) + ' project, current workforce allocation across ' + PROJECTS.length + ' active projects, ' +
+            'material cost volatility, and schedule conflicts. ' +
+            (bid.prob < 50 ? 'Win probability below 50% suggests focusing pursuit resources on higher-probability opportunities unless strategic value justifies the investment.' :
+             'Win probability above 50% supports full pursuit investment. Allocate senior estimating resources.') + '</p></div>' +
+            '<div class="tlrw-section"><h4 class="write">WRITE &mdash; Proposal Development</h4>' +
+            '<p>Generate comprehensive proposal for ' + bid.client + ' highlighting: relevant project experience, team qualifications, ' +
+            'detailed methodology and schedule, competitive pricing strategy, and NUVABASE intelligence capabilities. ' +
+            'Include credentials: $90M SBA portfolio, $7M CPS savings, 9.1/10 GBCA rating, 20+ years telecom infrastructure experience.</p></div>';
+    }
+
+    /* ─── Format Helpers ─── */
+    function formatCurrency(n) {
+        if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+        if (n >= 1000) return (n / 1000).toFixed(0) + 'K';
+        return n.toString();
+    }
+
+    function formatDollar(n) {
+        return '$' + n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    }
+
+    function statusBadgeClass(status) {
+        switch (status) {
+            case 'Won': return 'badge-won';
+            case 'Active': return 'badge-active';
+            case 'Pending': return 'badge-pending';
+            case 'Lost': return 'badge-lost';
+            default: return 'badge-pending';
+        }
+    }
+
+    /* ─── Render Bids Table ─── */
+    function renderBids() {
+        var tbody = document.getElementById('bidTableBody');
+        var html = '';
+        for (var i = 0; i < BIDS.length; i++) {
+            var b = BIDS[i];
+            html += '<tr onclick="window._showBidDetail(' + i + ')">' +
+                '<td style="font-weight:600;color:var(--white);">' + b.name + '</td>' +
+                '<td>' + b.client + '</td>' +
+                '<td style="color:var(--gold);font-weight:600;">$' + formatCurrency(b.value) + '</td>' +
+                '<td>' + b.due + '</td>' +
+                '<td><span class="badge ' + statusBadgeClass(b.status) + '">' + b.status + '</span></td>' +
+                '<td style="font-weight:600;' + (b.prob >= 60 ? 'color:#68d391;' : b.prob >= 40 ? 'color:var(--gold);' : 'color:var(--text-muted);') + '">' + b.prob + '%</td>' +
+                '</tr>';
+        }
+        tbody.innerHTML = html;
+    }
+
+    /* ─── Show Bid Detail ─── */
+    window._showBidDetail = function(idx) {
+        var bid = BIDS[idx];
+        var panel = document.getElementById('bidDetail');
+        document.getElementById('detailTitle').textContent = bid.name + ' — TLRW Analysis';
+        document.getElementById('detailContent').innerHTML = getTLRWAnalysis(bid);
+        panel.classList.add('visible');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+
+    window.closeBidDetail = function() {
+        document.getElementById('bidDetail').classList.remove('visible');
+    };
+
+    /* ─── Render Projects ─── */
+    function renderProjects() {
+        var container = document.getElementById('projectList');
+        var html = '';
+        for (var i = 0; i < PROJECTS.length; i++) {
+            var p = PROJECTS[i];
+            var statusIcon = p.status === 'On Schedule' ? '<span style="color:#38a169;">&#10004;</span>' : '<span style="color:#dd6b20;">&#9888;</span>';
+            html += '<div class="project-card">' +
+                '<div class="project-header">' +
+                    '<span class="project-name">' + p.name + '</span>' +
+                    '<span class="project-value">$' + formatCurrency(p.value) + '</span>' +
+                '</div>' +
+                '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">' +
+                    '<div class="progress-track" style="flex:1;">' +
+                        '<div class="progress-fill ' + p.barClass + '" style="width:' + p.pct + '%;"></div>' +
+                    '</div>' +
+                    '<span style="font-weight:700;color:var(--white);min-width:40px;text-align:right;">' + p.pct + '%</span>' +
+                '</div>' +
+                '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">' +
+                    statusIcon + ' <span style="font-size:0.88rem;color:' + (p.status === 'On Schedule' ? 'var(--success)' : '#dd6b20') + ';font-weight:600;">' + p.status + '</span>' +
+                '</div>' +
+                '<div class="project-meta">' +
+                    '<div class="project-meta-item">Milestones: <strong>' + p.milestones + '</strong></div>' +
+                    '<div class="project-meta-item">Budget: <strong>' + p.budgetActual + '</strong></div>' +
+                    '<div class="project-meta-item">Risk: <strong>' + p.risk + '</strong></div>' +
+                '</div>' +
+                '</div>';
+        }
+        container.innerHTML = html;
+    }
+
+    /* ─── Tab Switching ─── */
+    window.switchTab = function(tabId) {
+        var tabs = document.querySelectorAll('.tab-content');
+        var btns = document.querySelectorAll('.tab-btn');
+        for (var i = 0; i < tabs.length; i++) {
+            tabs[i].classList.remove('active');
+            tabs[i].classList.remove('print-active');
+        }
+        for (var j = 0; j < btns.length; j++) {
+            btns[j].classList.remove('active');
+        }
+        var target = document.getElementById('tab-' + tabId);
+        if (target) {
+            target.classList.add('active');
+            target.classList.add('print-active');
+        }
+        for (var k = 0; k < btns.length; k++) {
+            if (btns[k].getAttribute('data-tab') === tabId) {
+                btns[k].classList.add('active');
+            }
+        }
+    };
+
+    var tabBtns = document.querySelectorAll('.tab-btn');
+    for (var i = 0; i < tabBtns.length; i++) {
+        tabBtns[i].addEventListener('click', function() {
+            switchTab(this.getAttribute('data-tab'));
+        });
+    }
+
+    /* ─── ROI Calculator ─── */
+    window.calculateROI = function() {
+        var bidVolume = parseFloat(document.getElementById('roiBidVolume').value) || 0;
+        var bidSize = parseFloat(document.getElementById('roiBidSize').value) || 0;
+        var winRate = parseFloat(document.getElementById('roiWinRate').value) || 0;
+        var improvement = parseFloat(document.getElementById('roiImprovement').value) || 0;
+        var opCosts = parseFloat(document.getElementById('roiOpCosts').value) || 0;
+        var efficiency = parseFloat(document.getElementById('roiEfficiency').value) || 0;
+
+        var additionalRevenue = bidVolume * bidSize * (improvement / 100);
+        var costSavings = opCosts * (efficiency / 100);
+        var totalImpact = additionalRevenue + costSavings;
+        var threeYear = totalImpact * 3;
+        var roiMultiple = totalImpact > 0 ? Math.round(totalImpact / 500000) : 0;
+
+        document.getElementById('roiRevenue').textContent = formatDollar(Math.round(additionalRevenue));
+        document.getElementById('roiSavings').textContent = formatDollar(Math.round(costSavings));
+        document.getElementById('roiTotal').textContent = formatDollar(Math.round(totalImpact));
+        document.getElementById('roi3Year').textContent = formatDollar(Math.round(threeYear));
+        document.getElementById('roiMultiple').textContent = roiMultiple + 'x';
+    };
+
+    window.printROI = function() {
+        var allTabs = document.querySelectorAll('.tab-content');
+        for (var i = 0; i < allTabs.length; i++) {
+            allTabs[i].classList.remove('print-active');
+        }
+        document.getElementById('tab-roi').classList.add('print-active');
+        window.print();
+    };
+
+    /* ─── API Connections ─── */
+    window.saveApiCreds = function(provider, fieldIds) {
+        var data = {};
+        var hasValue = false;
+        for (var i = 0; i < fieldIds.length; i++) {
+            var val = document.getElementById(fieldIds[i]).value.trim();
+            data[fieldIds[i]] = val;
+            if (val) hasValue = true;
+        }
+        if (!hasValue) {
+            alert('Please enter at least one credential field.');
+            return;
+        }
+        localStorage.setItem('nuvabase_api_' + provider, JSON.stringify(data));
+        updateApiBadge(provider, true);
+    };
+
+    window.clearApiCreds = function(provider, fieldIds) {
+        localStorage.removeItem('nuvabase_api_' + provider);
+        for (var i = 0; i < fieldIds.length; i++) {
+            document.getElementById(fieldIds[i]).value = '';
+        }
+        updateApiBadge(provider, false);
+    };
+
+    function updateApiBadge(provider, isLive) {
+        var badge = document.getElementById('badge-' + provider);
+        if (!badge) return;
+        if (isLive) {
+            badge.textContent = 'LIVE';
+            badge.className = 'badge badge-live';
+        } else {
+            badge.textContent = 'DEMO';
+            badge.className = 'badge badge-demo';
+        }
+    }
+
+    function loadApiStates() {
+        var providers = ['procore', 'samgov', 'state', 'dodge'];
+        var fieldMap = {
+            procore: ['procore-apikey', 'procore-companyid'],
+            samgov: ['samgov-apikey'],
+            state: ['state-state', 'state-portal', 'state-creds'],
+            dodge: ['dodge-apikey']
+        };
+        for (var i = 0; i < providers.length; i++) {
+            var p = providers[i];
+            var stored = localStorage.getItem('nuvabase_api_' + p);
+            if (stored) {
+                try {
+                    var data = JSON.parse(stored);
+                    var fields = fieldMap[p];
+                    for (var j = 0; j < fields.length; j++) {
+                        var el = document.getElementById(fields[j]);
+                        if (el && data[fields[j]]) el.value = data[fields[j]];
+                    }
+                    updateApiBadge(p, true);
+                } catch (e) {
+                    // ignore parse errors
+                }
+            }
+        }
+    }
+
+    /* ─── CSV Upload ─── */
+    window.handleCsvUpload = function(input) {
+        var file = input.files[0];
+        if (!file) return;
+        if (!file.name.toLowerCase().endsWith('.csv')) {
+            document.getElementById('csvStatus').innerHTML = '<span style="color:#fc8181;">Error: Please upload a .csv file.</span>';
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            document.getElementById('csvStatus').innerHTML = '<span style="color:#fc8181;">Error: File exceeds 10MB limit.</span>';
+            return;
+        }
+        document.getElementById('csvStatus').innerHTML = '<span style="color:#68d391;">Uploaded: ' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB) — Data loaded in DEMO mode.</span>';
+    };
+
+    // Drag and drop
+    var dropZone = document.getElementById('csvDropZone');
+    if (dropZone) {
+        dropZone.addEventListener('dragover', function(e) { e.preventDefault(); this.style.borderColor = 'var(--gold)'; this.style.background = 'var(--gold-dim)'; });
+        dropZone.addEventListener('dragleave', function(e) { e.preventDefault(); this.style.borderColor = 'var(--border)'; this.style.background = 'transparent'; });
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.style.borderColor = 'var(--border)';
+            this.style.background = 'transparent';
+            if (e.dataTransfer.files.length > 0) {
+                document.getElementById('csvFileInput').files = e.dataTransfer.files;
+                handleCsvUpload(document.getElementById('csvFileInput'));
+            }
+        });
+    }
+
+    /* ─── Proposal Generator ─── */
+    window.generateProposal = function() {
+        var client = document.getElementById('propClient').value.trim() || 'Valued Client';
+        var projType = document.getElementById('propType').value;
+        var value = parseFloat(document.getElementById('propValue').value) || 5000000;
+        var reqs = document.getElementById('propReqs').value.trim() || 'Comprehensive construction services including project management, quality assurance, safety compliance, and timely delivery.';
+        var timeline = document.getElementById('propTimeline').value;
+
+        var today = new Date();
+        var dateStr = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        var html = '<div class="letterhead">' +
+            '<h1>NUVABASE</h1>' +
+            '<p>Professional Consulting &mdash; Service to Service Group, Inc.</p>' +
+            '<p style="font-size:0.78rem;color:#888;margin-top:4px;">Construction Intelligence &bull; TLRW Methodology</p>' +
+            '</div>' +
+
+            '<p style="text-align:right;color:#666;font-size:0.9rem;">' + dateStr + '</p>' +
+            '<p style="margin-top:16px;"><strong>' + client + '</strong></p>' +
+            '<p style="color:#666;">RE: ' + projType + ' Project — Construction Intelligence Proposal</p>' +
+
+            '<h2>Executive Summary</h2>' +
+            '<p>NUVABASE Professional Consulting is pleased to present this proposal for ' + projType.toLowerCase() + ' construction intelligence services for ' + client + '. ' +
+            'Leveraging our proprietary TLRW (Think-Learn-Reflect-Write) methodology, we will deliver comprehensive project intelligence, bid optimization, and compliance management for the estimated $' + formatDollar(value).replace('$', '') + ' engagement over a ' + timeline + ' timeline.</p>' +
+            '<p>Our approach is grounded in over 20 years of infrastructure and consulting experience, including management of a $90M SBA portfolio and delivery of $7M in documented savings for Chicago Public Schools. ' +
+            'The NUVABASE AI Dashboard has been rated 9.1 out of 10 by the Greater Business Consulting Association (GBCA), validating the effectiveness of our intelligence-driven approach.</p>' +
+
+            '<h2>TLRW Methodology Application</h2>' +
+
+            '<h3 style="color:#4da6ff;">Phase 1: THINK — Strategic Analysis</h3>' +
+            '<p>We begin with a comprehensive analysis of the ' + projType.toLowerCase() + ' project landscape specific to ' + client + '. This phase includes competitive assessment, market positioning analysis, risk identification, and strategic opportunity mapping. Key requirements identified: ' + reqs + '</p>' +
+
+            '<h3 style="color:#38a169;">Phase 2: LEARN — Data Intelligence</h3>' +
+            '<p>Our intelligence platform aggregates data from multiple sources including SAM.gov, state procurement portals, Dodge Data & Analytics, and Procore integrations. We collect historical bid data, contractor performance metrics, material pricing trends, and regulatory requirements specific to your project type and region.</p>' +
+
+            '<h3 style="color:#c9a84c;">Phase 3: REFLECT — Risk Evaluation</h3>' +
+            '<p>Using our analytics engine, we evaluate all collected data against risk frameworks covering financial exposure, schedule vulnerability, compliance gaps, and competitive positioning. This phase produces actionable risk scores and mitigation strategies, ensuring informed decision-making at every project milestone.</p>' +
+
+            '<h3 style="color:#e05577;">Phase 4: WRITE — Deliverable Generation</h3>' +
+            '<p>The final phase produces comprehensive deliverables including bid packages, compliance documentation, progress reports, and executive summaries. All documents are generated using NUVABASE intelligence and formatted for immediate submission or stakeholder distribution.</p>' +
+
+            '<h2>Deliverables</h2>' +
+            '<ul>' +
+            '<li>NUVABASE Construction Intelligence Dashboard (customized for ' + client + ')</li>' +
+            '<li>Bid intelligence reports with win probability scoring</li>' +
+            '<li>Real-time project tracking and milestone monitoring</li>' +
+            '<li>Compliance and bonding status management</li>' +
+            '<li>ROI analysis and financial impact projections</li>' +
+            '<li>Automated proposal generation using TLRW framework</li>' +
+            '<li>Monthly executive intelligence briefings</li>' +
+            '<li>On-demand reporting and analytics</li>' +
+            '</ul>' +
+
+            '<h2>Timeline</h2>' +
+            '<p>The engagement is structured over a <strong>' + timeline + '</strong> period:</p>' +
+            '<ul>' +
+            '<li><strong>Weeks 1-2:</strong> Discovery, data integration, and platform configuration</li>' +
+            '<li><strong>Weeks 3-4:</strong> Initial intelligence delivery and dashboard deployment</li>' +
+            '<li><strong>Ongoing:</strong> Continuous intelligence, reporting, and strategic advisory</li>' +
+            '</ul>' +
+
+            '<h2>Investment</h2>' +
+            '<p>The NUVABASE Construction Intelligence engagement for the $' + formatDollar(value).replace('$', '') + ' project scope is structured as follows:</p>' +
+            '<ul>' +
+            '<li>Platform Setup &amp; Configuration: included</li>' +
+            '<li>Monthly Intelligence Subscription: based on project scope</li>' +
+            '<li>Custom Report Generation: included</li>' +
+            '<li>ROI Guarantee: methodology-backed performance metrics</li>' +
+            '</ul>' +
+            '<p style="font-style:italic;color:#666;">Detailed pricing provided upon client consultation. All engagements are backed by our documented ROI methodology.</p>' +
+
+            '<h2>Credentials &amp; Proof Points</h2>' +
+            '<ul>' +
+            '<li>$90M SBA portfolio managed across diverse sectors</li>' +
+            '<li>$7M in documented savings — Chicago Public Schools</li>' +
+            '<li>1,500+ employees managed across portfolio</li>' +
+            '<li>9.1/10 GBCA AI Dashboard Rating</li>' +
+            '<li>20+ years Bell Labs telecom infrastructure experience</li>' +
+            '<li>Active federal and state contract registrations (SAM.gov)</li>' +
+            '</ul>' +
+
+            '<div class="sig-block">' +
+            '<p><strong>Prepared by:</strong></p>' +
+            '<p style="margin-top:30px;border-top:1px solid #333;display:inline-block;padding-top:4px;min-width:250px;">Authorized Representative</p>' +
+            '<p>NUVABASE Professional Consulting</p>' +
+            '<p style="color:#666;font-size:0.85rem;">Service to Service Group, Inc.</p>' +
+            '</div>';
+
+        document.getElementById('proposalContent').innerHTML = html;
+        document.getElementById('proposalOutput').classList.add('visible');
+        document.getElementById('proposalOutput').scrollIntoView({ behavior: 'smooth' });
+    };
+
+    window.printProposal = function() {
+        var allTabs = document.querySelectorAll('.tab-content');
+        for (var i = 0; i < allTabs.length; i++) {
+            allTabs[i].classList.remove('print-active');
+        }
+        document.getElementById('tab-proposal').classList.add('print-active');
+        window.print();
+    };
+
+    /* ─── Accordion ─── */
+    window.toggleAccordion = function(btn) {
+        var body = btn.nextElementSibling;
+        var isOpen = body.classList.contains('open');
+        // Close all
+        var allBodies = document.querySelectorAll('.accordion-body');
+        var allBtns = document.querySelectorAll('.accordion-btn');
+        for (var i = 0; i < allBodies.length; i++) {
+            allBodies[i].classList.remove('open');
+            allBtns[i].classList.remove('open');
+        }
+        // Toggle clicked
+        if (!isOpen) {
+            body.classList.add('open');
+            btn.classList.add('open');
+        }
+    };
+
+    /* ─── Initialize ─── */
+    renderBids();
+    renderProjects();
+    loadApiStates();
+    calculateROI();
+
+    // Set initial print-active tab
+    document.getElementById('tab-dashboard').classList.add('print-active');
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,2193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Small Business Intelligence &mdash; NUVABASE</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --navy: #0a1628;
+            --navy-mid: #132240;
+            --navy-light: #1a365d;
+            --gold: #c9a84c;
+            --gold-light: #e2c97e;
+            --gold-dim: rgba(201,168,76,0.15);
+            --white: #ffffff;
+            --text: #e8ecf1;
+            --text-muted: #8899aa;
+            --border: #1e3a5f;
+            --card: #111d33;
+            --card-hover: #172847;
+            --success: #38a169;
+            --warning: #d69e2e;
+            --danger: #e53e3e;
+            --radius: 10px;
+            --think: #4299e1;
+            --learn: #48bb78;
+            --reflect: #ed8936;
+            --write: #9f7aea;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, sans-serif;
+            background: var(--navy);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* HUB NAV */
+        #hub-nav {
+            background: var(--navy);
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        #hub-nav a {
+            background: var(--gold-dim);
+            border: 1px solid rgba(201,168,76,0.3);
+            color: var(--gold);
+            padding: 6px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        #hub-nav a:hover { background: rgba(201,168,76,0.25); }
+        #hub-nav span { color: var(--text-muted); font-size: 0.8rem; }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 50%, var(--navy-light) 100%);
+            color: var(--white);
+            padding: 28px 32px 20px;
+            position: relative;
+            border-bottom: 1px solid var(--border);
+        }
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 4px;
+        }
+        .header .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+        .demo-badge {
+            position: absolute;
+            top: 16px;
+            right: 24px;
+            background: var(--gold);
+            color: var(--navy);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+        }
+
+        /* TLRW PHASE INDICATOR */
+        .tlrw-phases {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .tlrw-phase {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .phase-think { background: rgba(66,153,225,0.15); color: var(--think); border: 1px solid rgba(66,153,225,0.3); }
+        .phase-learn { background: rgba(72,187,120,0.15); color: var(--learn); border: 1px solid rgba(72,187,120,0.3); }
+        .phase-reflect { background: rgba(237,137,54,0.15); color: var(--reflect); border: 1px solid rgba(237,137,54,0.3); }
+        .phase-write { background: rgba(159,122,234,0.15); color: var(--write); border: 1px solid rgba(159,122,234,0.3); }
+        .phase-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .phase-think .phase-dot { background: var(--think); }
+        .phase-learn .phase-dot { background: var(--learn); }
+        .phase-reflect .phase-dot { background: var(--reflect); }
+        .phase-write .phase-dot { background: var(--write); }
+
+        /* CONTAINER */
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+        /* TAB BAR */
+        .tab-bar {
+            display: flex;
+            gap: 2px;
+            background: var(--card);
+            padding: 4px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .tab-bar::-webkit-scrollbar { height: 4px; }
+        .tab-bar::-webkit-scrollbar-track { background: transparent; }
+        .tab-bar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        .tab {
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            white-space: nowrap;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            border-bottom: 2px solid transparent;
+            font-family: inherit;
+        }
+        .tab:hover { color: var(--text); background: var(--navy-mid); }
+        .tab.active {
+            color: var(--gold);
+            background: var(--navy-mid);
+            border-bottom-color: var(--gold);
+            font-weight: 600;
+        }
+
+        /* TAB CONTENT */
+        .tab-content { display: none; animation: fadeTab 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeTab { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* CARDS */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: border-color 0.2s;
+        }
+        .card:hover { border-color: rgba(201,168,76,0.3); }
+        .card-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+        .card-change {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        .card-change.up { color: var(--success); }
+        .card-change.down { color: var(--danger); }
+        .card-change.neutral { color: var(--text-muted); }
+
+        /* GRIDS */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+        /* SECTION TITLE */
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .section-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        /* PROFILE BAR */
+        .profile-bar {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            background: var(--navy-mid);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 24px;
+            margin-bottom: 20px;
+        }
+        .profile-bar .name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .profile-bar .detail {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .profile-bar .detail strong { color: var(--text); }
+
+        /* KPI CARD */
+        .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+
+        /* BAR CHART CSS-ONLY */
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 180px;
+            padding: 0 4px;
+            border-bottom: 1px solid var(--border);
+            margin-top: 16px;
+        }
+        .bar-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            height: 100%;
+            justify-content: flex-end;
+        }
+        .bar {
+            width: 100%;
+            max-width: 48px;
+            border-radius: 4px 4px 0 0;
+            background: linear-gradient(180deg, var(--gold) 0%, rgba(201,168,76,0.6) 100%);
+            transition: height 0.5s ease;
+            min-height: 4px;
+        }
+        .bar-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-align: center;
+        }
+        .bar-value {
+            font-size: 0.6rem;
+            color: var(--gold-light);
+            font-weight: 600;
+        }
+
+        /* TABLES */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+        .data-table th {
+            background: var(--navy-mid);
+            color: var(--gold);
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(30,58,95,0.5);
+            color: var(--text);
+        }
+        .data-table tr:hover td { background: var(--navy-mid); }
+        .data-table .summary-row td {
+            font-weight: 700;
+            color: var(--gold);
+            border-top: 2px solid var(--gold);
+            background: rgba(201,168,76,0.05);
+        }
+        .data-table .text-right { text-align: right; }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .btn-gold {
+            background: var(--gold);
+            color: var(--navy);
+        }
+        .btn-gold:hover { background: var(--gold-light); }
+        .btn-outline {
+            background: transparent;
+            color: var(--gold);
+            border: 1px solid var(--gold);
+        }
+        .btn-outline:hover { background: var(--gold-dim); }
+        .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+
+        /* QUICK ACTIONS */
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        /* PIE CHART CSS ONLY */
+        .pie-container {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+        .pie-chart {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #4299e1 0% 55%,
+                #ed8936 55% 73%,
+                #9f7aea 73% 85%,
+                #48bb78 85% 93%,
+                #e53e3e 93% 97%,
+                #718096 97% 100%
+            );
+            position: relative;
+            flex-shrink: 0;
+        }
+        .pie-chart::after {
+            content: '';
+            position: absolute;
+            top: 30%;
+            left: 30%;
+            width: 40%;
+            height: 40%;
+            border-radius: 50%;
+            background: var(--card);
+        }
+        .pie-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .pie-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: var(--text);
+        }
+        .pie-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        /* FORM ELEMENTS */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--navy);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 2px rgba(201,168,76,0.15);
+        }
+        select.form-control {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238899aa' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+        select.form-control option { background: var(--navy); color: var(--text); }
+
+        /* CONNECTION CARDS */
+        .conn-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .conn-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .conn-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+        .conn-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+        .conn-fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .conn-field label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        .conn-field input {
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--navy);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 0.85rem;
+            font-family: inherit;
+        }
+        .conn-field input:focus { outline: none; border-color: var(--gold); }
+        .conn-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .status-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-demo { background: rgba(201,168,76,0.15); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+        .status-live { background: rgba(56,161,105,0.15); color: var(--success); border: 1px solid rgba(56,161,105,0.3); }
+
+        /* DRAG DROP */
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 40px;
+            text-align: center;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--gold);
+            background: var(--gold-dim);
+            color: var(--gold);
+        }
+        .drop-zone .drop-icon { font-size: 2rem; margin-bottom: 8px; display: block; }
+        .drop-zone .drop-text { font-size: 0.9rem; font-weight: 600; }
+        .drop-zone .drop-sub { font-size: 0.8rem; margin-top: 4px; }
+
+        /* ROI DISPLAY */
+        .roi-result {
+            text-align: center;
+            padding: 20px;
+            background: var(--navy-mid);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+        }
+        .roi-result .roi-label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .roi-result .roi-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--gold);
+        }
+        .roi-result .roi-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* SBA TABLE */
+        .sba-current {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .sba-loan-card {
+            background: var(--navy-mid);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+        .sba-loan-card .loan-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 12px;
+        }
+        .sba-loan-card .loan-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 0.82rem;
+            border-bottom: 1px solid rgba(30,58,95,0.5);
+        }
+        .sba-loan-card .loan-detail:last-child { border-bottom: none; }
+        .sba-loan-card .loan-detail .lbl { color: var(--text-muted); }
+        .sba-loan-card .loan-detail .val { color: var(--text); font-weight: 600; }
+
+        /* ELIGIBILITY */
+        .eligible { color: var(--success); }
+        .review { color: var(--warning); }
+
+        /* GROWTH ITEMS */
+        .growth-item {
+            background: var(--navy-mid);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 12px;
+        }
+        .growth-item h4 { color: var(--white); font-size: 0.95rem; margin-bottom: 6px; }
+        .growth-item p { color: var(--text-muted); font-size: 0.85rem; }
+        .growth-metric {
+            display: inline-block;
+            background: var(--gold-dim);
+            color: var(--gold);
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: var(--navy);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        .progress-fill.gold { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+        .progress-fill.blue { background: linear-gradient(90deg, #4299e1, #63b3ed); }
+        .progress-fill.green { background: linear-gradient(90deg, var(--success), #68d391); }
+
+        /* PROPOSAL OUTPUT */
+        .proposal-output {
+            background: var(--white);
+            color: #1a202c;
+            padding: 48px;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            max-width: 800px;
+            margin: 24px auto 0;
+        }
+        .proposal-output h2 { color: var(--navy); font-size: 1.3rem; margin: 24px 0 12px; border-bottom: 2px solid var(--navy); padding-bottom: 6px; }
+        .proposal-output h3 { color: var(--navy-light); font-size: 1rem; margin: 18px 0 8px; }
+        .proposal-output .letterhead { text-align: center; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 3px solid var(--navy); }
+        .proposal-output .letterhead h1 { color: var(--navy); font-size: 1.6rem; margin-bottom: 4px; }
+        .proposal-output .letterhead p { color: #4a5568; font-size: 0.85rem; }
+        .proposal-output .sig-block { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
+        .proposal-output ul { padding-left: 20px; margin: 8px 0; }
+        .proposal-output li { margin-bottom: 4px; }
+        .proposal-output .cred-item { padding: 4px 0; }
+
+        /* ACCORDION / MANUAL */
+        .accordion-item {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+        .accordion-header {
+            padding: 14px 20px;
+            background: var(--navy-mid);
+            color: var(--text);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+        .accordion-header:hover { background: var(--card-hover); }
+        .accordion-arrow { transition: transform 0.3s; font-size: 0.8rem; color: var(--gold); }
+        .accordion-item.open .accordion-arrow { transform: rotate(180deg); }
+        .accordion-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: var(--card);
+        }
+        .accordion-item.open .accordion-body { max-height: 600px; }
+        .accordion-content {
+            padding: 16px 20px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+        .accordion-content p { margin-bottom: 8px; }
+        .accordion-content strong { color: var(--text); }
+
+        /* GLOSSARY */
+        .glossary-item {
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(30,58,95,0.5);
+        }
+        .glossary-item:last-child { border-bottom: none; }
+        .glossary-term {
+            font-weight: 700;
+            color: var(--gold);
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+        .glossary-def {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* METRIC ROW */
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(30,58,95,0.5);
+            font-size: 0.85rem;
+        }
+        .metric-row:last-child { border-bottom: none; }
+        .metric-row .label { color: var(--text-muted); }
+        .metric-row .value { color: var(--text); font-weight: 600; }
+        .metric-row .value.gold { color: var(--gold); }
+
+        /* DSCR INDICATOR */
+        .dscr-display {
+            text-align: center;
+            padding: 24px;
+            background: var(--navy-mid);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-top: 20px;
+        }
+        .dscr-display .dscr-val {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--success);
+        }
+        .dscr-display .dscr-label {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .dscr-display .dscr-status {
+            display: inline-block;
+            background: rgba(56,161,105,0.15);
+            color: var(--success);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* COMPETITIVE MATRIX */
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .matrix-cell {
+            background: var(--navy-mid);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .matrix-cell .cell-label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .matrix-cell .cell-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* PRINT STYLES */
+        @media print {
+            body { background: white !important; color: #1a202c !important; }
+            #hub-nav, .tab-bar, .demo-badge, .btn, .quick-actions, .no-print { display: none !important; }
+            .header { background: white !important; border-bottom: 2px solid #1a365d !important; }
+            .header h1 { color: #1a365d !important; }
+            .header .subtitle { color: #4a5568 !important; }
+            .tab-content { display: none !important; }
+            .tab-content.print-active { display: block !important; }
+            .card, .conn-card, .sba-loan-card, .growth-item, .accordion-item, .roi-result {
+                background: white !important;
+                border-color: #e2e8f0 !important;
+                color: #1a202c !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .card-value, .roi-value, .dscr-val { color: #1a365d !important; }
+            .card-title, .conn-name, .section-title { color: #1a365d !important; }
+            .data-table th { background: #edf2f7 !important; color: #1a365d !important; }
+            .data-table td { color: #2d3748 !important; border-color: #e2e8f0 !important; }
+            .proposal-output { box-shadow: none !important; border: 1px solid #e2e8f0; }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            .kpi-grid, .grid-3, .grid-6 { grid-template-columns: repeat(2, 1fr); }
+            .grid-2 { grid-template-columns: 1fr; }
+            .matrix-grid { grid-template-columns: 1fr; }
+            .header { padding: 20px 16px 16px; }
+            .container { padding: 12px; }
+            .proposal-output { padding: 24px; }
+        }
+        @media (max-width: 600px) {
+            .kpi-grid, .grid-3, .grid-6 { grid-template-columns: 1fr; }
+            .sba-current { grid-template-columns: 1fr; }
+            .pie-container { flex-direction: column; align-items: flex-start; }
+            .profile-bar { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .roi-result .roi-value { font-size: 1.5rem; }
+            .bar-chart { height: 140px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- BACK TO HUB NAV -->
+<div id="hub-nav">
+    <a href="../NUVABASE-Launcher.html">&#9664; Back to Hub</a>
+    <span>NUVABASE Launcher</span>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+    <div>
+        <h1>Small Business Intelligence</h1>
+        <div class="subtitle">Financial Performance &bull; Growth Strategy &bull; SBA Optimization &mdash; NUVABASE Professional Consulting</div>
+        <div class="tlrw-phases">
+            <div class="tlrw-phase phase-think"><span class="phase-dot"></span> Think = Strategy</div>
+            <div class="tlrw-phase phase-learn"><span class="phase-dot"></span> Learn = Data</div>
+            <div class="tlrw-phase phase-reflect"><span class="phase-dot"></span> Reflect = Analysis</div>
+            <div class="tlrw-phase phase-write"><span class="phase-dot"></span> Write = Action Plan</div>
+        </div>
+    </div>
+    <div class="demo-badge">DEMO</div>
+</div>
+
+<div class="container">
+
+    <!-- TAB BAR -->
+    <div class="tab-bar" id="tabBar">
+        <button class="tab active" data-tab="health" onclick="switchTab('health', this)">Business Health</button>
+        <button class="tab" data-tab="api" onclick="switchTab('api', this)">API Connections</button>
+        <button class="tab" data-tab="financial" onclick="switchTab('financial', this)">Financial Performance</button>
+        <button class="tab" data-tab="growth" onclick="switchTab('growth', this)">Growth Analysis</button>
+        <button class="tab" data-tab="sba" onclick="switchTab('sba', this)">SBA &amp; Financing</button>
+        <button class="tab" data-tab="roi" onclick="switchTab('roi', this)">ROI Calculator</button>
+        <button class="tab" data-tab="proposal" onclick="switchTab('proposal', this)">Generate Proposal</button>
+        <button class="tab" data-tab="manual" onclick="switchTab('manual', this)">User Manual</button>
+        <button class="tab" data-tab="glossary" onclick="switchTab('glossary', this)">Glossary</button>
+    </div>
+
+    <!-- =============================== -->
+    <!-- TAB 1: BUSINESS HEALTH          -->
+    <!-- =============================== -->
+    <div class="tab-content active" id="tab-health">
+        <div class="profile-bar">
+            <div class="name">Acme Services LLC</div>
+            <div class="detail">Revenue: <strong>$2.5M</strong></div>
+            <div class="detail">Employees: <strong>35</strong></div>
+            <div class="detail">Founded: <strong>2018</strong></div>
+            <div class="detail">Industry: <strong>Professional Services</strong></div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="card">
+                <div class="card-title">Annual Revenue</div>
+                <div class="card-value">$2,500,000</div>
+                <div class="card-change up">&#9650; 18% YoY</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Profit Margin</div>
+                <div class="card-value">14.2%</div>
+                <div class="card-change up">&#9650; 2.1% improvement</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Employee Count</div>
+                <div class="card-value">35</div>
+                <div class="card-change up">&#9650; 8 added this year</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Customer Retention</div>
+                <div class="card-value">87%</div>
+                <div class="card-change up">&#9650; 3% increase</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Cash Runway</div>
+                <div class="card-value">4.8 mo</div>
+                <div class="card-change neutral">Adequate coverage</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Growth Score</div>
+                <div class="card-value">82/100</div>
+                <div class="card-change up">Strong</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Monthly Revenue Trend (12 Months)</div>
+            <div class="bar-chart">
+                <div class="bar-col"><div class="bar-value">$185K</div><div class="bar" style="height:62%"></div><div class="bar-label">Jan</div></div>
+                <div class="bar-col"><div class="bar-value">$192K</div><div class="bar" style="height:65%"></div><div class="bar-label">Feb</div></div>
+                <div class="bar-col"><div class="bar-value">$210K</div><div class="bar" style="height:72%"></div><div class="bar-label">Mar</div></div>
+                <div class="bar-col"><div class="bar-value">$198K</div><div class="bar" style="height:67%"></div><div class="bar-label">Apr</div></div>
+                <div class="bar-col"><div class="bar-value">$205K</div><div class="bar" style="height:70%"></div><div class="bar-label">May</div></div>
+                <div class="bar-col"><div class="bar-value">$218K</div><div class="bar" style="height:74%"></div><div class="bar-label">Jun</div></div>
+                <div class="bar-col"><div class="bar-value">$195K</div><div class="bar" style="height:66%"></div><div class="bar-label">Jul</div></div>
+                <div class="bar-col"><div class="bar-value">$225K</div><div class="bar" style="height:77%"></div><div class="bar-label">Aug</div></div>
+                <div class="bar-col"><div class="bar-value">$230K</div><div class="bar" style="height:79%"></div><div class="bar-label">Sep</div></div>
+                <div class="bar-col"><div class="bar-value">$212K</div><div class="bar" style="height:72%"></div><div class="bar-label">Oct</div></div>
+                <div class="bar-col"><div class="bar-value">$240K</div><div class="bar" style="height:83%"></div><div class="bar-label">Nov</div></div>
+                <div class="bar-col"><div class="bar-value">$248K</div><div class="bar" style="height:86%"></div><div class="bar-label">Dec</div></div>
+            </div>
+        </div>
+
+        <div class="quick-actions no-print">
+            <button class="btn btn-gold" onclick="switchTab('financial', document.querySelector('[data-tab=financial]'))">View Financials</button>
+            <button class="btn btn-outline" onclick="switchTab('sba', document.querySelector('[data-tab=sba]'))">Check SBA Options</button>
+            <button class="btn btn-outline" onclick="switchTab('proposal', document.querySelector('[data-tab=proposal]'))">Generate Proposal</button>
+        </div>
+    </div>
+
+    <!-- =============================== -->
+    <!-- TAB 2: API CONNECTIONS           -->
+    <!-- =============================== -->
+    <div class="tab-content" id="tab-api">
+        <h2 class="section-title">Data Source Connections</h2>
+        <p class="section-subtitle">Connect your financial data sources to enable live intelligence. All credentials are stored locally in your browser.</p>
+
+        <!-- QuickBooks -->
+        <div class="conn-card" id="conn-quickbooks">
+            <div class="conn-header">
+                <div class="conn-name">QuickBooks Online</div>
+                <span class="status-badge status-demo" id="badge-quickbooks">DEMO</span>
+            </div>
+            <div class="conn-desc">Sync revenue, expenses, P&amp;L, and balance sheet data automatically from QuickBooks.</div>
+            <div class="conn-fields">
+                <div class="conn-field">
+                    <label>Client ID</label>
+                    <input type="text" id="qb-client-id" placeholder="Enter Client ID">
+                </div>
+                <div class="conn-field">
+                    <label>Client Secret</label>
+                    <input type="password" id="qb-client-secret" placeholder="Enter Client Secret">
+                </div>
+                <div class="conn-field">
+                    <label>Realm ID</label>
+                    <input type="text" id="qb-realm-id" placeholder="Enter Realm ID">
+                </div>
+            </div>
+            <div class="conn-actions">
+                <button class="btn btn-gold btn-sm" onclick="connectAPI('quickbooks', ['qb-client-id','qb-client-secret','qb-realm-id'])">Connect</button>
+                <button class="btn btn-outline btn-sm" onclick="disconnectAPI('quickbooks', ['qb-client-id','qb-client-secret','qb-realm-id'])">Disconnect</button>
+            </div>
+        </div>
+
+        <!-- SBA.gov -->
+        <div class="conn-card" id="conn-sba">
+            <div class="conn-header">
+                <div class="conn-name">SBA.gov</div>
+                <span class="status-badge status-demo" id="badge-sba">DEMO</span>
+            </div>
+            <div class="conn-desc">Access SBA loan programs, eligibility data, and financing options via the official SBA API.</div>
+            <div class="conn-fields">
+                <div class="conn-field">
+                    <label>API Key</label>
+                    <input type="text" id="sba-api-key" placeholder="Enter SBA API Key">
+                </div>
+            </div>
+            <div class="conn-actions">
+                <button class="btn btn-gold btn-sm" onclick="connectAPI('sba', ['sba-api-key'])">Connect</button>
+                <button class="btn btn-outline btn-sm" onclick="disconnectAPI('sba', ['sba-api-key'])">Disconnect</button>
+            </div>
+        </div>
+
+        <!-- Dun & Bradstreet -->
+        <div class="conn-card" id="conn-dnb">
+            <div class="conn-header">
+                <div class="conn-name">Dun &amp; Bradstreet</div>
+                <span class="status-badge status-demo" id="badge-dnb">DEMO</span>
+            </div>
+            <div class="conn-desc">Pull business credit scores, risk assessments, and competitive analysis from D&amp;B.</div>
+            <div class="conn-fields">
+                <div class="conn-field">
+                    <label>API Key</label>
+                    <input type="text" id="dnb-api-key" placeholder="Enter D&amp;B API Key">
+                </div>
+                <div class="conn-field">
+                    <label>DUNS Number</label>
+                    <input type="text" id="dnb-duns" placeholder="Enter DUNS Number">
+                </div>
+            </div>
+            <div class="conn-actions">
+                <button class="btn btn-gold btn-sm" onclick="connectAPI('dnb', ['dnb-api-key','dnb-duns'])">Connect</button>
+                <button class="btn btn-outline btn-sm" onclick="disconnectAPI('dnb', ['dnb-api-key','dnb-duns'])">Disconnect</button>
+            </div>
+        </div>
+
+        <!-- Square/Stripe -->
+        <div class="conn-card" id="conn-payments">
+            <div class="conn-header">
+                <div class="conn-name">Square / Stripe (Payment Data)</div>
+                <span class="status-badge status-demo" id="badge-payments">DEMO</span>
+            </div>
+            <div class="conn-desc">Import transaction history, payment trends, and customer purchasing patterns.</div>
+            <div class="conn-fields">
+                <div class="conn-field">
+                    <label>API Key</label>
+                    <input type="text" id="pay-api-key" placeholder="Enter Payment API Key">
+                </div>
+            </div>
+            <div class="conn-actions">
+                <button class="btn btn-gold btn-sm" onclick="connectAPI('payments', ['pay-api-key'])">Connect</button>
+                <button class="btn btn-outline btn-sm" onclick="disconnectAPI('payments', ['pay-api-key'])">Disconnect</button>
+            </div>
+        </div>
+
+        <!-- CSV Upload -->
+        <div class="conn-card" id="conn-csv">
+            <div class="conn-header">
+                <div class="conn-name">CSV Upload (Fallback)</div>
+                <span class="status-badge status-demo" id="badge-csv">DEMO</span>
+            </div>
+            <div class="conn-desc">Upload financial data as CSV files if API connections are not available.</div>
+            <div class="drop-zone" id="dropZone" onclick="document.getElementById('csvFile').click()">
+                <span class="drop-icon">&#128196;</span>
+                <span class="drop-text">Drag &amp; drop CSV files here</span>
+                <span class="drop-sub">or click to browse</span>
+                <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="handleCSV(this)">
+            </div>
+            <div id="csv-status" style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);"></div>
+        </div>
+    </div>
+
+    <!-- =============================== -->
+    <!-- TAB 3: FINANCIAL PERFORMANCE     -->
+    <!-- =============================== -->
+    <div class="tab-content" id="tab-financial">
+        <h2 class="section-title">Financial Performance &mdash; 12-Month Summary</h2>
+
+        <div class="card" style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th class="text-right">Revenue</th>
+                        <th class="text-right">Expenses</th>
+                        <th class="text-right">Profit</th>
+                        <th class="text-right">Margin</th>
+                        <th class="text-right">Headcount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>January</td><td class="text-right">$185,000</td><td class="text-right">$162,000</td><td class="text-right">$23,000</td><td class="text-right">12.4%</td><td class="text-right">28</td></tr>
+                    <tr><td>February</td><td class="text-right">$192,000</td><td class="text-right">$165,000</td><td class="text-right">$27,000</td><td class="text-right">14.1%</td><td class="text-right">28</td></tr>
+                    <tr><td>March</td><td class="text-right">$210,000</td><td class="text-right">$175,000</td><td class="text-right">$35,000</td><td class="text-right">16.7%</td><td class="text-right">29</td></tr>
+                    <tr><td>April</td><td class="text-right">$198,000</td><td class="text-right">$170,000</td><td class="text-right">$28,000</td><td class="text-right">14.1%</td><td class="text-right">30</td></tr>
+                    <tr><td>May</td><td class="text-right">$205,000</td><td class="text-right">$172,000</td><td class="text-right">$33,000</td><td class="text-right">16.1%</td><td class="text-right">30</td></tr>
+                    <tr><td>June</td><td class="text-right">$218,000</td><td class="text-right">$180,000</td><td class="text-right">$38,000</td><td class="text-right">17.4%</td><td class="text-right">31</td></tr>
+                    <tr><td>July</td><td class="text-right">$195,000</td><td class="text-right">$168,000</td><td class="text-right">$27,000</td><td class="text-right">13.8%</td><td class="text-right">32</td></tr>
+                    <tr><td>August</td><td class="text-right">$225,000</td><td class="text-right">$185,000</td><td class="text-right">$40,000</td><td class="text-right">17.8%</td><td class="text-right">33</td></tr>
+                    <tr><td>September</td><td class="text-right">$230,000</td><td class="text-right">$190,000</td><td class="text-right">$40,000</td><td class="text-right">17.4%</td><td class="text-right">33</td></tr>
+                    <tr><td>October</td><td class="text-right">$212,000</td><td class="text-right">$178,000</td><td class="text-right">$34,000</td><td class="text-right">16.0%</td><td class="text-right">34</td></tr>
+                    <tr><td>November</td><td class="text-right">$240,000</td><td class="text-right">$195,000</td><td class="text-right">$45,000</td><td class="text-right">18.8%</td><td class="text-right">35</td></tr>
+                    <tr><td>December</td><td class="text-right">$248,000</td><td class="text-right">$198,000</td><td class="text-right">$50,000</td><td class="text-right">20.2%</td><td class="text-right">35</td></tr>
+                </tbody>
+                <tfoot>
+                    <tr class="summary-row">
+                        <td><strong>Annual Total</strong></td>
+                        <td class="text-right">$2,558,000</td>
+                        <td class="text-right">$2,138,000</td>
+                        <td class="text-right">$420,000</td>
+                        <td class="text-right">16.4%</td>
+                        <td class="text-right">35</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="grid-2" style="margin-top:20px;">
+            <div class="card">
+                <div class="card-title">Expense Breakdown</div>
+                <div class="pie-container" style="margin-top:12px;">
+                    <div class="pie-chart"></div>
+                    <div class="pie-legend">
+                        <div class="pie-legend-item"><div class="pie-dot" style="background:#4299e1"></div> Payroll — 55%</div>
+                        <div class="pie-legend-item"><div class="pie-dot" style="background:#ed8936"></div> Materials — 18%</div>
+                        <div class="pie-legend-item"><div class="pie-dot" style="background:#9f7aea"></div> Overhead — 12%</div>
+                        <div class="pie-legend-item"><div class="pie-dot" style="background:#48bb78"></div> Marketing — 8%</div>
+                        <div class="pie-legend-item"><div class="pie-dot" style="background:#e53e3e"></div> Insurance — 4%</div>
+                        <div class="pie-legend-item"><div class="pie-dot" style="background:#718096"></div> Other — 3%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Key Financial Metrics</div>
+                <div class="metric-row">
+                    <span class="label">Revenue Growth Rate</span>
+                    <span class="value gold">18% YoY</span>
+                </div>
+                <div class="metric-row">
+                    <span class="label">Average Monthly Revenue</span>
+                    <span class="value">$213,167</span>
+                </div>
+                <div class="metric-row">
+                    <span class="label">Average Monthly Expenses</span>
+                    <span class="value">$178,167</span>
+                </div>
+                <div class="metric-row">
+                    <span class="label">Monthly Burn Rate</span>
+                    <span class="value">$178,167</span>
+                </div>
+                <div class="metric-row">
+                    <span class="label">Break-Even Revenue</span>
+                    <span class="value">$153,200/mo</span>
+                </div>
+                <div class="metric-row">
+                    <span class="label">Operating Leverage</span>
+                    <span class="value gold">1.39x</span>
+                </div>
+                <div class="metric-row">
+                    <span class="label">Employee Revenue</span>
+                    <span class="value">$73,086/person</span>
+                </div>
+                <div class="metric-row">
+                    <span class="label">Profit per Employee</span>
+                    <span class="value gold">$12,000/person</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============================== -->
+    <!-- TAB 4: GROWTH ANALYSIS           -->
+    <!-- =============================== -->
+    <div class="tab-content" id="tab-growth">
+        <h2 class="section-title">Growth Analysis &amp; Strategic Planning</h2>
+
+        <div class="card">
+            <div class="card-title">Revenue Growth Trajectory (Quarterly)</div>
+            <div class="bar-chart" style="height:160px;">
+                <div class="bar-col"><div class="bar-value">$587K</div><div class="bar" style="height:58%"></div><div class="bar-label">Q1</div></div>
+                <div class="bar-col"><div class="bar-value">$621K</div><div class="bar" style="height:62%"></div><div class="bar-label">Q2</div></div>
+                <div class="bar-col"><div class="bar-value">$650K</div><div class="bar" style="height:65%"></div><div class="bar-label">Q3</div></div>
+                <div class="bar-col"><div class="bar-value">$700K</div><div class="bar" style="height:70%"></div><div class="bar-label">Q4</div></div>
+                <div class="bar-col"><div class="bar-value">$770K</div><div class="bar" style="height:77%; background: linear-gradient(180deg, var(--gold-light) 0%, rgba(201,168,76,0.4) 100%)"></div><div class="bar-label">Q1 Proj</div></div>
+                <div class="bar-col"><div class="bar-value">$810K</div><div class="bar" style="height:81%; background: linear-gradient(180deg, var(--gold-light) 0%, rgba(201,168,76,0.4) 100%)"></div><div class="bar-label">Q2 Proj</div></div>
+                <div class="bar-col"><div class="bar-value">$830K</div><div class="bar" style="height:83%; background: linear-gradient(180deg, var(--gold-light) 0%, rgba(201,168,76,0.4) 100%)"></div><div class="bar-label">Q3 Proj</div></div>
+                <div class="bar-col"><div class="bar-value">$890K</div><div class="bar" style="height:89%; background: linear-gradient(180deg, var(--gold-light) 0%, rgba(201,168,76,0.4) 100%)"></div><div class="bar-label">Q4 Proj</div></div>
+            </div>
+        </div>
+
+        <div class="grid-2" style="margin-top:4px;">
+            <div>
+                <h3 class="section-title" style="font-size:1rem;">Market Expansion Opportunities</h3>
+
+                <div class="growth-item">
+                    <h4>Geographic Expansion</h4>
+                    <p>Three adjacent metropolitan markets identified with low competition density and high demand signals for professional services. Estimated combined addressable market: $4.2M annually.</p>
+                    <span class="growth-metric">3 Markets Identified</span>
+                    <span class="growth-metric">$4.2M TAM</span>
+                </div>
+
+                <div class="growth-item">
+                    <h4>Service Line Expansion</h4>
+                    <p>Two complementary service offerings modeled based on existing client demand. Managed IT support and compliance consulting can be launched with minimal incremental investment.</p>
+                    <span class="growth-metric">2 New Services Modeled</span>
+                    <span class="growth-metric">$620K Potential</span>
+                </div>
+
+                <div class="growth-item">
+                    <h4>Digital Transformation Readiness</h4>
+                    <p>Current digitization covers 45% of operational workflows. Significant opportunity to automate invoicing, scheduling, and client reporting for efficiency gains.</p>
+                    <div class="progress-bar" style="margin-top:10px;">
+                        <div class="progress-fill gold" style="width:45%"></div>
+                    </div>
+                    <span style="font-size:0.78rem; color:var(--text-muted);">45% Digital — Target: 80%</span>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="section-title" style="font-size:1rem;">Competitive Positioning</h3>
+                <div class="matrix-grid">
+                    <div class="matrix-cell">
+                        <div class="cell-label">Market Share</div>
+                        <div class="cell-value" style="color:var(--gold);">7.2%</div>
+                    </div>
+                    <div class="matrix-cell">
+                        <div class="cell-label">Client NPS Score</div>
+                        <div class="cell-value" style="color:var(--success);">72</div>
+                    </div>
+                    <div class="matrix-cell">
+                        <div class="cell-label">Pricing Position</div>
+                        <div class="cell-value" style="color:var(--think);">Mid-Tier</div>
+                    </div>
+                    <div class="matrix-cell">
+                        <div class="cell-label">Win Rate</div>
+                        <div class="cell-value" style="color:var(--gold);">38%</div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:16px;">
+                    <div class="card-title">TLRW Growth Recommendations</div>
+                    <div class="metric-row">
+                        <span class="label" style="color:var(--think);">THINK</span>
+                        <span class="value" style="font-size:0.82rem;">Develop 18-month strategic plan with geographic priorities</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="label" style="color:var(--learn);">LEARN</span>
+                        <span class="value" style="font-size:0.82rem;">Benchmark pricing and win rates against top 5 competitors</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="label" style="color:var(--reflect);">REFLECT</span>
+                        <span class="value" style="font-size:0.82rem;">Analyze client churn patterns; identify at-risk accounts</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="label" style="color:var(--write);">WRITE</span>
+                        <span class="value" style="font-size:0.82rem;">Document SOPs for new service lines; launch Q2</span>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:16px;">
+                    <div class="card-title">12-Month Projections</div>
+                    <div class="metric-row">
+                        <span class="label">Headcount Projection</span>
+                        <span class="value gold">+12 employees (to 47)</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="label">Revenue Projection</span>
+                        <span class="value gold">$3,200,000</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="label">Projected Growth</span>
+                        <span class="value gold">28%</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="label">Target Margin</span>
+                        <span class="value">18.5%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============================== -->
+    <!-- TAB 5: SBA & FINANCING           -->
+    <!-- =============================== -->
+    <div class="tab-content" id="tab-sba">
+        <h2 class="section-title">SBA &amp; Financing Overview</h2>
+
+        <h3 style="color:var(--text); font-size:0.95rem; margin-bottom:16px;">Current Financing</h3>
+        <div class="sba-current">
+            <div class="sba-loan-card">
+                <div class="loan-name">SBA 7(a) Loan</div>
+                <div class="loan-detail"><span class="lbl">Original Amount</span><span class="val">$500,000</span></div>
+                <div class="loan-detail"><span class="lbl">Remaining Balance</span><span class="val">$350,000</span></div>
+                <div class="loan-detail"><span class="lbl">Interest Rate</span><span class="val">6.5%</span></div>
+                <div class="loan-detail"><span class="lbl">Payments Remaining</span><span class="val">84 months</span></div>
+                <div class="loan-detail"><span class="lbl">Monthly Payment</span><span class="val">$5,480</span></div>
+                <div style="margin-top:10px;">
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">Payoff Progress — 30%</div>
+                    <div class="progress-bar"><div class="progress-fill green" style="width:30%"></div></div>
+                </div>
+            </div>
+            <div class="sba-loan-card">
+                <div class="loan-name">Business Line of Credit</div>
+                <div class="loan-detail"><span class="lbl">Credit Limit</span><span class="val">$100,000</span></div>
+                <div class="loan-detail"><span class="lbl">Current Balance</span><span class="val">$42,000</span></div>
+                <div class="loan-detail"><span class="lbl">Available Credit</span><span class="val">$58,000</span></div>
+                <div class="loan-detail"><span class="lbl">Interest Rate</span><span class="val">8.0%</span></div>
+                <div class="loan-detail"><span class="lbl">Monthly Interest</span><span class="val">$280</span></div>
+                <div style="margin-top:10px;">
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">Utilization — 42%</div>
+                    <div class="progress-bar"><div class="progress-fill blue" style="width:42%"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="color:var(--text); font-size:0.95rem; margin-bottom:16px; margin-top:28px;">Available SBA Programs</h3>
+        <div class="card" style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Program</th>
+                        <th class="text-right">Max Amount</th>
+                        <th>Rate Range</th>
+                        <th>Term</th>
+                        <th>Eligibility</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>SBA 7(a) Loan</strong></td>
+                        <td class="text-right">$5,000,000</td>
+                        <td>5.5% &ndash; 8.0%</td>
+                        <td>Up to 25 years</td>
+                        <td class="eligible">&#10003; Eligible</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SBA 504 Loan</strong></td>
+                        <td class="text-right">$5,500,000</td>
+                        <td>Fixed rate</td>
+                        <td>10 / 20 years</td>
+                        <td class="eligible">&#10003; Eligible</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SBA Microloan</strong></td>
+                        <td class="text-right">$50,000</td>
+                        <td>8% &ndash; 13%</td>
+                        <td>Up to 6 years</td>
+                        <td class="eligible">&#10003; Eligible</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SBA Express</strong></td>
+                        <td class="text-right">$500,000</td>
+                        <td>SBA rate + 4.5%</td>
+                        <td>Up to 25 years</td>
+                        <td class="eligible">&#10003; Eligible</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SBIR Grant</strong></td>
+                        <td class="text-right">$250,000 (Phase I)</td>
+                        <td>N/A (Grant)</td>
+                        <td>6 months</td>
+                        <td class="review">&#9888; Review Needed</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Small Business Credit Initiative</strong></td>
+                        <td class="text-right">$500,000</td>
+                        <td>Below market</td>
+                        <td>Varies</td>
+                        <td class="eligible">&#10003; Eligible</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="grid-2" style="margin-top:20px;">
+            <div class="card">
+                <div class="card-title">Financing Recommendation</div>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">Based on Acme Services' current revenue trajectory, profit margins, and growth plans, the following financing strategy is recommended:</p>
+                <div class="growth-item" style="margin-bottom:8px;">
+                    <h4 style="font-size:0.9rem;">Primary: SBA 504 Loan</h4>
+                    <p>Ideal for capital equipment and real estate acquisition to support geographic expansion. Fixed rate provides payment stability for long-term planning.</p>
+                    <span class="growth-metric">Recommended: $750K</span>
+                </div>
+                <div class="growth-item" style="margin-bottom:8px;">
+                    <h4 style="font-size:0.9rem;">Secondary: Increase Line of Credit</h4>
+                    <p>Request credit limit increase from $100K to $200K to support seasonal cash flow needs and new market entry costs.</p>
+                    <span class="growth-metric">Recommended: $200K limit</span>
+                </div>
+                <div class="growth-item" style="margin-bottom:0;">
+                    <h4 style="font-size:0.9rem;">Explore: SSBCI Program</h4>
+                    <p>State-level program offering below-market rates. Application timeline: 60-90 days. Worth pursuing for supplemental working capital.</p>
+                    <span class="growth-metric">Up to $500K available</span>
+                </div>
+            </div>
+
+            <div>
+                <div class="dscr-display">
+                    <div class="dscr-val">2.4x</div>
+                    <div class="dscr-label">Debt Service Coverage Ratio</div>
+                    <div class="dscr-status">&#10003; Healthy &mdash; Exceeds 1.25x minimum</div>
+                </div>
+                <div class="card" style="margin-top:16px;">
+                    <div class="card-title">Debt Summary</div>
+                    <div class="metric-row">
+                        <span class="label">Total Outstanding Debt</span>
+                        <span class="value">$392,000</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="label">Monthly Debt Service</span>
+                        <span class="value">$5,760</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="label">Debt-to-Revenue Ratio</span>
+                        <span class="value gold">15.3%</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="label">Additional Borrowing Capacity</span>
+                        <span class="value gold">~$850,000</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="label">Weighted Avg Interest Rate</span>
+                        <span class="value">6.8%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============================== -->
+    <!-- TAB 6: ROI CALCULATOR            -->
+    <!-- =============================== -->
+    <div class="tab-content" id="tab-roi">
+        <h2 class="section-title" style="text-align:center; border-bottom:none;">NUVABASE ROI Projection</h2>
+        <p class="section-subtitle" style="text-align:center;">Calculate the projected return on investment from NUVABASE consulting engagement.</p>
+
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-title">Input Parameters</div>
+                <div class="form-group">
+                    <label>Annual Revenue ($)</label>
+                    <input type="number" class="form-control" id="roi-revenue" value="2500000" onchange="calcROI()" oninput="calcROI()">
+                </div>
+                <div class="form-group">
+                    <label>Current Profit Margin (%)</label>
+                    <input type="number" class="form-control" id="roi-margin" value="14.2" step="0.1" onchange="calcROI()" oninput="calcROI()">
+                </div>
+                <div class="form-group">
+                    <label>Number of Employees</label>
+                    <input type="number" class="form-control" id="roi-employees" value="35" onchange="calcROI()" oninput="calcROI()">
+                </div>
+                <div class="form-group">
+                    <label>Estimated Revenue Growth (%)</label>
+                    <input type="number" class="form-control" id="roi-growth" value="28" step="1" onchange="calcROI()" oninput="calcROI()">
+                </div>
+                <div class="form-group">
+                    <label>Estimated Margin Improvement (%)</label>
+                    <input type="number" class="form-control" id="roi-margin-imp" value="4" step="0.5" onchange="calcROI()" oninput="calcROI()">
+                </div>
+                <div class="form-group">
+                    <label>Current Operational Waste (%)</label>
+                    <input type="number" class="form-control" id="roi-waste" value="22" step="1" onchange="calcROI()" oninput="calcROI()">
+                </div>
+                <div class="form-group">
+                    <label>Estimated Waste Reduction (%)</label>
+                    <input type="number" class="form-control" id="roi-waste-reduce" value="60" step="5" onchange="calcROI()" oninput="calcROI()">
+                </div>
+            </div>
+
+            <div>
+                <div class="roi-result">
+                    <div class="roi-label">Revenue Growth Impact</div>
+                    <div class="roi-value" id="roi-out-growth">$700,000/year</div>
+                    <div class="roi-sub">Based on projected top-line growth</div>
+                </div>
+                <div class="roi-result">
+                    <div class="roi-label">Margin Improvement</div>
+                    <div class="roi-value" id="roi-out-margin">$100,000/year</div>
+                    <div class="roi-sub">Incremental profit from margin gains</div>
+                </div>
+                <div class="roi-result">
+                    <div class="roi-label">Operational Savings</div>
+                    <div class="roi-value" id="roi-out-savings">$330,000/year</div>
+                    <div class="roi-sub">Waste elimination and process optimization</div>
+                </div>
+                <div class="roi-result" style="border-color:var(--gold);">
+                    <div class="roi-label">Total Annual Impact</div>
+                    <div class="roi-value" id="roi-out-total" style="font-size:2.5rem;">$1,130,000</div>
+                </div>
+                <div class="grid-2" style="margin-top:12px;">
+                    <div class="roi-result">
+                        <div class="roi-label">3-Year Projected Impact</div>
+                        <div class="roi-value" id="roi-out-3yr" style="font-size:1.6rem;">$3,390,000</div>
+                    </div>
+                    <div class="roi-result">
+                        <div class="roi-label">ROI Multiple</div>
+                        <div class="roi-value" id="roi-out-multiple" style="font-size:1.6rem;">22x</div>
+                    </div>
+                </div>
+
+                <div style="margin-top:16px; padding:16px; background:var(--navy-mid); border:1px solid var(--border); border-radius:var(--radius); font-size:0.8rem; color:var(--text-muted); line-height:1.6;">
+                    <strong style="color:var(--gold);">Methodology Reference:</strong> Based on NUVABASE consulting methodology: $90M SBA portfolio managed, 1,500+ employees across portfolio, 20+ years of enterprise operations optimization.
+                </div>
+
+                <div style="margin-top:16px; text-align:center;" class="no-print">
+                    <button class="btn btn-gold" onclick="printROI()">Print ROI Summary</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============================== -->
+    <!-- TAB 7: GENERATE PROPOSAL         -->
+    <!-- =============================== -->
+    <div class="tab-content" id="tab-proposal">
+        <h2 class="section-title">Generate TLRW Consulting Proposal</h2>
+        <p class="section-subtitle">Complete the form below to generate a professional, print-ready consulting proposal.</p>
+
+        <div class="grid-2">
+            <div class="card" id="proposal-form-card">
+                <div class="form-group">
+                    <label>Business Name</label>
+                    <input type="text" class="form-control" id="prop-name" value="Acme Services LLC" placeholder="Enter business name">
+                </div>
+                <div class="form-group">
+                    <label>Industry</label>
+                    <select class="form-control" id="prop-industry">
+                        <option value="Professional Services" selected>Professional Services</option>
+                        <option value="Construction">Construction</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Retail">Retail</option>
+                        <option value="Manufacturing">Manufacturing</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Annual Revenue ($)</label>
+                    <input type="number" class="form-control" id="prop-revenue" value="2500000" placeholder="Enter annual revenue">
+                </div>
+                <div class="form-group">
+                    <label>Primary Challenge</label>
+                    <select class="form-control" id="prop-challenge">
+                        <option value="Revenue Growth" selected>Revenue Growth</option>
+                        <option value="Cost Reduction">Cost Reduction</option>
+                        <option value="Financing">Financing</option>
+                        <option value="Workforce">Workforce</option>
+                        <option value="Operations">Operations</option>
+                        <option value="Market Expansion">Market Expansion</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Number of Employees</label>
+                    <input type="number" class="form-control" id="prop-employees" value="35" placeholder="Enter employee count">
+                </div>
+                <div class="form-group">
+                    <label>Engagement Timeline</label>
+                    <select class="form-control" id="prop-timeline">
+                        <option value="30 days">30 Days — Rapid Assessment</option>
+                        <option value="60 days" selected>60 Days — Standard Engagement</option>
+                        <option value="90 days">90 Days — Comprehensive Transformation</option>
+                        <option value="6 months">6 Months — Enterprise Program</option>
+                    </select>
+                </div>
+                <div style="margin-top:8px;">
+                    <button class="btn btn-gold" onclick="generateProposal()" style="width:100%;">Generate TLRW Proposal</button>
+                </div>
+            </div>
+
+            <div class="card" style="text-align:center; display:flex; align-items:center; justify-content:center; min-height:300px;" id="proposal-placeholder">
+                <div>
+                    <div style="font-size:3rem; opacity:0.3; margin-bottom:12px;">&#128196;</div>
+                    <div style="color:var(--text-muted); font-size:0.9rem;">Complete the form and click<br><strong style="color:var(--gold);">Generate TLRW Proposal</strong><br>to create your document.</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="proposal-output-wrapper" style="display:none;">
+            <div style="text-align:center; margin:20px 0;" class="no-print">
+                <button class="btn btn-gold" onclick="printProposal()">Print Proposal</button>
+                <button class="btn btn-outline" style="margin-left:8px;" onclick="document.getElementById('proposal-output-wrapper').style.display='none'; document.getElementById('proposal-placeholder').style.display='flex';">Close Preview</button>
+            </div>
+            <div class="proposal-output" id="proposal-content"></div>
+        </div>
+    </div>
+
+    <!-- =============================== -->
+    <!-- TAB 8: USER MANUAL               -->
+    <!-- =============================== -->
+    <div class="tab-content" id="tab-manual">
+        <h2 class="section-title">User Manual</h2>
+        <p class="section-subtitle">Everything you need to know about using the Small Business Intelligence dashboard.</p>
+
+        <div class="accordion-item open">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                Getting Started
+                <span class="accordion-arrow">&#9660;</span>
+            </button>
+            <div class="accordion-body">
+                <div class="accordion-content">
+                    <p><strong>Welcome to NUVABASE Small Business Intelligence.</strong> This dashboard provides a comprehensive view of your business health, financial performance, growth opportunities, and financing options.</p>
+                    <p>Navigate between sections using the tabs at the top of the page. Each tab focuses on a specific aspect of your business intelligence:</p>
+                    <p><strong>Business Health</strong> gives you an at-a-glance overview of key performance indicators. <strong>API Connections</strong> lets you link external data sources. <strong>Financial Performance</strong> shows detailed monthly data. <strong>Growth Analysis</strong> helps plan expansion. <strong>SBA &amp; Financing</strong> explores funding options. <strong>ROI Calculator</strong> projects your return on consulting investment. <strong>Generate Proposal</strong> creates professional documents.</p>
+                    <p>This dashboard runs entirely in your browser with no external dependencies. All data is stored locally and never transmitted to external servers.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                Understanding Business Health Metrics
+                <span class="accordion-arrow">&#9660;</span>
+            </button>
+            <div class="accordion-body">
+                <div class="accordion-content">
+                    <p><strong>Annual Revenue:</strong> Total income generated over the trailing 12 months. The year-over-year (YoY) percentage shows growth compared to the previous period.</p>
+                    <p><strong>Profit Margin:</strong> Net income as a percentage of revenue. Higher margins indicate more efficient operations and stronger pricing power.</p>
+                    <p><strong>Employee Count:</strong> Current full-time equivalent staff. Growth in headcount typically signals business expansion and capacity building.</p>
+                    <p><strong>Customer Retention:</strong> Percentage of customers who continue doing business with you year over year. Above 85% is considered strong for professional services.</p>
+                    <p><strong>Cash Runway:</strong> Number of months of operating expenses covered by current cash reserves. 3-6 months is a healthy range for small businesses.</p>
+                    <p><strong>Growth Score:</strong> A composite metric (0-100) combining revenue trajectory, margin trends, retention rates, and market position. Scores above 70 indicate strong growth momentum.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                Connecting Financial Data Sources
+                <span class="accordion-arrow">&#9660;</span>
+            </button>
+            <div class="accordion-body">
+                <div class="accordion-content">
+                    <p>The <strong>API Connections</strong> tab allows you to connect external financial platforms to pull live data into the dashboard.</p>
+                    <p><strong>QuickBooks Online:</strong> Enter your Client ID, Client Secret, and Realm ID from the QuickBooks Developer portal. This enables automatic sync of revenue, expenses, and P&amp;L data.</p>
+                    <p><strong>SBA.gov:</strong> Obtain an API key from the SBA developer portal to access real-time program eligibility and rate data.</p>
+                    <p><strong>Dun &amp; Bradstreet:</strong> Connect with your API key and DUNS number to pull business credit scores and competitive intelligence.</p>
+                    <p><strong>Square/Stripe:</strong> Enter your payment processor API key to import transaction data and customer purchasing patterns.</p>
+                    <p><strong>CSV Upload:</strong> If API connections are not available, you can upload CSV files with your financial data as a fallback option. Files should include columns for date, amount, and category.</p>
+                    <p>All credentials are stored securely in your browser's localStorage and are never transmitted externally.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                Reading Financial Performance
+                <span class="accordion-arrow">&#9660;</span>
+            </button>
+            <div class="accordion-body">
+                <div class="accordion-content">
+                    <p>The <strong>Financial Performance</strong> tab displays a 12-month detailed breakdown of your business finances.</p>
+                    <p><strong>Revenue:</strong> Total income received each month. Look for consistent upward trends and seasonal patterns.</p>
+                    <p><strong>Expenses:</strong> Total operating costs. Monitor the revenue-to-expense ratio for efficiency gains.</p>
+                    <p><strong>Profit:</strong> Revenue minus expenses. The summary row shows your annual total.</p>
+                    <p><strong>Margin:</strong> Profit as a percentage of revenue. Improving margins indicate better operational efficiency or pricing power.</p>
+                    <p><strong>Expense Breakdown:</strong> The pie chart shows where your money goes across six categories: Payroll, Materials, Overhead, Marketing, Insurance, and Other. This helps identify areas for cost optimization.</p>
+                    <p><strong>Key Metrics:</strong> Revenue growth rate, burn rate, and break-even analysis provide strategic context for financial decisions.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                Exploring SBA Options
+                <span class="accordion-arrow">&#9660;</span>
+            </button>
+            <div class="accordion-body">
+                <div class="accordion-content">
+                    <p>The <strong>SBA &amp; Financing</strong> tab provides a comprehensive view of your current financing and available SBA programs.</p>
+                    <p><strong>Current Financing:</strong> Shows outstanding loans, lines of credit, balances, rates, and payment progress.</p>
+                    <p><strong>Available Programs:</strong> Lists SBA programs you may be eligible for, including maximum amounts, rate ranges, terms, and eligibility status.</p>
+                    <p><strong>Eligibility Key:</strong> A green checkmark means you meet the basic criteria. A yellow warning means additional review is needed to confirm eligibility.</p>
+                    <p><strong>DSCR:</strong> The Debt Service Coverage Ratio measures your ability to service debt. Lenders typically require 1.25x or higher. Your current 2.4x is well above this threshold.</p>
+                    <p><strong>Financing Recommendations:</strong> Based on your business metrics, the system suggests optimal financing strategies including primary loan types, credit line adjustments, and supplemental programs.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                Using the ROI Calculator
+                <span class="accordion-arrow">&#9660;</span>
+            </button>
+            <div class="accordion-body">
+                <div class="accordion-content">
+                    <p>The <strong>ROI Calculator</strong> projects the financial impact of a NUVABASE consulting engagement on your business.</p>
+                    <p><strong>Input your current metrics:</strong> Annual revenue, profit margin, employee count, and operational waste percentage. The calculator uses these as baseline figures.</p>
+                    <p><strong>Set growth estimates:</strong> Enter projected revenue growth, margin improvement, and waste reduction percentages based on your goals.</p>
+                    <p><strong>Results update automatically</strong> as you change any input field. The three main impact areas are:</p>
+                    <p>1. <strong>Revenue Growth Impact:</strong> The dollar value of projected revenue increase.</p>
+                    <p>2. <strong>Margin Improvement:</strong> Additional profit from improved margins applied to current revenue.</p>
+                    <p>3. <strong>Operational Savings:</strong> Savings from reducing waste in current operations.</p>
+                    <p>Use the <strong>Print ROI Summary</strong> button to generate a clean printout for stakeholder review.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                Generating Proposals
+                <span class="accordion-arrow">&#9660;</span>
+            </button>
+            <div class="accordion-body">
+                <div class="accordion-content">
+                    <p>The <strong>Generate Proposal</strong> tab creates professional, print-ready consulting proposals using the TLRW methodology framework.</p>
+                    <p><strong>Step 1:</strong> Fill in the business details including name, industry, revenue, primary challenge, employee count, and desired timeline.</p>
+                    <p><strong>Step 2:</strong> Click "Generate TLRW Proposal" to create the document.</p>
+                    <p><strong>Step 3:</strong> Review the generated proposal, which includes an executive summary, TLRW methodology breakdown, business assessment, deliverables, timeline, investment details, and credentials.</p>
+                    <p><strong>Step 4:</strong> Use the "Print Proposal" button to create a clean, professional printout. The proposal uses a white background with navy and gold branding for maximum readability.</p>
+                    <p>Each proposal is customized based on the selected industry, challenge area, and company size to ensure relevant recommendations and deliverables.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                Troubleshooting
+                <span class="accordion-arrow">&#9660;</span>
+            </button>
+            <div class="accordion-body">
+                <div class="accordion-content">
+                    <p><strong>Tabs not switching:</strong> Ensure JavaScript is enabled in your browser. Try refreshing the page.</p>
+                    <p><strong>API connections showing DEMO:</strong> The DEMO badge indicates that no live credentials have been saved. Enter valid API credentials and click Connect to switch to LIVE mode.</p>
+                    <p><strong>Print layout issues:</strong> For best results, use Chrome or Safari. Set margins to "Default" and disable headers/footers in the print dialog.</p>
+                    <p><strong>Data not persisting:</strong> This dashboard uses localStorage for credential storage. Clearing browser data will remove saved connections. Using private/incognito mode will not persist data.</p>
+                    <p><strong>CSV upload not working:</strong> Ensure your file is in .csv format with comma-separated values. The first row should contain column headers.</p>
+                    <p><strong>ROI calculator showing unusual numbers:</strong> Check that all input fields contain valid positive numbers. Percentages should be entered as whole numbers (e.g., 14.2 for 14.2%).</p>
+                    <p><strong>Need help?</strong> Contact NUVABASE Professional Consulting for technical support and consulting inquiries.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =============================== -->
+    <!-- TAB 9: GLOSSARY                  -->
+    <!-- =============================== -->
+    <div class="tab-content" id="tab-glossary">
+        <h2 class="section-title">Business Intelligence Glossary</h2>
+        <p class="section-subtitle">Key terms and definitions used throughout this dashboard.</p>
+
+        <div class="card">
+            <div class="glossary-item">
+                <div class="glossary-term">Accounts Receivable (AR)</div>
+                <div class="glossary-def">Money owed to a business by its customers for goods or services delivered but not yet paid for. AR is a current asset on the balance sheet and a key indicator of cash flow health. High AR relative to revenue may signal collection issues.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="glossary-term">Break-Even Point</div>
+                <div class="glossary-def">The revenue level at which total income equals total expenses, resulting in zero profit or loss. Understanding your break-even point helps determine the minimum revenue needed to sustain operations and informs pricing decisions.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="glossary-term">Burn Rate</div>
+                <div class="glossary-def">The rate at which a company spends its cash reserves, typically measured monthly. Burn rate is calculated as total monthly operating expenses. Combined with cash on hand, it determines your cash runway.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="glossary-term">Cash Flow</div>
+                <div class="glossary-def">The net amount of cash moving in and out of a business over a specific period. Positive cash flow means more money is coming in than going out. Cash flow differs from profit because it accounts for timing of actual payments, not just accrued revenue and expenses.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="glossary-term">DSCR (Debt Service Coverage Ratio)</div>
+                <div class="glossary-def">A measure of a company's ability to service its debt obligations. Calculated as Net Operating Income divided by Total Debt Service. A DSCR above 1.25x is generally considered healthy by lenders. Higher ratios indicate stronger ability to take on additional financing.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="glossary-term">DUNS Number</div>
+                <div class="glossary-def">A unique nine-digit identification number assigned by Dun &amp; Bradstreet to each physical business location. Required for federal contracting, SBA loan applications, and business credit reporting. Obtaining a DUNS number is free.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="glossary-term">EBITDA</div>
+                <div class="glossary-def">Earnings Before Interest, Taxes, Depreciation, and Amortization. A measure of core operational profitability that strips out financing costs, tax effects, and non-cash charges. Commonly used to compare profitability between companies.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="glossary-term">Gross Margin</div>
+                <div class="glossary-def">Revenue minus the direct costs of producing goods or services (Cost of Goods Sold), expressed as a percentage of revenue. Gross margin measures how efficiently a business converts revenue into profit before accounting for overhead expenses.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="glossary-term">Line of Credit</div>
+                <div class="glossary-def">A flexible financing arrangement with a bank that allows borrowing up to a set limit. Interest is only charged on the amount drawn, not the full limit. Lines of credit provide working capital flexibility for managing cash flow gaps and seasonal fluctuations.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="glossary-term">Net Profit</div>
+                <div class="glossary-def">Total revenue minus all expenses, including operating costs, interest, taxes, and depreciation. Also known as the "bottom line," net profit is the ultimate measure of a company's financial performance. Net profit margin shows this as a percentage of revenue.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="glossary-term">P&amp;L (Profit &amp; Loss Statement)</div>
+                <div class="glossary-def">A financial statement summarizing revenues, costs, and expenses over a specific period. Also known as an income statement. The P&amp;L shows whether a business is making or losing money and is one of three key financial statements alongside the balance sheet and cash flow statement.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="glossary-term">Runway</div>
+                <div class="glossary-def">The amount of time a business can continue operating at its current burn rate before running out of cash. Calculated as total cash reserves divided by monthly burn rate. Maintaining 3-6 months of runway is recommended for small businesses.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="glossary-term">SBA (Small Business Administration)</div>
+                <div class="glossary-def">A United States government agency that provides support to small businesses through loan programs, counseling, contracting assistance, and advocacy. SBA does not lend directly but guarantees portions of loans made by partner lenders, reducing risk and enabling better terms for borrowers.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="glossary-term">SBIR (Small Business Innovation Research)</div>
+                <div class="glossary-def">A federal program that encourages small businesses to engage in research and development with commercialization potential. SBIR grants are awarded in phases: Phase I ($250K for feasibility), Phase II ($1M for development), and Phase III (commercialization using non-SBIR funds).</div>
+            </div>
+            <div class="glossary-item">
+                <div class="glossary-term">TLRW Framework</div>
+                <div class="glossary-def">NUVABASE's proprietary consulting methodology: Think, Learn, Reflect, Write. Think defines the strategic vision and goals. Learn gathers data and intelligence. Reflect analyzes findings to identify insights and opportunities. Write produces actionable plans, proposals, and implementation roadmaps. This structured approach ensures thorough analysis and measurable outcomes.</div>
+            </div>
+            <div class="glossary-item">
+                <div class="glossary-term">Working Capital</div>
+                <div class="glossary-def">Current assets minus current liabilities. Working capital measures a company's short-term financial health and operational efficiency. Positive working capital indicates a business can cover its short-term obligations. Insufficient working capital is one of the most common reasons small businesses seek SBA financing.</div>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /container -->
+
+<script>
+/* ============================================
+   TAB SWITCHING
+   ============================================ */
+function switchTab(tabId, btn) {
+    // Hide all tab content
+    var contents = document.querySelectorAll('.tab-content');
+    for (var i = 0; i < contents.length; i++) {
+        contents[i].classList.remove('active');
+        contents[i].classList.remove('print-active');
+    }
+    // Deactivate all tab buttons
+    var tabs = document.querySelectorAll('.tab');
+    for (var i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove('active');
+    }
+    // Show selected tab
+    var target = document.getElementById('tab-' + tabId);
+    if (target) {
+        target.classList.add('active');
+        target.classList.add('print-active');
+    }
+    // Activate button
+    if (btn) {
+        btn.classList.add('active');
+    }
+    // Scroll to top of container
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ============================================
+   API CONNECTION MANAGEMENT
+   ============================================ */
+function connectAPI(service, fieldIds) {
+    var allFilled = true;
+    var data = {};
+    for (var i = 0; i < fieldIds.length; i++) {
+        var el = document.getElementById(fieldIds[i]);
+        if (!el || !el.value.trim()) {
+            allFilled = false;
+            if (el) {
+                el.style.borderColor = 'var(--danger)';
+                setTimeout((function(elem) {
+                    return function() { elem.style.borderColor = ''; };
+                })(el), 2000);
+            }
+        } else {
+            data[fieldIds[i]] = el.value.trim();
+        }
+    }
+    if (!allFilled) {
+        return;
+    }
+    // Save to localStorage
+    try {
+        localStorage.setItem('nuvabase_conn_' + service, JSON.stringify(data));
+    } catch(e) {
+        // localStorage not available
+    }
+    // Update badge
+    var badge = document.getElementById('badge-' + service);
+    if (badge) {
+        badge.textContent = 'LIVE';
+        badge.className = 'status-badge status-live';
+    }
+}
+
+function disconnectAPI(service, fieldIds) {
+    // Clear fields
+    for (var i = 0; i < fieldIds.length; i++) {
+        var el = document.getElementById(fieldIds[i]);
+        if (el) el.value = '';
+    }
+    // Remove from localStorage
+    try {
+        localStorage.removeItem('nuvabase_conn_' + service);
+    } catch(e) {}
+    // Reset badge
+    var badge = document.getElementById('badge-' + service);
+    if (badge) {
+        badge.textContent = 'DEMO';
+        badge.className = 'status-badge status-demo';
+    }
+}
+
+function loadConnections() {
+    var services = {
+        'quickbooks': ['qb-client-id','qb-client-secret','qb-realm-id'],
+        'sba': ['sba-api-key'],
+        'dnb': ['dnb-api-key','dnb-duns'],
+        'payments': ['pay-api-key']
+    };
+    for (var svc in services) {
+        try {
+            var stored = localStorage.getItem('nuvabase_conn_' + svc);
+            if (stored) {
+                var data = JSON.parse(stored);
+                var fields = services[svc];
+                var hasAll = true;
+                for (var i = 0; i < fields.length; i++) {
+                    if (data[fields[i]]) {
+                        var el = document.getElementById(fields[i]);
+                        if (el) el.value = data[fields[i]];
+                    } else {
+                        hasAll = false;
+                    }
+                }
+                if (hasAll) {
+                    var badge = document.getElementById('badge-' + svc);
+                    if (badge) {
+                        badge.textContent = 'LIVE';
+                        badge.className = 'status-badge status-live';
+                    }
+                }
+            }
+        } catch(e) {}
+    }
+}
+
+/* ============================================
+   CSV UPLOAD HANDLING
+   ============================================ */
+function handleCSV(input) {
+    if (input.files && input.files[0]) {
+        var file = input.files[0];
+        var statusEl = document.getElementById('csv-status');
+        if (statusEl) {
+            statusEl.innerHTML = '<span style="color:var(--success);">&#10003; File loaded: ' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)</span>';
+        }
+        var badge = document.getElementById('badge-csv');
+        if (badge) {
+            badge.textContent = 'LOADED';
+            badge.className = 'status-badge status-live';
+        }
+    }
+}
+
+// Drag and drop support
+(function() {
+    var dz = document.getElementById('dropZone');
+    if (!dz) return;
+    dz.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dz.classList.add('dragover');
+    });
+    dz.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        dz.classList.remove('dragover');
+    });
+    dz.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dz.classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            var fileInput = document.getElementById('csvFile');
+            if (fileInput) {
+                fileInput.files = e.dataTransfer.files;
+                handleCSV(fileInput);
+            }
+        }
+    });
+})();
+
+/* ============================================
+   ROI CALCULATOR
+   ============================================ */
+function calcROI() {
+    var revenue = parseFloat(document.getElementById('roi-revenue').value) || 0;
+    var margin = parseFloat(document.getElementById('roi-margin').value) || 0;
+    var employees = parseInt(document.getElementById('roi-employees').value) || 0;
+    var growth = parseFloat(document.getElementById('roi-growth').value) || 0;
+    var marginImp = parseFloat(document.getElementById('roi-margin-imp').value) || 0;
+    var waste = parseFloat(document.getElementById('roi-waste').value) || 0;
+    var wasteReduce = parseFloat(document.getElementById('roi-waste-reduce').value) || 0;
+
+    var revenueGrowth = revenue * (growth / 100);
+    var marginGain = revenue * (marginImp / 100);
+    var expenses = revenue * (1 - margin / 100);
+    var wasteAmount = expenses * (waste / 100);
+    var savings = wasteAmount * (wasteReduce / 100);
+    var total = revenueGrowth + marginGain + savings;
+    var threeYear = total * 3;
+    var investmentEstimate = 50000;
+    var roiMultiple = total > 0 ? Math.round(total / investmentEstimate) : 0;
+
+    document.getElementById('roi-out-growth').textContent = '$' + formatNum(Math.round(revenueGrowth)) + '/year';
+    document.getElementById('roi-out-margin').textContent = '$' + formatNum(Math.round(marginGain)) + '/year';
+    document.getElementById('roi-out-savings').textContent = '$' + formatNum(Math.round(savings)) + '/year';
+    document.getElementById('roi-out-total').textContent = '$' + formatNum(Math.round(total));
+    document.getElementById('roi-out-3yr').textContent = '$' + formatNum(Math.round(threeYear));
+    document.getElementById('roi-out-multiple').textContent = roiMultiple + 'x';
+}
+
+function formatNum(n) {
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function printROI() {
+    // Mark ROI tab for print
+    var contents = document.querySelectorAll('.tab-content');
+    for (var i = 0; i < contents.length; i++) {
+        contents[i].classList.remove('print-active');
+    }
+    document.getElementById('tab-roi').classList.add('print-active');
+    window.print();
+}
+
+/* ============================================
+   PROPOSAL GENERATOR
+   ============================================ */
+function generateProposal() {
+    var name = document.getElementById('prop-name').value || 'Business';
+    var industry = document.getElementById('prop-industry').value;
+    var revenue = parseInt(document.getElementById('prop-revenue').value) || 0;
+    var challenge = document.getElementById('prop-challenge').value;
+    var employees = parseInt(document.getElementById('prop-employees').value) || 0;
+    var timeline = document.getElementById('prop-timeline').value;
+
+    var revFormatted = '$' + formatNum(revenue);
+    var today = new Date();
+    var dateStr = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    var challengeDetails = {
+        'Revenue Growth': {
+            summary: 'accelerating revenue growth through market expansion and service optimization',
+            deliverables: [
+                'Market opportunity analysis with TAM/SAM/SOM sizing',
+                'Revenue optimization roadmap with quarterly milestones',
+                'Customer acquisition strategy with channel recommendations',
+                'Pricing analysis and competitive positioning framework',
+                'Sales pipeline development and conversion optimization plan'
+            ],
+            phase: 'This engagement will prioritize market intelligence gathering and competitive analysis during the Learn phase, with detailed financial modeling in the Reflect phase.'
+        },
+        'Cost Reduction': {
+            summary: 'identifying and eliminating operational inefficiencies to improve profit margins',
+            deliverables: [
+                'Comprehensive expense audit and categorization',
+                'Process efficiency assessment across all departments',
+                'Vendor renegotiation strategy and timeline',
+                'Technology automation opportunity identification',
+                'Waste elimination roadmap with projected savings'
+            ],
+            phase: 'This engagement will focus on deep operational data analysis during the Learn phase, with root cause identification in the Reflect phase.'
+        },
+        'Financing': {
+            summary: 'optimizing the financing structure and identifying growth capital opportunities',
+            deliverables: [
+                'Current debt structure analysis and optimization plan',
+                'SBA program eligibility assessment and application support',
+                'Cash flow forecasting model (12 and 24 months)',
+                'Capital allocation strategy for growth initiatives',
+                'Lender relationship development and pitch preparation'
+            ],
+            phase: 'This engagement will leverage our $90M SBA portfolio management experience, with thorough financial analysis in the Reflect phase.'
+        },
+        'Workforce': {
+            summary: 'building a scalable workforce strategy that supports growth objectives',
+            deliverables: [
+                'Organizational structure assessment and design',
+                'Headcount planning model with role prioritization',
+                'Compensation benchmarking against industry standards',
+                'Talent acquisition and retention strategy',
+                'Training and development program framework'
+            ],
+            phase: 'This engagement draws on experience managing 1,500+ employees, with organizational analysis in the Reflect phase.'
+        },
+        'Operations': {
+            summary: 'streamlining operations to increase throughput and reduce waste',
+            deliverables: [
+                'End-to-end process mapping for core workflows',
+                'Bottleneck identification and elimination plan',
+                'Technology stack assessment and recommendations',
+                'Standard operating procedure documentation',
+                'KPI dashboard design and implementation plan'
+            ],
+            phase: 'This engagement will map all operational workflows in the Learn phase, with bottleneck analysis and optimization modeling in the Reflect phase.'
+        },
+        'Market Expansion': {
+            summary: 'developing a strategic market expansion plan to capture new geographic and service territories',
+            deliverables: [
+                'Target market analysis with demographic and demand data',
+                'Competitive landscape assessment for new markets',
+                'Go-to-market strategy with phased entry plan',
+                'Resource requirements and investment modeling',
+                'Risk assessment and mitigation framework'
+            ],
+            phase: 'This engagement will conduct extensive market intelligence in the Learn phase, with strategic scenario planning in the Reflect phase.'
+        }
+    };
+
+    var details = challengeDetails[challenge] || challengeDetails['Revenue Growth'];
+
+    var investmentMap = {
+        '30 days': '$18,000 - $25,000',
+        '60 days': '$35,000 - $50,000',
+        '90 days': '$55,000 - $75,000',
+        '6 months': '$90,000 - $150,000'
+    };
+    var investment = investmentMap[timeline] || '$35,000 - $50,000';
+
+    var deliverablesList = '';
+    for (var i = 0; i < details.deliverables.length; i++) {
+        deliverablesList += '<li>' + details.deliverables[i] + '</li>';
+    }
+
+    var html = '' +
+    '<div class="letterhead">' +
+        '<h1>NUVABASE</h1>' +
+        '<p>Professional Consulting &mdash; Service to Service Group, Inc.</p>' +
+        '<p style="font-size:0.78rem; margin-top:8px; color:#718096;">Confidential Business Proposal</p>' +
+    '</div>' +
+
+    '<p style="text-align:right; color:#718096; font-size:0.82rem;">' + dateStr + '</p>' +
+    '<p><strong>Prepared for:</strong> ' + name + '</p>' +
+    '<p><strong>Industry:</strong> ' + industry + '</p>' +
+    '<p><strong>Engagement Timeline:</strong> ' + timeline + '</p>' +
+
+    '<h2>Executive Summary</h2>' +
+    '<p>NUVABASE Professional Consulting is pleased to present this proposal for ' + name + ', a ' + industry.toLowerCase() + ' firm with ' + revFormatted + ' in annual revenue and ' + employees + ' employees. This engagement focuses on ' + details.summary + '.</p>' +
+    '<p>Using our proven TLRW methodology, we will deliver measurable results within a ' + timeline + ' engagement window. Our approach is grounded in decades of enterprise consulting experience and a track record of delivering transformative outcomes for organizations of all sizes.</p>' +
+
+    '<h2>TLRW Methodology</h2>' +
+    '<h3>Think &mdash; Strategic Vision</h3>' +
+    '<p>We begin by aligning on the strategic objectives for ' + name + '. This phase establishes clear success metrics, identifies stakeholders, and defines the scope of analysis. For a ' + industry.toLowerCase() + ' business focused on ' + challenge.toLowerCase() + ', we will establish benchmarks and set measurable targets.</p>' +
+
+    '<h3>Learn &mdash; Data Intelligence</h3>' +
+    '<p>Our team conducts comprehensive data gathering across financial records, operational metrics, market data, and competitive intelligence. ' + details.phase + '</p>' +
+
+    '<h3>Reflect &mdash; Analysis &amp; Insights</h3>' +
+    '<p>Using proven analytical frameworks, we transform raw data into actionable intelligence. This phase identifies root causes, quantifies opportunities, and prioritizes initiatives by impact and feasibility. Every recommendation is backed by data.</p>' +
+
+    '<h3>Write &mdash; Action Plan</h3>' +
+    '<p>The final phase delivers a comprehensive action plan with clear deliverables, timelines, owners, and success metrics. This is not a shelf document &mdash; it is a working roadmap designed for immediate implementation.</p>' +
+
+    '<h2>Business Health Assessment</h2>' +
+    '<p>Based on preliminary analysis of ' + name + ':</p>' +
+    '<ul>' +
+        '<li>Annual Revenue: ' + revFormatted + '</li>' +
+        '<li>Employee Base: ' + employees + ' staff</li>' +
+        '<li>Primary Focus Area: ' + challenge + '</li>' +
+        '<li>Industry Sector: ' + industry + '</li>' +
+    '</ul>' +
+    '<p>This engagement will produce detailed metrics, benchmarks, and projections tailored to your specific business context and competitive landscape.</p>' +
+
+    '<h2>Deliverables</h2>' +
+    '<ul>' + deliverablesList + '</ul>' +
+    '<p>All deliverables include executive-ready documentation, supporting data models, and implementation guidance.</p>' +
+
+    '<h2>Timeline</h2>' +
+    '<p>This engagement is structured as a <strong>' + timeline + '</strong> program with the following phases:</p>' +
+    '<ul>' +
+        '<li><strong>Week 1-2:</strong> THINK &mdash; Strategic alignment, stakeholder interviews, scope finalization</li>' +
+        '<li><strong>Week 2-4:</strong> LEARN &mdash; Data collection, market research, competitive analysis</li>' +
+        '<li><strong>Week 4-6:</strong> REFLECT &mdash; Analysis, modeling, insight development</li>' +
+        '<li><strong>Week 6-8:</strong> WRITE &mdash; Action plan development, presentation, handoff</li>' +
+    '</ul>' +
+
+    '<h2>Investment</h2>' +
+    '<p>Professional consulting fees for this engagement: <strong>' + investment + '</strong></p>' +
+    '<p>This investment includes all consulting hours, research, analysis, documentation, and two rounds of revisions. Travel and expenses, if required, are billed separately at cost.</p>' +
+
+    '<h2>Why NUVABASE</h2>' +
+    '<div class="cred-item"><strong>$90M SBA Portfolio:</strong> Managed $90 million in SBA lending portfolios, providing deep expertise in small business financing and growth strategy.</div>' +
+    '<div class="cred-item"><strong>1,500+ Employees:</strong> Directed operations across organizations with 1,500+ employees, bringing enterprise-grade workforce optimization to small businesses.</div>' +
+    '<div class="cred-item"><strong>$7M Documented Savings:</strong> Delivered $7 million in verified cost savings for Chicago Public Schools through operational optimization.</div>' +
+    '<div class="cred-item"><strong>9.1/10 GBCA Rating:</strong> Earned a 9.1 out of 10 rating from the Greater Baltimore Committee for AI-powered dashboard excellence.</div>' +
+    '<div class="cred-item"><strong>20+ Years Enterprise Experience:</strong> Bell Labs telecommunications infrastructure and enterprise consulting across public and private sectors.</div>' +
+
+    '<div class="sig-block">' +
+        '<p><strong>Prepared by:</strong></p>' +
+        '<p style="margin-top:24px;">________________________________</p>' +
+        '<p><strong>Corky Reams</strong><br>Founder &amp; Principal Consultant<br>NUVABASE Professional Consulting<br>Service to Service Group, Inc.</p>' +
+        '<p style="margin-top:16px; font-size:0.8rem; color:#718096;">This proposal is confidential and intended solely for the use of the addressee. The TLRW methodology is proprietary to NUVABASE Professional Consulting.</p>' +
+    '</div>';
+
+    document.getElementById('proposal-content').innerHTML = html;
+    document.getElementById('proposal-output-wrapper').style.display = 'block';
+    document.getElementById('proposal-placeholder').style.display = 'none';
+
+    // Scroll to proposal
+    setTimeout(function() {
+        document.getElementById('proposal-output-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+}
+
+function printProposal() {
+    var contents = document.querySelectorAll('.tab-content');
+    for (var i = 0; i < contents.length; i++) {
+        contents[i].classList.remove('print-active');
+    }
+    document.getElementById('tab-proposal').classList.add('print-active');
+    window.print();
+}
+
+/* ============================================
+   ACCORDION
+   ============================================ */
+function toggleAccordion(header) {
+    var item = header.parentElement;
+    if (item.classList.contains('open')) {
+        item.classList.remove('open');
+    } else {
+        item.classList.add('open');
+    }
+}
+
+/* ============================================
+   INITIALIZATION
+   ============================================ */
+(function init() {
+    // Load saved API connections
+    loadConnections();
+    // Calculate initial ROI
+    calcROI();
+    // Set first tab as print-active
+    document.getElementById('tab-health').classList.add('print-active');
+})();
+</script>
+
+</body>
+</html>
