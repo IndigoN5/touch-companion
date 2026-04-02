@@ -1,0 +1,2187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title 1 School Performance Dashboard</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --primary: #1a365d;
+            --primary-light: #2b6cb0;
+            --accent: #ed8936;
+            --success: #38a169;
+            --warning: #d69e2e;
+            --danger: #e53e3e;
+            --bg: #f7fafc;
+            --card: #ffffff;
+            --text: #2d3748;
+            --text-light: #718096;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+            --shadow-lg: 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+            --radius: 8px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* ---- HEADER ---- */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .header h1 { font-size: 1.5rem; font-weight: 700; }
+        .header .subtitle { font-size: 0.875rem; opacity: 0.85; }
+        .header-controls { display: flex; gap: 12px; align-items: center; }
+        .header-controls select,
+        .header-controls button {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        .header-controls select option { color: var(--text); background: white; }
+        .header-controls button:hover { background: rgba(255,255,255,0.25); }
+        .btn-export {
+            background: var(--accent) !important;
+            border-color: var(--accent) !important;
+            font-weight: 600;
+        }
+        .btn-upload {
+            background: var(--success) !important;
+            border-color: var(--success) !important;
+            font-weight: 600;
+        }
+
+        /* ---- LAYOUT ---- */
+        .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+        /* ---- TABS ---- */
+        .tab-bar {
+            display: flex;
+            gap: 4px;
+            background: var(--card);
+            padding: 4px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+        .tab {
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-light);
+            white-space: nowrap;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+        }
+        .tab:hover { color: var(--text); background: var(--bg); }
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ---- KPI CARDS ---- */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
+        }
+        .kpi-card.success { border-left-color: var(--success); }
+        .kpi-card.warning { border-left-color: var(--warning); }
+        .kpi-card.danger { border-left-color: var(--danger); }
+        .kpi-card.accent { border-left-color: var(--accent); }
+        .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-light); margin-bottom: 4px; }
+        .kpi-value { font-size: 2rem; font-weight: 700; line-height: 1.2; }
+        .kpi-change { font-size: 0.8rem; margin-top: 4px; }
+        .kpi-change.up { color: var(--success); }
+        .kpi-change.down { color: var(--danger); }
+
+        /* ---- CHARTS ---- */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .chart-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+        .chart-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+        .chart-area {
+            width: 100%;
+            position: relative;
+        }
+
+        /* ---- BAR CHART ---- */
+        .bar-chart { display: flex; flex-direction: column; gap: 12px; }
+        .bar-row { display: flex; align-items: center; gap: 12px; }
+        .bar-label { width: 100px; font-size: 0.8rem; text-align: right; flex-shrink: 0; }
+        .bar-track { flex: 1; height: 28px; background: #edf2f7; border-radius: 4px; overflow: hidden; position: relative; }
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            transition: width 0.8s ease;
+        }
+        .bar-target {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background: var(--text);
+            opacity: 0.4;
+        }
+
+        /* ---- DONUT CHART (CSS) ---- */
+        .donut-container { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+        .donut {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .donut-center {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: var(--card);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .donut-center .big { font-size: 1.5rem; font-weight: 700; }
+        .donut-center .small { font-size: 0.7rem; color: var(--text-light); }
+        .donut-legend { display: flex; flex-direction: column; gap: 8px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; }
+        .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+        /* ---- TABLE ---- */
+        .table-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .table-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .table-header h3 { font-size: 1rem; font-weight: 600; }
+        .table-search {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            width: 220px;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: #f7fafc; }
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        th:hover { color: var(--text); }
+        th .sort-arrow { margin-left: 4px; opacity: 0.4; }
+        td { padding: 12px 16px; border-top: 1px solid var(--border); font-size: 0.875rem; }
+        tr:hover { background: #f7fafc; }
+
+        /* ---- STATUS BADGES ---- */
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-green { background: #c6f6d5; color: #22543d; }
+        .badge-yellow { background: #fefcbf; color: #744210; }
+        .badge-red { background: #fed7d7; color: #822727; }
+        .badge-blue { background: #bee3f8; color: #2a4365; }
+
+        /* ---- PROGRESS RING ---- */
+        .progress-ring-container { display: flex; align-items: center; gap: 8px; }
+        .mini-progress {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.65rem; font-weight: 700; color: white;
+        }
+
+        /* ---- FORM / DATA ENTRY ---- */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-light); }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-family: inherit;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(43,108,176,0.15);
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text); }
+        .btn-outline:hover { background: var(--bg); }
+        .btn-row { display: flex; gap: 12px; margin-top: 8px; }
+
+        /* ---- ALERT BOX ---- */
+        .alert {
+            padding: 12px 20px;
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            font-size: 0.875rem;
+            display: none;
+        }
+        .alert-success { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
+        .alert-warning { background: #fefcbf; color: #744210; border: 1px solid #f6e05e; }
+
+        /* ---- COMPLIANCE CHECKLIST ---- */
+        .checklist { list-style: none; }
+        .checklist li {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.875rem;
+        }
+        .checklist li:last-child { border-bottom: none; }
+        .check-icon {
+            width: 24px; height: 24px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+        }
+        .check-done { background: #c6f6d5; color: #22543d; }
+        .check-pending { background: #fefcbf; color: #744210; }
+        .check-overdue { background: #fed7d7; color: #822727; }
+
+        /* ---- RESPONSIVE ---- */
+        @media (max-width: 768px) {
+            .header { padding: 16px; }
+            .header h1 { font-size: 1.2rem; }
+            .container { padding: 16px; }
+            .chart-grid { grid-template-columns: 1fr; }
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .bar-label { width: 70px; font-size: 0.7rem; }
+        }
+
+        /* ---- UPLOAD AREA ---- */
+        .upload-zone {
+            border: 3px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 40px 20px;
+            text-align: center;
+            background: #f7fafc;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 16px;
+        }
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--primary-light);
+            background: #ebf4ff;
+        }
+        .upload-zone .upload-icon { font-size: 3rem; margin-bottom: 8px; }
+        .upload-zone .upload-text { font-size: 1rem; color: var(--text); font-weight: 600; }
+        .upload-zone .upload-hint { font-size: 0.8rem; color: var(--text-light); margin-top: 4px; }
+        .upload-preview {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 16px 24px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .upload-preview.visible { display: block; }
+        .upload-preview h4 { margin-bottom: 8px; font-size: 0.95rem; }
+        .upload-stats { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 12px; }
+        .upload-stat { font-size: 0.85rem; }
+        .upload-stat strong { color: var(--primary); }
+        .data-actions {
+            display: flex; gap: 12px; flex-wrap: wrap;
+            padding: 16px 0;
+            border-top: 1px solid var(--border);
+            margin-top: 12px;
+        }
+        .save-indicator {
+            font-size: 0.8rem;
+            color: var(--success);
+            padding: 8px 0;
+            display: none;
+        }
+        .save-indicator.visible { display: block; }
+
+        /* ---- VISUAL ANALYTICS ---- */
+        .health-gauge-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px 32px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+        .gauge {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .gauge-center {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: var(--card);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .gauge-center .gauge-score {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .gauge-center .gauge-label {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 2px;
+        }
+        .gauge-details {
+            flex: 1;
+            min-width: 220px;
+        }
+        .gauge-details h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .gauge-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .gauge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+        }
+        .gauge-row .gauge-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .gauge-row .gauge-metric-label {
+            width: 100px;
+            flex-shrink: 0;
+        }
+        .gauge-row .gauge-bar-track {
+            flex: 1;
+            height: 8px;
+            background: #edf2f7;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .gauge-row .gauge-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+        .gauge-row .gauge-val {
+            width: 40px;
+            text-align: right;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        /* Progress rings for KPI cards */
+        .visual-kpi {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .progress-ring {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .progress-ring-inner {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        /* Heat-map cells for student table */
+        .heat-cell {
+            font-weight: 600;
+            border-radius: 4px;
+            padding: 4px 10px;
+            display: inline-block;
+            font-size: 0.8rem;
+            min-width: 80px;
+            text-align: center;
+        }
+        .heat-cell.heat-level-high { background: #c6f6d5; color: #22543d; }
+        .heat-cell.heat-level-mid { background: #e2f0cb; color: #3c6e1e; }
+        .heat-cell.heat-level-low { background: #fefcbf; color: #744210; }
+        .heat-cell.heat-level-vlow { background: #fed7d7; color: #822727; }
+
+        /* Attendance heat cell in table */
+        .attendance-cell {
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            font-size: 0.85rem;
+        }
+        .attendance-high { background: #c6f6d5; color: #22543d; }
+        .attendance-mid { background: #fefcbf; color: #744210; }
+        .attendance-low { background: #fed7d7; color: #822727; }
+
+        /* Mini trend indicators */
+        .trend-up { color: var(--success); font-weight: 700; }
+        .trend-down { color: var(--danger); font-weight: 700; }
+        .trend-flat { color: var(--warning); font-weight: 700; }
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .status-dot.green { background: var(--success); }
+        .status-dot.yellow { background: var(--warning); }
+        .status-dot.red { background: var(--danger); }
+        .status-dot.blue { background: var(--primary-light); }
+
+        /* User Manual & Glossary styles */
+        .manual-section {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        .manual-section h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 8px;
+        }
+        .manual-section h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin: 16px 0 8px 0;
+            color: var(--text);
+        }
+        .manual-section p,
+        .manual-section li {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: var(--text);
+        }
+        .manual-section ul,
+        .manual-section ol {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+        .manual-section li {
+            margin-bottom: 6px;
+        }
+        .manual-tip {
+            background: #ebf4ff;
+            border-left: 4px solid var(--primary-light);
+            padding: 12px 16px;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            margin: 12px 0;
+            font-size: 0.85rem;
+        }
+        .manual-tip strong {
+            color: var(--primary);
+        }
+        .glossary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .glossary-item {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary-light);
+        }
+        .glossary-term {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .glossary-def {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text);
+        }
+        .glossary-category {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 24px 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--accent);
+        }
+        .glossary-category:first-child {
+            margin-top: 0;
+        }
+
+        /* ---- PRINT ---- */
+        @media print {
+            .header-controls, .tab-bar, .form-grid, .btn-row, .table-search { display: none; }
+            .tab-panel { display: block !important; page-break-inside: avoid; margin-bottom: 32px; }
+            .header { background: var(--primary) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body { font-size: 11pt; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- BACK TO HUB NAV -->
+<div id="hub-nav" style="background:#0a1628;padding:8px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #1e3a5f;">
+    <a href="../NUVABASE-Launcher.html" style="background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);color:#c9a84c;padding:6px 16px;border-radius:6px;text-decoration:none;font-size:0.85rem;font-weight:600;">&#9664; Back to Hub</a>
+    <span style="color:#8899aa;font-size:0.8rem;">NUVABASE Launcher</span>
+</div>
+
+<!-- ================================================================ -->
+<!-- HEADER                                                           -->
+<!-- ================================================================ -->
+<div class="header">
+    <div>
+        <h1>Title 1 School Performance Dashboard</h1>
+        <div class="subtitle">TLRW Quality-Assured Reporting System &mdash; NUVABASE</div>
+    </div>
+    <div class="header-controls">
+        <select id="schoolYear" onchange="updateDashboard()">
+            <option value="2025-2026" selected>2025-2026</option>
+            <option value="2024-2025">2024-2025</option>
+            <option value="2023-2024">2023-2024</option>
+        </select>
+        <select id="gradeFilter" onchange="filterByGrade()">
+            <option value="all">All Grades</option>
+            <option value="K">Kindergarten</option>
+            <option value="1">Grade 1</option>
+            <option value="2">Grade 2</option>
+            <option value="3">Grade 3</option>
+            <option value="4">Grade 4</option>
+            <option value="5">Grade 5</option>
+        </select>
+        <button class="btn-export" onclick="exportReport()">Export Report</button>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- TAB BAR                                                          -->
+<!-- ================================================================ -->
+<div class="container">
+    <div class="tab-bar">
+        <button class="tab active" onclick="switchTab('overview')">Overview</button>
+        <button class="tab" onclick="switchTab('academics')">Academics</button>
+        <button class="tab" onclick="switchTab('attendance')">Attendance</button>
+        <button class="tab" onclick="switchTab('interventions')">Interventions</button>
+        <button class="tab" onclick="switchTab('parent')">Parent Engagement</button>
+        <button class="tab" onclick="switchTab('compliance')">Compliance</button>
+        <button class="tab" onclick="switchTab('entry')">Data Entry</button>
+        <button class="tab" onclick="switchTab('upload')" style="background:rgba(56,161,105,0.1);color:#38a169;font-weight:700;">&#8679; Upload Data</button>
+        <button class="tab" onclick="switchTab('manual')">User Manual</button>
+        <button class="tab" onclick="switchTab('glossary')">Glossary</button>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: OVERVIEW                                                -->
+    <!-- ============================================================ -->
+    <div id="tab-overview" class="tab-panel active">
+
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <div class="kpi-label">Total Enrollment</div>
+                <div class="kpi-value" id="kpi-enrollment">487</div>
+                <div class="kpi-change up">+12 from last year</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg. Attendance Rate</div>
+                <div class="kpi-value" id="kpi-attendance">91.3%</div>
+                <div class="kpi-change up">+2.1% from last year</div>
+            </div>
+            <div class="kpi-card accent">
+                <div class="kpi-label">Reading Proficiency</div>
+                <div class="kpi-value" id="kpi-reading">67%</div>
+                <div class="kpi-change up">+8% from baseline</div>
+            </div>
+            <div class="kpi-card warning">
+                <div class="kpi-label">Math Proficiency</div>
+                <div class="kpi-value" id="kpi-math">54%</div>
+                <div class="kpi-change up">+5% from baseline</div>
+            </div>
+            <div class="kpi-card success">
+                <div class="kpi-label">Intervention Participation</div>
+                <div class="kpi-value" id="kpi-intervention">142</div>
+                <div class="kpi-change">29% of students</div>
+            </div>
+            <div class="kpi-card danger">
+                <div class="kpi-label">Chronic Absenteeism</div>
+                <div class="kpi-value" id="kpi-chronic">8.4%</div>
+                <div class="kpi-change down">Target: &lt;5%</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Reading Level Distribution by Grade</h3>
+                <div class="chart-area">
+                    <div class="bar-chart" id="reading-bars"></div>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>Budget Allocation (Title 1 Funds)</h3>
+                <div class="chart-area">
+                    <div class="donut-container">
+                        <div class="donut" id="budget-donut"></div>
+                        <div class="donut-legend" id="budget-legend"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Math Proficiency by Grade</h3>
+                <div class="chart-area">
+                    <div class="bar-chart" id="math-bars"></div>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>Monthly Attendance Trend</h3>
+                <div class="chart-area">
+                    <div class="bar-chart" id="attendance-trend"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: ACADEMICS                                               -->
+    <!-- ============================================================ -->
+    <div id="tab-academics" class="tab-panel">
+
+        <div class="kpi-grid">
+            <div class="kpi-card accent">
+                <div class="kpi-label">Reading At/Above Grade</div>
+                <div class="kpi-value">67%</div>
+                <div class="kpi-change up">Target: 75%</div>
+            </div>
+            <div class="kpi-card warning">
+                <div class="kpi-label">Math At/Above Grade</div>
+                <div class="kpi-value">54%</div>
+                <div class="kpi-change up">Target: 65%</div>
+            </div>
+            <div class="kpi-card success">
+                <div class="kpi-label">ELA Growth (Avg)</div>
+                <div class="kpi-value">+1.4</div>
+                <div class="kpi-change">Grade levels gained</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Students Below Grade</div>
+                <div class="kpi-value">161</div>
+                <div class="kpi-change down">33% of enrollment</div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Student Academic Performance</h3>
+                <input type="text" class="table-search" placeholder="Search students..." id="student-search" oninput="filterStudents()">
+            </div>
+            <div style="overflow-x:auto;">
+                <table id="student-table">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('student-table', 0)">Student <span class="sort-arrow">&#9650;</span></th>
+                            <th onclick="sortTable('student-table', 1)">Grade <span class="sort-arrow">&#9650;</span></th>
+                            <th onclick="sortTable('student-table', 2)">Reading Level <span class="sort-arrow">&#9650;</span></th>
+                            <th onclick="sortTable('student-table', 3)">Math Level <span class="sort-arrow">&#9650;</span></th>
+                            <th onclick="sortTable('student-table', 4)">Attendance <span class="sort-arrow">&#9650;</span></th>
+                            <th>Status</th>
+                            <th>Intervention</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: ATTENDANCE                                              -->
+    <!-- ============================================================ -->
+    <div id="tab-attendance" class="tab-panel">
+
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <div class="kpi-label">School-Wide Attendance</div>
+                <div class="kpi-value">91.3%</div>
+                <div class="kpi-change up">+2.1% year-over-year</div>
+            </div>
+            <div class="kpi-card danger">
+                <div class="kpi-label">Chronically Absent (&lt;90%)</div>
+                <div class="kpi-value">41</div>
+                <div class="kpi-change">8.4% of students</div>
+            </div>
+            <div class="kpi-card warning">
+                <div class="kpi-label">At-Risk (90-94%)</div>
+                <div class="kpi-value">63</div>
+                <div class="kpi-change">12.9% of students</div>
+            </div>
+            <div class="kpi-card success">
+                <div class="kpi-label">Satisfactory (&gt;95%)</div>
+                <div class="kpi-value">383</div>
+                <div class="kpi-change">78.6% of students</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Attendance Rate by Grade</h3>
+                <div class="bar-chart" id="attendance-grade-bars"></div>
+            </div>
+            <div class="chart-card">
+                <h3>Attendance vs. Academic Performance Correlation</h3>
+                <div class="bar-chart" id="correlation-bars"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: INTERVENTIONS                                           -->
+    <!-- ============================================================ -->
+    <div id="tab-interventions" class="tab-panel">
+
+        <div class="kpi-grid">
+            <div class="kpi-card accent">
+                <div class="kpi-label">Active Interventions</div>
+                <div class="kpi-value">142</div>
+                <div class="kpi-change">5 programs running</div>
+            </div>
+            <div class="kpi-card success">
+                <div class="kpi-label">Showing Improvement</div>
+                <div class="kpi-value">78%</div>
+                <div class="kpi-change up">+12% from Q1</div>
+            </div>
+            <div class="kpi-card warning">
+                <div class="kpi-label">No Change</div>
+                <div class="kpi-value">15%</div>
+                <div class="kpi-change">Review needed</div>
+            </div>
+            <div class="kpi-card danger">
+                <div class="kpi-label">Declining</div>
+                <div class="kpi-value">7%</div>
+                <div class="kpi-change down">Escalation required</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Intervention Program Effectiveness</h3>
+                <div class="bar-chart" id="intervention-bars"></div>
+            </div>
+            <div class="chart-card">
+                <h3>Students by Intervention Type</h3>
+                <div class="donut-container">
+                    <div class="donut" id="intervention-donut"></div>
+                    <div class="donut-legend" id="intervention-legend"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Intervention Program Details</h3>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Program</th>
+                        <th>Type</th>
+                        <th>Students</th>
+                        <th>Avg. Improvement</th>
+                        <th>Cost per Student</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Reading Recovery</strong></td>
+                        <td>ELA</td>
+                        <td>38</td>
+                        <td>+1.8 grade levels</td>
+                        <td>$1,420</td>
+                        <td><span class="badge badge-green">On Track</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Math Mastery Lab</strong></td>
+                        <td>Math</td>
+                        <td>42</td>
+                        <td>+1.2 grade levels</td>
+                        <td>$980</td>
+                        <td><span class="badge badge-green">On Track</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>After-School Tutoring</strong></td>
+                        <td>Both</td>
+                        <td>35</td>
+                        <td>+0.9 grade levels</td>
+                        <td>$640</td>
+                        <td><span class="badge badge-yellow">Needs Review</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Summer Bridge</strong></td>
+                        <td>ELA</td>
+                        <td>15</td>
+                        <td>+0.7 grade levels</td>
+                        <td>$2,100</td>
+                        <td><span class="badge badge-yellow">Needs Review</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mentoring Program</strong></td>
+                        <td>Behavioral</td>
+                        <td>12</td>
+                        <td>+22% attendance</td>
+                        <td>$350</td>
+                        <td><span class="badge badge-green">On Track</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: PARENT ENGAGEMENT                                       -->
+    <!-- ============================================================ -->
+    <div id="tab-parent" class="tab-panel">
+
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <div class="kpi-label">Parent Meetings (YTD)</div>
+                <div class="kpi-value">14</div>
+                <div class="kpi-change up">Target: 12</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg. Meeting Attendance</div>
+                <div class="kpi-value">67</div>
+                <div class="kpi-change">14% of families</div>
+            </div>
+            <div class="kpi-card accent">
+                <div class="kpi-label">Volunteer Hours (YTD)</div>
+                <div class="kpi-value">1,240</div>
+                <div class="kpi-change up">+18% from last year</div>
+            </div>
+            <div class="kpi-card success">
+                <div class="kpi-label">Survey Response Rate</div>
+                <div class="kpi-value">43%</div>
+                <div class="kpi-change up">+11% from last year</div>
+            </div>
+        </div>
+
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Monthly Parent Meeting Attendance</h3>
+                <div class="bar-chart" id="parent-attendance-bars"></div>
+            </div>
+            <div class="chart-card">
+                <h3>Engagement Type Breakdown</h3>
+                <div class="donut-container">
+                    <div class="donut" id="parent-donut"></div>
+                    <div class="donut-legend" id="parent-legend"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Parent Communication Log</h3>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Topic</th>
+                        <th>Attendees</th>
+                        <th>Follow-Up</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Jan 28, 2026</td><td><span class="badge badge-blue">Meeting</span></td><td>Title 1 Annual Meeting</td><td>84</td><td><span class="badge badge-green">Complete</span></td></tr>
+                    <tr><td>Jan 15, 2026</td><td><span class="badge badge-blue">Meeting</span></td><td>Reading Night</td><td>72</td><td><span class="badge badge-green">Complete</span></td></tr>
+                    <tr><td>Dec 12, 2025</td><td><span class="badge badge-blue">Meeting</span></td><td>Math Family Night</td><td>58</td><td><span class="badge badge-green">Complete</span></td></tr>
+                    <tr><td>Nov 18, 2025</td><td><span class="badge badge-yellow">Survey</span></td><td>Annual Parent Survey</td><td>209</td><td><span class="badge badge-green">Complete</span></td></tr>
+                    <tr><td>Oct 22, 2025</td><td><span class="badge badge-blue">Meeting</span></td><td>Parent-Teacher Conference</td><td>312</td><td><span class="badge badge-green">Complete</span></td></tr>
+                    <tr><td>Sep 15, 2025</td><td><span class="badge badge-blue">Meeting</span></td><td>Open House / Title 1 Night</td><td>145</td><td><span class="badge badge-green">Complete</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: COMPLIANCE                                              -->
+    <!-- ============================================================ -->
+    <div id="tab-compliance" class="tab-panel">
+
+        <div class="kpi-grid">
+            <div class="kpi-card success">
+                <div class="kpi-label">Compliance Items Complete</div>
+                <div class="kpi-value">18/22</div>
+                <div class="kpi-change">82% complete</div>
+            </div>
+            <div class="kpi-card warning">
+                <div class="kpi-label">Pending Items</div>
+                <div class="kpi-value">3</div>
+                <div class="kpi-change">Due within 30 days</div>
+            </div>
+            <div class="kpi-card danger">
+                <div class="kpi-label">Overdue Items</div>
+                <div class="kpi-value">1</div>
+                <div class="kpi-change down">Requires immediate action</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Next Audit Date</div>
+                <div class="kpi-value" style="font-size:1.4rem;">Mar 15</div>
+                <div class="kpi-change">36 days remaining</div>
+            </div>
+        </div>
+
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>Title 1 Compliance Checklist</h3>
+            <ul class="checklist">
+                <li><span class="check-icon check-done">&#10003;</span> School-Parent Compact signed and distributed <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Title 1 Annual Meeting held <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Parent Right-to-Know letters sent <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Schoolwide plan developed and on file <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Highly qualified teacher documentation <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Budget expenditure report Q1 submitted <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Budget expenditure report Q2 submitted <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Professional development plan on file <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Needs assessment completed <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Parent involvement policy updated <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Supplement-not-supplant documentation <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Paraprofessional qualifications verified <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Annual parent survey conducted <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Intervention program mid-year review <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Student achievement data analysis <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Title 1 signage posted at school <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> School improvement plan alignment <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-done">&#10003;</span> Comparability report submitted <span class="badge badge-green" style="margin-left:auto;">Complete</span></li>
+                <li><span class="check-icon check-pending">&#9711;</span> Budget expenditure report Q3 <span class="badge badge-yellow" style="margin-left:auto;">Due Feb 28</span></li>
+                <li><span class="check-icon check-pending">&#9711;</span> End-of-year parent meeting scheduled <span class="badge badge-yellow" style="margin-left:auto;">Due Mar 30</span></li>
+                <li><span class="check-icon check-pending">&#9711;</span> Annual evaluation report draft <span class="badge badge-yellow" style="margin-left:auto;">Due Apr 15</span></li>
+                <li><span class="check-icon check-overdue">!</span> Homeless student identification update <span class="badge badge-red" style="margin-left:auto;">Overdue</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: UPLOAD DATA                                             -->
+    <!-- ============================================================ -->
+    <div id="tab-upload" class="tab-panel">
+
+        <div class="alert alert-success" id="upload-success" style="display:none;"></div>
+        <div class="alert alert-warning" id="upload-warning" style="display:none;"></div>
+
+        <!-- Step 1: Download Template -->
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>Step 1: Download a Template</h3>
+            <p style="font-size:0.9rem;color:var(--text-light);margin-bottom:16px;">
+                Download a blank spreadsheet template. Open it in Excel or Google Sheets, fill in your school's data, and save it as a CSV file.
+            </p>
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="downloadTemplate('student')">&#8681; Student Data Template</button>
+                <button class="btn btn-outline" onclick="downloadTemplate('events')">&#8681; Parent Events Template</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Upload File -->
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>Step 2: Upload Your File</h3>
+            <p style="font-size:0.9rem;color:var(--text-light);margin-bottom:16px;">
+                Drag and drop your CSV file below, or click to browse. Your data stays on YOUR computer &mdash; nothing is sent to the internet.
+            </p>
+
+            <div class="upload-zone" id="student-upload-zone" onclick="document.getElementById('student-file-input').click()"
+                 ondragover="event.preventDefault();this.classList.add('dragover')"
+                 ondragleave="this.classList.remove('dragover')"
+                 ondrop="event.preventDefault();this.classList.remove('dragover');handleFileDrop(event,'student')">
+                <div class="upload-icon">&#128196;</div>
+                <div class="upload-text">Drop Student CSV Here or Click to Browse</div>
+                <div class="upload-hint">Accepts .csv files &bull; Excel and Google Sheets exports work great</div>
+            </div>
+            <input type="file" id="student-file-input" accept=".csv" style="display:none" onchange="handleFileSelect(this,'student')">
+
+            <div class="upload-zone" id="events-upload-zone" onclick="document.getElementById('events-file-input').click()"
+                 ondragover="event.preventDefault();this.classList.add('dragover')"
+                 ondragleave="this.classList.remove('dragover')"
+                 ondrop="event.preventDefault();this.classList.remove('dragover');handleFileDrop(event,'events')">
+                <div class="upload-icon">&#128197;</div>
+                <div class="upload-text">Drop Parent Events CSV Here or Click to Browse</div>
+                <div class="upload-hint">Accepts .csv files &bull; For parent meetings, family nights, conferences, etc.</div>
+            </div>
+            <input type="file" id="events-file-input" accept=".csv" style="display:none" onchange="handleFileSelect(this,'events')">
+        </div>
+
+        <!-- Upload Preview -->
+        <div class="upload-preview" id="upload-preview">
+            <h4 id="preview-title">Upload Preview</h4>
+            <div class="upload-stats" id="preview-stats"></div>
+            <div style="overflow-x:auto;">
+                <table id="preview-table">
+                    <thead id="preview-thead"></thead>
+                    <tbody id="preview-tbody"></tbody>
+                </table>
+            </div>
+            <div class="btn-row" style="margin-top:16px;">
+                <button class="btn btn-success" id="confirm-upload-btn" onclick="confirmUpload()">Confirm &amp; Load This Data</button>
+                <button class="btn btn-outline" onclick="cancelUpload()">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Manage Saved Data -->
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>Step 3: Your Saved Data</h3>
+            <p style="font-size:0.9rem;color:var(--text-light);margin-bottom:16px;">
+                Data you upload is saved in your browser. It will be here next time you open the dashboard on this same computer.
+            </p>
+            <div class="save-indicator" id="save-indicator">&#10003; Data saved to your browser</div>
+            <div class="data-actions">
+                <button class="btn btn-primary" onclick="exportStudentCSV()">&#8681; Download Current Student Data</button>
+                <button class="btn btn-outline" onclick="exportEventsCSV()">&#8681; Download Current Events Data</button>
+                <button class="btn btn-outline" style="color:var(--danger);border-color:var(--danger);" onclick="clearAllData()">Clear All Data &amp; Start Fresh</button>
+            </div>
+            <div id="data-summary" style="font-size:0.85rem;color:var(--text-light);margin-top:8px;"></div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: DATA ENTRY                                              -->
+    <!-- ============================================================ -->
+    <div id="tab-entry" class="tab-panel">
+
+        <div class="alert alert-success" id="entry-success">Record saved successfully.</div>
+
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>Add Student Record</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Student Name</label>
+                    <input type="text" id="entry-name" placeholder="Last, First">
+                </div>
+                <div class="form-group">
+                    <label>Grade</label>
+                    <select id="entry-grade">
+                        <option value="">Select...</option>
+                        <option>K</option><option>1</option><option>2</option>
+                        <option>3</option><option>4</option><option>5</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Reading Level</label>
+                    <select id="entry-reading">
+                        <option value="">Select...</option>
+                        <option>Above Grade</option>
+                        <option>At Grade</option>
+                        <option>Below Grade</option>
+                        <option>Far Below Grade</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Math Level</label>
+                    <select id="entry-math">
+                        <option value="">Select...</option>
+                        <option>Above Grade</option>
+                        <option>At Grade</option>
+                        <option>Below Grade</option>
+                        <option>Far Below Grade</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Attendance Rate (%)</label>
+                    <input type="number" id="entry-attendance" min="0" max="100" placeholder="e.g. 94">
+                </div>
+                <div class="form-group">
+                    <label>Intervention Program</label>
+                    <select id="entry-intervention">
+                        <option value="None">None</option>
+                        <option>Reading Recovery</option>
+                        <option>Math Mastery Lab</option>
+                        <option>After-School Tutoring</option>
+                        <option>Summer Bridge</option>
+                        <option>Mentoring Program</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom:16px;">
+                <label>Notes</label>
+                <textarea id="entry-notes" rows="3" placeholder="Additional notes about this student..."></textarea>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="saveEntry()">Save Record</button>
+                <button class="btn btn-outline" onclick="clearEntry()">Clear Form</button>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Log Parent Engagement Event</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Event Date</label>
+                    <input type="date" id="event-date">
+                </div>
+                <div class="form-group">
+                    <label>Event Type</label>
+                    <select id="event-type">
+                        <option>Parent Meeting</option>
+                        <option>Family Night</option>
+                        <option>Conference</option>
+                        <option>Survey</option>
+                        <option>Volunteer Activity</option>
+                        <option>Home Visit</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Topic / Description</label>
+                    <input type="text" id="event-topic" placeholder="e.g. Reading Night">
+                </div>
+                <div class="form-group">
+                    <label>Number of Attendees</label>
+                    <input type="number" id="event-attendees" min="0" placeholder="e.g. 45">
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-success" onclick="saveEvent()">Log Event</button>
+                <button class="btn btn-outline" onclick="clearEvent()">Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: USER MANUAL                                             -->
+    <!-- ============================================================ -->
+    <div id="tab-manual" class="tab-panel">
+        <div class="chart-card manual-section" style="margin-bottom:24px;">
+            <h3>Title 1 School Performance Dashboard &mdash; User Manual</h3>
+            <p style="color:var(--text-light);margin-bottom:16px;">Version 1.0 &bull; NUVABASE Professional Consulting &bull; Service to Service Group, Inc.</p>
+
+            <h4>Getting Started</h4>
+            <p>This dashboard helps Title 1 schools track student performance, attendance, interventions, parent engagement, and federal compliance &mdash; all in one place. No internet connection is needed after you open the file.</p>
+            <div class="manual-tip"><strong>Tip:</strong> Open this file by right-clicking it and choosing "Open With" &rarr; Chrome (or your preferred web browser).</div>
+
+            <h4>Tab-by-Tab Guide</h4>
+
+            <h4>1. Overview Tab</h4>
+            <ul>
+                <li><strong>School Health Score:</strong> A single number (0&ndash;100) that combines reading, math, attendance, and chronic absenteeism into one overall grade for your school.</li>
+                <li><strong>KPI Cards:</strong> The colored cards at the top show your key numbers &mdash; enrollment, attendance rate, reading/math proficiency, intervention count, and chronic absenteeism.</li>
+                <li><strong>Charts:</strong> Bar charts show reading and math proficiency by grade level. The thin dark line on each bar is the target. Donut charts show budget allocation breakdown.</li>
+            </ul>
+
+            <h4>2. Academics Tab</h4>
+            <ul>
+                <li><strong>Student Table:</strong> Lists every student with their reading level, math level, attendance, and intervention status.</li>
+                <li><strong>Search:</strong> Type a student name, grade, or intervention name in the search box to filter the table.</li>
+                <li><strong>Sort:</strong> Click any column header to sort the table by that column.</li>
+                <li><strong>Color Coding:</strong> Green = On Track, Yellow = Monitor, Red = At Risk.</li>
+            </ul>
+
+            <h4>3. Attendance Tab</h4>
+            <ul>
+                <li>Shows school-wide attendance rate and breaks down chronically absent, at-risk, and satisfactory students.</li>
+                <li>The correlation chart shows how attendance directly impacts academic performance.</li>
+            </ul>
+
+            <h4>4. Interventions Tab</h4>
+            <ul>
+                <li>Tracks all active intervention programs (Reading Recovery, Math Mastery, etc.).</li>
+                <li>Shows which programs are working and which need review.</li>
+                <li>The table shows cost per student for each program.</li>
+            </ul>
+
+            <h4>5. Parent Engagement Tab</h4>
+            <ul>
+                <li>Logs all parent meetings, family nights, conferences, and surveys.</li>
+                <li>Tracks volunteer hours and survey response rates.</li>
+                <li>Required for Title 1 compliance reporting.</li>
+            </ul>
+
+            <h4>6. Compliance Tab</h4>
+            <ul>
+                <li><strong>Checklist:</strong> A 22-item Title 1 compliance checklist based on ESSA requirements.</li>
+                <li>Green checkmarks = Complete, Yellow circles = Pending (with due dates), Red exclamation = Overdue.</li>
+                <li>Review this checklist before any audit.</li>
+            </ul>
+
+            <h4>7. Upload Data Tab</h4>
+            <ul>
+                <li><strong>Step 1:</strong> Click "Student Data Template" to download a blank spreadsheet.</li>
+                <li><strong>Step 2:</strong> Open it in Excel or Google Sheets, fill in your students, save as CSV.</li>
+                <li><strong>Step 3:</strong> Drag the CSV file onto the upload area (or click to browse).</li>
+                <li><strong>Step 4:</strong> Preview your data, then click "Confirm &amp; Load."</li>
+                <li>Data saves in your browser automatically &mdash; it'll be there next time you open the dashboard.</li>
+            </ul>
+            <div class="manual-tip"><strong>Privacy:</strong> Your data never leaves your computer. Nothing is sent to the internet. 100% private and secure.</div>
+
+            <h4>8. Data Entry Tab</h4>
+            <ul>
+                <li>Manually add individual student records or log parent engagement events.</li>
+                <li>Fill in the form fields and click "Save Record" or "Log Event."</li>
+            </ul>
+
+            <h4>Printing &amp; Exporting</h4>
+            <ul>
+                <li>Click the <strong>"Export Report"</strong> button in the top header to print the dashboard.</li>
+                <li>When printing, choose "Save as PDF" in the print dialog to create a PDF file.</li>
+                <li>The print layout automatically hides navigation and shows all tabs on one page.</li>
+            </ul>
+
+            <h4>Grade-Level Filtering</h4>
+            <ul>
+                <li>Use the <strong>grade dropdown</strong> in the header to filter all data by a specific grade (K through 5).</li>
+                <li>Select "All Grades" to see the complete picture again.</li>
+            </ul>
+
+            <h4>Troubleshooting</h4>
+            <ul>
+                <li><strong>Dashboard shows code instead of visuals:</strong> Right-click the file &rarr; Open With &rarr; choose your browser (Chrome, Edge, Safari).</li>
+                <li><strong>CSV upload not working:</strong> Make sure your file ends in .csv (not .xlsx). In Excel: File &rarr; Save As &rarr; CSV format.</li>
+                <li><strong>Data disappeared:</strong> Data is saved per-browser. If you switch browsers or clear browsing data, you'll need to re-upload.</li>
+                <li><strong>Charts look wrong:</strong> Refresh the page (F5 or Ctrl+R). If using uploaded data, the charts auto-calculate from your student records.</li>
+            </ul>
+            <div class="manual-tip"><strong>Need Help?</strong> Contact NUVABASE Professional Consulting for support and training.</div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB: GLOSSARY                                                -->
+    <!-- ============================================================ -->
+    <div id="tab-glossary" class="tab-panel">
+        <div class="chart-card" style="margin-bottom:24px;">
+            <h3>Glossary of Terms</h3>
+            <p style="color:var(--text-light);margin-bottom:20px;">Definitions of all terms used in this dashboard, organized by category.</p>
+
+            <div class="glossary-category">Title 1 &amp; Federal Terms</div>
+            <div class="glossary-grid">
+                <div class="glossary-item"><div class="glossary-term">Title 1</div><div class="glossary-def">A federal program (part of ESSA) providing financial assistance to schools with high percentages of low-income students to help all children meet state academic standards.</div></div>
+                <div class="glossary-item"><div class="glossary-term">ESSA</div><div class="glossary-def">Every Student Succeeds Act &mdash; the federal law (2015) governing K-12 public education, replacing No Child Left Behind. Sets requirements for accountability, testing, and Title 1 funding.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Free/Reduced Lunch (FRL)</div><div class="glossary-def">A federal program providing free or discounted school meals to students from low-income families. FRL percentage is used to determine Title 1 eligibility.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Supplement Not Supplant</div><div class="glossary-def">Federal requirement that Title 1 funds must add to (supplement), not replace (supplant), state and local funding. Schools cannot use Title 1 money for things they would have funded anyway.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Schoolwide Program</div><div class="glossary-def">A Title 1 model where schools with 40%+ poverty can use Title 1 funds to improve the entire school program, rather than targeting individual students.</div></div>
+                <div class="glossary-item"><div class="glossary-term">School-Parent Compact</div><div class="glossary-def">A written agreement between the school, parents, and students outlining shared responsibilities for student achievement. Required by Title 1.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Comparability Report</div><div class="glossary-def">Documentation proving that state/local resources are distributed equitably across Title 1 and non-Title 1 schools within a district.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Highly Qualified Teacher (HQT)</div><div class="glossary-def">A teacher who meets state certification requirements, holds a bachelor's degree, and demonstrates subject-area competence.</div></div>
+            </div>
+
+            <div class="glossary-category">Academic Terms</div>
+            <div class="glossary-grid">
+                <div class="glossary-item"><div class="glossary-term">Proficiency</div><div class="glossary-def">The percentage of students meeting or exceeding grade-level standards on state assessments in reading or math.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Above Grade Level</div><div class="glossary-def">Student performing above the expected standard for their grade in a given subject.</div></div>
+                <div class="glossary-item"><div class="glossary-term">At Grade Level</div><div class="glossary-def">Student meeting the expected standard for their grade &mdash; performing where they should be.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Below Grade Level</div><div class="glossary-def">Student performing below expectations. May benefit from intervention support.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Far Below Grade Level</div><div class="glossary-def">Student performing significantly below expectations. Typically requires intensive intervention.</div></div>
+                <div class="glossary-item"><div class="glossary-term">ELA</div><div class="glossary-def">English Language Arts &mdash; the subject area covering reading, writing, speaking, and listening skills.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Growth (Grade Levels Gained)</div><div class="glossary-def">The number of grade levels a student has progressed during the measurement period. A growth of +1.0 means one full year of progress.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Baseline</div><div class="glossary-def">The starting measurement point against which progress is compared. Usually set at the beginning of the school year.</div></div>
+            </div>
+
+            <div class="glossary-category">Attendance Terms</div>
+            <div class="glossary-grid">
+                <div class="glossary-item"><div class="glossary-term">Attendance Rate</div><div class="glossary-def">Percentage of school days a student was present. Calculated as: (Days Present &divide; Total Days) &times; 100.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Chronic Absenteeism</div><div class="glossary-def">Missing 10% or more of school days (approximately 18+ days per year). A key federal accountability indicator under ESSA.</div></div>
+                <div class="glossary-item"><div class="glossary-term">At-Risk (Attendance)</div><div class="glossary-def">Students with 90&ndash;94% attendance rate &mdash; not yet chronically absent but trending toward it.</div></div>
+            </div>
+
+            <div class="glossary-category">Intervention Terms</div>
+            <div class="glossary-grid">
+                <div class="glossary-item"><div class="glossary-term">Intervention</div><div class="glossary-def">A targeted program or strategy designed to address a specific academic or behavioral gap for struggling students.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Reading Recovery</div><div class="glossary-def">An intensive short-term intervention for first-grade students who are the lowest-achieving in reading and writing.</div></div>
+                <div class="glossary-item"><div class="glossary-term">RTI (Response to Intervention)</div><div class="glossary-def">A multi-tier approach to early identification and support of students with learning and behavior needs.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Tier 1 / Tier 2 / Tier 3</div><div class="glossary-def">Levels of intervention intensity. Tier 1 = whole class instruction. Tier 2 = small group targeted support. Tier 3 = intensive one-on-one intervention.</div></div>
+            </div>
+
+            <div class="glossary-category">Dashboard &amp; Analytics Terms</div>
+            <div class="glossary-grid">
+                <div class="glossary-item"><div class="glossary-term">KPI</div><div class="glossary-def">Key Performance Indicator &mdash; a measurable value showing how effectively a school is achieving key objectives.</div></div>
+                <div class="glossary-item"><div class="glossary-term">School Health Score</div><div class="glossary-def">A composite score (0&ndash;100) combining reading proficiency (30%), math proficiency (25%), attendance rate (25%), and inverse chronic absenteeism (20%).</div></div>
+                <div class="glossary-item"><div class="glossary-term">Year-Over-Year (YoY)</div><div class="glossary-def">Comparison of current year performance against the same metrics from the prior year.</div></div>
+                <div class="glossary-item"><div class="glossary-term">CSV</div><div class="glossary-def">Comma-Separated Values &mdash; a simple file format for spreadsheet data. Can be created from Excel or Google Sheets via "Save As &rarr; CSV."</div></div>
+                <div class="glossary-item"><div class="glossary-term">Target Line</div><div class="glossary-def">The thin dark vertical line on bar charts showing the goal or benchmark the school is aiming to reach.</div></div>
+            </div>
+
+            <div class="glossary-category">TLRW Framework Terms</div>
+            <div class="glossary-grid">
+                <div class="glossary-item"><div class="glossary-term">TLRW</div><div class="glossary-def">Think, Learn, Reflect, Write &mdash; NUVABASE's proprietary four-phase decision and execution methodology with 12 quality gates (3 per phase).</div></div>
+                <div class="glossary-item"><div class="glossary-term">Quality Gate</div><div class="glossary-def">A checkpoint within the TLRW process that must be passed before moving to the next step. Each phase has 3 gates (12 total).</div></div>
+                <div class="glossary-item"><div class="glossary-term">Triple Redundancy</div><div class="glossary-def">The TLRW principle of running three independent analysis layers (surface, structural, systemic) to validate every decision.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Continuous Improvement</div><div class="glossary-def">An ongoing process of evaluating and improving school performance using data-driven decision making. Core to both TLRW and Cognia accreditation.</div></div>
+                <div class="glossary-item"><div class="glossary-term">NUVABASE</div><div class="glossary-def">NUVABASE Professional Consulting &mdash; a division of Service to Service Group, Inc. specializing in data analytics, continuous improvement, and TLRW-guided consulting for schools, municipalities, and nonprofits.</div></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================================================================ -->
+<!-- JAVASCRIPT                                                       -->
+<!-- ================================================================ -->
+<script>
+// ---- DATA ----
+const studentData = [
+    { name: "Anderson, Maya", grade: "3", reading: "At Grade", math: "Below Grade", attendance: 96, intervention: "Math Mastery Lab" },
+    { name: "Brooks, James", grade: "5", reading: "Above Grade", math: "At Grade", attendance: 98, intervention: "None" },
+    { name: "Carter, Destiny", grade: "2", reading: "Below Grade", math: "At Grade", attendance: 87, intervention: "Reading Recovery" },
+    { name: "Davis, Marcus", grade: "4", reading: "Below Grade", math: "Below Grade", attendance: 82, intervention: "After-School Tutoring" },
+    { name: "Edwards, Sofia", grade: "1", reading: "At Grade", math: "Above Grade", attendance: 95, intervention: "None" },
+    { name: "Foster, Aiden", grade: "3", reading: "Far Below Grade", math: "Below Grade", attendance: 78, intervention: "Reading Recovery" },
+    { name: "Garcia, Isabella", grade: "K", reading: "At Grade", math: "At Grade", attendance: 94, intervention: "None" },
+    { name: "Harris, Jaylen", grade: "5", reading: "At Grade", math: "Below Grade", attendance: 91, intervention: "Math Mastery Lab" },
+    { name: "Jackson, Amari", grade: "2", reading: "Above Grade", math: "At Grade", attendance: 97, intervention: "None" },
+    { name: "King, Aaliyah", grade: "4", reading: "Below Grade", math: "Far Below Grade", attendance: 85, intervention: "After-School Tutoring" },
+    { name: "Lopez, Daniel", grade: "3", reading: "At Grade", math: "At Grade", attendance: 93, intervention: "None" },
+    { name: "Martinez, Elena", grade: "1", reading: "Below Grade", math: "Below Grade", attendance: 89, intervention: "Reading Recovery" },
+    { name: "Nelson, Christopher", grade: "5", reading: "Above Grade", math: "Above Grade", attendance: 99, intervention: "None" },
+    { name: "Owens, Zion", grade: "K", reading: "At Grade", math: "Below Grade", attendance: 92, intervention: "None" },
+    { name: "Patel, Anaya", grade: "4", reading: "At Grade", math: "At Grade", attendance: 96, intervention: "None" },
+    { name: "Robinson, Kayla", grade: "2", reading: "Far Below Grade", math: "Below Grade", attendance: 76, intervention: "Reading Recovery" },
+    { name: "Smith, Elijah", grade: "3", reading: "Below Grade", math: "At Grade", attendance: 90, intervention: "Mentoring Program" },
+    { name: "Thomas, Nia", grade: "1", reading: "At Grade", math: "At Grade", attendance: 95, intervention: "None" },
+    { name: "Williams, Devon", grade: "5", reading: "Below Grade", math: "Below Grade", attendance: 83, intervention: "After-School Tutoring" },
+    { name: "Young, Camila", grade: "4", reading: "Above Grade", math: "At Grade", attendance: 97, intervention: "None" },
+];
+
+// ---- TAB SWITCHING ----
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + tabName).classList.add('active');
+    event.target.classList.add('active');
+}
+
+// ---- BAR CHART RENDERER ----
+function renderBarChart(containerId, data, colorFn) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    data.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'bar-row';
+        const targetMark = item.target ? `<div class="bar-target" style="left:${item.target}%"></div>` : '';
+        row.innerHTML = `
+            <div class="bar-label">${item.label}</div>
+            <div class="bar-track">
+                <div class="bar-fill" style="width:${item.value}%;background:${colorFn(item.value)}">${item.value}%</div>
+                ${targetMark}
+            </div>
+        `;
+        container.appendChild(row);
+    });
+}
+
+function gradeColor(v) {
+    if (v >= 75) return '#38a169';
+    if (v >= 60) return '#d69e2e';
+    return '#e53e3e';
+}
+
+function attendanceColor(v) {
+    if (v >= 95) return '#38a169';
+    if (v >= 90) return '#d69e2e';
+    return '#e53e3e';
+}
+
+// ---- DONUT CHART RENDERER ----
+function renderDonut(donutId, legendId, segments) {
+    const donut = document.getElementById(donutId);
+    const legend = document.getElementById(legendId);
+    let gradient = '';
+    let cumulative = 0;
+    segments.forEach(seg => {
+        gradient += `${seg.color} ${cumulative}% ${cumulative + seg.pct}%, `;
+        cumulative += seg.pct;
+    });
+    gradient = gradient.slice(0, -2);
+    donut.style.background = `conic-gradient(${gradient})`;
+
+    const total = segments.reduce((s, seg) => s + seg.pct, 0);
+    donut.innerHTML = `<div class="donut-center"><span class="big">${total > 0 ? segments[0].centerText || '' : ''}</span><span class="small">${segments[0].centerSub || ''}</span></div>`;
+
+    legend.innerHTML = '';
+    segments.forEach(seg => {
+        legend.innerHTML += `<div class="legend-item"><div class="legend-dot" style="background:${seg.color}"></div>${seg.label} (${seg.pct}%)</div>`;
+    });
+}
+
+// ---- STUDENT TABLE ----
+function renderStudentTable(data) {
+    const tbody = document.getElementById('student-body');
+    tbody.innerHTML = '';
+    data.forEach(s => {
+        const statusClass = s.attendance >= 95 ? 'badge-green' : s.attendance >= 90 ? 'badge-yellow' : 'badge-red';
+        const statusText = s.attendance >= 95 ? 'On Track' : s.attendance >= 90 ? 'Monitor' : 'At Risk';
+        const readingClass = (s.reading === 'Above Grade' || s.reading === 'At Grade') ? 'badge-green' : s.reading === 'Below Grade' ? 'badge-yellow' : 'badge-red';
+        const mathClass = (s.math === 'Above Grade' || s.math === 'At Grade') ? 'badge-green' : s.math === 'Below Grade' ? 'badge-yellow' : 'badge-red';
+        const interventionBadge = s.intervention !== 'None' ? `<span class="badge badge-blue">${s.intervention}</span>` : '<span style="color:#a0aec0;">—</span>';
+
+        tbody.innerHTML += `<tr>
+            <td><strong>${s.name}</strong></td>
+            <td>${s.grade}</td>
+            <td><span class="badge ${readingClass}">${s.reading}</span></td>
+            <td><span class="badge ${mathClass}">${s.math}</span></td>
+            <td>${s.attendance}%</td>
+            <td><span class="badge ${statusClass}">${statusText}</span></td>
+            <td>${interventionBadge}</td>
+        </tr>`;
+    });
+}
+
+// ---- TABLE SORT ----
+function sortTable(tableId, colIndex) {
+    const table = document.getElementById(tableId);
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const dir = table.dataset.sortDir === 'asc' ? 'desc' : 'asc';
+    table.dataset.sortDir = dir;
+
+    rows.sort((a, b) => {
+        let aVal = a.cells[colIndex].textContent.trim();
+        let bVal = b.cells[colIndex].textContent.trim();
+        const aNum = parseFloat(aVal);
+        const bNum = parseFloat(bVal);
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+            return dir === 'asc' ? aNum - bNum : bNum - aNum;
+        }
+        return dir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+    });
+    rows.forEach(r => tbody.appendChild(r));
+}
+
+// ---- SEARCH FILTER ----
+function filterStudents() {
+    const query = document.getElementById('student-search').value.toLowerCase();
+    const filtered = studentData.filter(s => s.name.toLowerCase().includes(query) || s.grade.includes(query) || s.intervention.toLowerCase().includes(query));
+    renderStudentTable(filtered);
+}
+
+function filterByGrade() {
+    const grade = document.getElementById('gradeFilter').value;
+    if (grade === 'all') {
+        renderStudentTable(studentData);
+    } else {
+        renderStudentTable(studentData.filter(s => s.grade === grade));
+    }
+}
+
+// ---- DATA ENTRY ----
+function saveEntry() {
+    const name = document.getElementById('entry-name').value;
+    if (!name) { alert('Please enter a student name.'); return; }
+    const newStudent = {
+        name: name,
+        grade: document.getElementById('entry-grade').value,
+        reading: document.getElementById('entry-reading').value,
+        math: document.getElementById('entry-math').value,
+        attendance: parseInt(document.getElementById('entry-attendance').value) || 0,
+        intervention: document.getElementById('entry-intervention').value,
+    };
+    studentData.push(newStudent);
+    renderStudentTable(studentData);
+    const alert_el = document.getElementById('entry-success');
+    alert_el.style.display = 'block';
+    alert_el.textContent = `Record saved: ${name}`;
+    setTimeout(() => { alert_el.style.display = 'none'; }, 3000);
+    clearEntry();
+}
+
+function clearEntry() {
+    ['entry-name','entry-grade','entry-reading','entry-math','entry-attendance','entry-intervention','entry-notes'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el.tagName === 'SELECT') el.selectedIndex = 0;
+        else el.value = '';
+    });
+}
+
+function saveEvent() {
+    const topic = document.getElementById('event-topic').value;
+    if (!topic) { alert('Please enter an event topic.'); return; }
+    const alert_el = document.getElementById('entry-success');
+    alert_el.style.display = 'block';
+    alert_el.textContent = `Event logged: ${topic}`;
+    setTimeout(() => { alert_el.style.display = 'none'; }, 3000);
+    clearEvent();
+}
+
+function clearEvent() {
+    ['event-date','event-type','event-topic','event-attendees'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el.tagName === 'SELECT') el.selectedIndex = 0;
+        else el.value = '';
+    });
+}
+
+// ---- EXPORT ----
+function exportReport() {
+    window.print();
+}
+
+// ---- UPDATE DASHBOARD ----
+function updateDashboard() {
+    // In production, this would fetch data for the selected year.
+    // For demo, re-render with current data.
+    initCharts();
+}
+
+// ---- INIT ----
+function initCharts() {
+    // Reading bars
+    renderBarChart('reading-bars', [
+        { label: 'Kindergarten', value: 72, target: 75 },
+        { label: 'Grade 1', value: 65, target: 75 },
+        { label: 'Grade 2', value: 68, target: 75 },
+        { label: 'Grade 3', value: 63, target: 75 },
+        { label: 'Grade 4', value: 70, target: 75 },
+        { label: 'Grade 5', value: 74, target: 75 },
+    ], gradeColor);
+
+    // Math bars
+    renderBarChart('math-bars', [
+        { label: 'Kindergarten', value: 60, target: 65 },
+        { label: 'Grade 1', value: 52, target: 65 },
+        { label: 'Grade 2', value: 55, target: 65 },
+        { label: 'Grade 3', value: 48, target: 65 },
+        { label: 'Grade 4', value: 57, target: 65 },
+        { label: 'Grade 5', value: 62, target: 65 },
+    ], gradeColor);
+
+    // Attendance trend
+    renderBarChart('attendance-trend', [
+        { label: 'Sep', value: 94 },
+        { label: 'Oct', value: 93 },
+        { label: 'Nov', value: 90 },
+        { label: 'Dec', value: 88 },
+        { label: 'Jan', value: 91 },
+        { label: 'Feb', value: 92 },
+    ], attendanceColor);
+
+    // Attendance by grade
+    renderBarChart('attendance-grade-bars', [
+        { label: 'Kindergarten', value: 93, target: 95 },
+        { label: 'Grade 1', value: 92, target: 95 },
+        { label: 'Grade 2', value: 90, target: 95 },
+        { label: 'Grade 3', value: 89, target: 95 },
+        { label: 'Grade 4', value: 92, target: 95 },
+        { label: 'Grade 5', value: 91, target: 95 },
+    ], attendanceColor);
+
+    // Correlation bars
+    renderBarChart('correlation-bars', [
+        { label: '>95% Attend.', value: 78 },
+        { label: '90-95%', value: 62 },
+        { label: '85-90%', value: 41 },
+        { label: '<85%', value: 23 },
+    ], v => v >= 70 ? '#38a169' : v >= 50 ? '#d69e2e' : '#e53e3e');
+
+    // Intervention bars
+    renderBarChart('intervention-bars', [
+        { label: 'Reading Recovery', value: 82 },
+        { label: 'Math Mastery', value: 74 },
+        { label: 'After-School', value: 61 },
+        { label: 'Summer Bridge', value: 55 },
+        { label: 'Mentoring', value: 78 },
+    ], gradeColor);
+
+    // Parent attendance bars
+    renderBarChart('parent-attendance-bars', [
+        { label: 'Sep', value: 72 },
+        { label: 'Oct', value: 78 },
+        { label: 'Nov', value: 52 },
+        { label: 'Dec', value: 58 },
+        { label: 'Jan', value: 84 },
+    ], v => '#2b6cb0');
+
+    // Budget donut
+    renderDonut('budget-donut', 'budget-legend', [
+        { label: 'Instructional Staff', pct: 42, color: '#1a365d', centerText: '$485K', centerSub: 'Total Budget' },
+        { label: 'Intervention Programs', pct: 24, color: '#2b6cb0' },
+        { label: 'Professional Dev.', pct: 12, color: '#4299e1' },
+        { label: 'Parent Engagement', pct: 8, color: '#ed8936' },
+        { label: 'Materials & Supplies', pct: 10, color: '#38a169' },
+        { label: 'Technology', pct: 4, color: '#d69e2e' },
+    ]);
+
+    // Intervention donut
+    renderDonut('intervention-donut', 'intervention-legend', [
+        { label: 'Reading Recovery', pct: 27, color: '#1a365d', centerText: '142', centerSub: 'Students' },
+        { label: 'Math Mastery Lab', pct: 30, color: '#2b6cb0' },
+        { label: 'After-School Tutoring', pct: 25, color: '#ed8936' },
+        { label: 'Summer Bridge', pct: 10, color: '#38a169' },
+        { label: 'Mentoring', pct: 8, color: '#d69e2e' },
+    ]);
+
+    // Parent engagement donut
+    renderDonut('parent-donut', 'parent-legend', [
+        { label: 'Meetings Attended', pct: 35, color: '#1a365d', centerText: '1,240', centerSub: 'Total Hours' },
+        { label: 'Volunteer Hours', pct: 28, color: '#2b6cb0' },
+        { label: 'Conferences', pct: 22, color: '#ed8936' },
+        { label: 'Surveys Completed', pct: 15, color: '#38a169' },
+    ]);
+
+    // Student table
+    renderStudentTable(studentData);
+}
+
+// ===========================================================
+// CSV UPLOAD & DATA MANAGEMENT
+// ===========================================================
+
+let pendingUploadData = null;
+let pendingUploadType = null;
+let parentEventsData = [];
+
+// ---- CSV PARSER (handles commas inside quotes) ----
+function parseCSV(text) {
+    const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+    if (lines.length < 2) return { headers: [], rows: [] };
+    const headers = parseCSVLine(lines[0]);
+    const rows = [];
+    for (let i = 1; i < lines.length; i++) {
+        const values = parseCSVLine(lines[i]);
+        if (values.length > 0 && values.some(v => v.trim() !== '')) {
+            rows.push(values);
+        }
+    }
+    return { headers, rows };
+}
+
+function parseCSVLine(line) {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (inQuotes) {
+            if (ch === '"' && line[i + 1] === '"') {
+                current += '"';
+                i++;
+            } else if (ch === '"') {
+                inQuotes = false;
+            } else {
+                current += ch;
+            }
+        } else {
+            if (ch === '"') {
+                inQuotes = true;
+            } else if (ch === ',') {
+                result.push(current.trim());
+                current = '';
+            } else {
+                current += ch;
+            }
+        }
+    }
+    result.push(current.trim());
+    return result;
+}
+
+// ---- FILE HANDLING ----
+function handleFileDrop(event, type) {
+    const file = event.dataTransfer.files[0];
+    if (file) processFile(file, type);
+}
+
+function handleFileSelect(input, type) {
+    const file = input.files[0];
+    if (file) processFile(file, type);
+    input.value = '';
+}
+
+function processFile(file, type) {
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+        showUploadWarning('Please select a .csv file. If you have an Excel file, save it as CSV first (File > Save As > CSV).');
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const parsed = parseCSV(e.target.result);
+        if (parsed.rows.length === 0) {
+            showUploadWarning('The file appears to be empty. Make sure you have data rows below the header row.');
+            return;
+        }
+        pendingUploadData = parsed;
+        pendingUploadType = type;
+        showPreview(parsed, type);
+    };
+    reader.readAsText(file);
+}
+
+// ---- PREVIEW ----
+function showPreview(parsed, type) {
+    const preview = document.getElementById('upload-preview');
+    const title = document.getElementById('preview-title');
+    const stats = document.getElementById('preview-stats');
+    const thead = document.getElementById('preview-thead');
+    const tbody = document.getElementById('preview-tbody');
+
+    title.textContent = type === 'student' ? 'Student Data Preview' : 'Parent Events Preview';
+
+    // Stats
+    stats.innerHTML = `
+        <div class="upload-stat"><strong>${parsed.rows.length}</strong> records found</div>
+        <div class="upload-stat"><strong>${parsed.headers.length}</strong> columns detected</div>
+    `;
+
+    if (type === 'student') {
+        const grades = [...new Set(parsed.rows.map(r => r[1]).filter(g => g))];
+        stats.innerHTML += `<div class="upload-stat"><strong>${grades.length}</strong> grade levels</div>`;
+    }
+
+    // Table header
+    thead.innerHTML = '<tr>' + parsed.headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+
+    // Table body (show first 5 rows)
+    const showRows = parsed.rows.slice(0, 5);
+    tbody.innerHTML = '';
+    showRows.forEach(row => {
+        tbody.innerHTML += '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>';
+    });
+    if (parsed.rows.length > 5) {
+        tbody.innerHTML += `<tr><td colspan="${parsed.headers.length}" style="text-align:center;color:var(--text-light);font-style:italic;">... and ${parsed.rows.length - 5} more rows</td></tr>`;
+    }
+
+    preview.classList.add('visible');
+}
+
+function cancelUpload() {
+    document.getElementById('upload-preview').classList.remove('visible');
+    pendingUploadData = null;
+    pendingUploadType = null;
+}
+
+// ---- CONFIRM UPLOAD ----
+function confirmUpload() {
+    if (!pendingUploadData || !pendingUploadType) return;
+
+    if (pendingUploadType === 'student') {
+        loadStudentData(pendingUploadData);
+    } else {
+        loadEventsData(pendingUploadData);
+    }
+
+    document.getElementById('upload-preview').classList.remove('visible');
+    showUploadSuccess(
+        pendingUploadType === 'student'
+            ? `${pendingUploadData.rows.length} student records loaded! Click the "Overview" or "Academics" tab to see your data.`
+            : `${pendingUploadData.rows.length} parent events loaded! Click the "Parent Engagement" tab to see your data.`
+    );
+
+    pendingUploadData = null;
+    pendingUploadType = null;
+
+    saveToLocalStorage();
+    updateDataSummary();
+}
+
+// ---- LOAD STUDENT DATA FROM CSV ----
+function loadStudentData(parsed) {
+    // Map CSV columns to student object
+    // Expected: Student Name, Grade, Reading Level, Math Level, Attendance Rate, Intervention Program, Notes
+    const newStudents = [];
+    parsed.rows.forEach(row => {
+        const name = row[0] || '';
+        const grade = row[1] || '';
+        const reading = normalizeLevel(row[2] || 'At Grade');
+        const math = normalizeLevel(row[3] || 'At Grade');
+        const attendance = parseInt(row[4]) || 0;
+        const intervention = row[5] || 'None';
+        const notes = row[6] || '';
+        if (name) {
+            newStudents.push({ name, grade, reading, math, attendance, intervention, notes });
+        }
+    });
+
+    // Replace current data
+    studentData.length = 0;
+    newStudents.forEach(s => studentData.push(s));
+
+    // Re-render everything
+    renderStudentTable(studentData);
+    recalculateKPIs();
+    initCharts();
+}
+
+function normalizeLevel(level) {
+    const l = level.toLowerCase().trim();
+    if (l.includes('above')) return 'Above Grade';
+    if (l.includes('far below')) return 'Far Below Grade';
+    if (l.includes('below')) return 'Below Grade';
+    if (l.includes('at')) return 'At Grade';
+    return level;
+}
+
+// ---- LOAD EVENTS DATA FROM CSV ----
+function loadEventsData(parsed) {
+    parentEventsData = [];
+    parsed.rows.forEach(row => {
+        parentEventsData.push({
+            date: row[0] || '',
+            type: row[1] || '',
+            topic: row[2] || '',
+            attendees: parseInt(row[3]) || 0,
+            followUp: row[4] || 'Pending'
+        });
+    });
+    renderParentEventsTable();
+}
+
+function renderParentEventsTable() {
+    // Find the parent communication log table and update it
+    const parentTab = document.getElementById('tab-parent');
+    const tables = parentTab.querySelectorAll('table');
+    if (tables.length > 0 && parentEventsData.length > 0) {
+        const tbody = tables[0].querySelector('tbody');
+        tbody.innerHTML = '';
+        parentEventsData.forEach(evt => {
+            const typeClass = evt.type.toLowerCase().includes('survey') ? 'badge-yellow' :
+                              evt.type.toLowerCase().includes('volunteer') ? 'badge-green' : 'badge-blue';
+            const statusClass = evt.followUp.toLowerCase().includes('complete') ? 'badge-green' : 'badge-yellow';
+            tbody.innerHTML += `<tr>
+                <td>${evt.date}</td>
+                <td><span class="badge ${typeClass}">${evt.type}</span></td>
+                <td>${evt.topic}</td>
+                <td>${evt.attendees}</td>
+                <td><span class="badge ${statusClass}">${evt.followUp}</span></td>
+            </tr>`;
+        });
+    }
+}
+
+// ---- RECALCULATE KPIs FROM LIVE DATA ----
+function recalculateKPIs() {
+    const total = studentData.length;
+    if (total === 0) return;
+
+    const avgAttendance = (studentData.reduce((s, st) => s + st.attendance, 0) / total).toFixed(1);
+    const readingProf = Math.round(studentData.filter(s => s.reading === 'Above Grade' || s.reading === 'At Grade').length / total * 100);
+    const mathProf = Math.round(studentData.filter(s => s.math === 'Above Grade' || s.math === 'At Grade').length / total * 100);
+    const interventionCount = studentData.filter(s => s.intervention && s.intervention !== 'None').length;
+    const chronicAbsent = (studentData.filter(s => s.attendance < 90).length / total * 100).toFixed(1);
+
+    document.getElementById('kpi-enrollment').textContent = total;
+    document.getElementById('kpi-attendance').textContent = avgAttendance + '%';
+    document.getElementById('kpi-reading').textContent = readingProf + '%';
+    document.getElementById('kpi-math').textContent = mathProf + '%';
+    document.getElementById('kpi-intervention').textContent = interventionCount;
+    document.getElementById('kpi-chronic').textContent = chronicAbsent + '%';
+
+    // Recalculate chart data from live students
+    recalculateCharts();
+}
+
+function recalculateCharts() {
+    const grades = ['K', '1', '2', '3', '4', '5'];
+    const gradeLabels = ['Kindergarten', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5'];
+
+    // Reading proficiency by grade
+    const readingData = grades.map((g, i) => {
+        const gradeStudents = studentData.filter(s => s.grade === g);
+        const prof = gradeStudents.length > 0
+            ? Math.round(gradeStudents.filter(s => s.reading === 'Above Grade' || s.reading === 'At Grade').length / gradeStudents.length * 100)
+            : 0;
+        return { label: gradeLabels[i], value: prof, target: 75 };
+    });
+    renderBarChart('reading-bars', readingData, gradeColor);
+
+    // Math proficiency by grade
+    const mathData = grades.map((g, i) => {
+        const gradeStudents = studentData.filter(s => s.grade === g);
+        const prof = gradeStudents.length > 0
+            ? Math.round(gradeStudents.filter(s => s.math === 'Above Grade' || s.math === 'At Grade').length / gradeStudents.length * 100)
+            : 0;
+        return { label: gradeLabels[i], value: prof, target: 65 };
+    });
+    renderBarChart('math-bars', mathData, gradeColor);
+
+    // Attendance by grade
+    const attendanceGradeData = grades.map((g, i) => {
+        const gradeStudents = studentData.filter(s => s.grade === g);
+        const avg = gradeStudents.length > 0
+            ? Math.round(gradeStudents.reduce((s, st) => s + st.attendance, 0) / gradeStudents.length)
+            : 0;
+        return { label: gradeLabels[i], value: avg, target: 95 };
+    });
+    renderBarChart('attendance-grade-bars', attendanceGradeData, attendanceColor);
+
+    // Intervention breakdown
+    const interventionTypes = {};
+    studentData.forEach(s => {
+        if (s.intervention && s.intervention !== 'None') {
+            interventionTypes[s.intervention] = (interventionTypes[s.intervention] || 0) + 1;
+        }
+    });
+    const intTotal = Object.values(interventionTypes).reduce((a, b) => a + b, 0);
+    const intColors = ['#1a365d', '#2b6cb0', '#ed8936', '#38a169', '#d69e2e', '#e53e3e'];
+    if (intTotal > 0) {
+        const intSegments = Object.entries(interventionTypes).map(([name, count], i) => ({
+            label: name,
+            pct: Math.round(count / intTotal * 100),
+            color: intColors[i % intColors.length],
+            centerText: String(intTotal),
+            centerSub: 'Students'
+        }));
+        renderDonut('intervention-donut', 'intervention-legend', intSegments);
+    }
+}
+
+// ---- LOCAL STORAGE (data stays on user's computer) ----
+function saveToLocalStorage() {
+    try {
+        localStorage.setItem('tlrw_student_data', JSON.stringify(studentData));
+        localStorage.setItem('tlrw_events_data', JSON.stringify(parentEventsData));
+        localStorage.setItem('tlrw_save_date', new Date().toLocaleString());
+        const indicator = document.getElementById('save-indicator');
+        indicator.textContent = '\u2713 Data saved to your browser at ' + new Date().toLocaleTimeString();
+        indicator.classList.add('visible');
+    } catch (e) {
+        console.warn('Could not save to localStorage:', e);
+    }
+}
+
+function loadFromLocalStorage() {
+    try {
+        const savedStudents = localStorage.getItem('tlrw_student_data');
+        const savedEvents = localStorage.getItem('tlrw_events_data');
+
+        if (savedStudents) {
+            const parsed = JSON.parse(savedStudents);
+            if (parsed.length > 0) {
+                studentData.length = 0;
+                parsed.forEach(s => studentData.push(s));
+                renderStudentTable(studentData);
+                recalculateKPIs();
+            }
+        }
+        if (savedEvents) {
+            parentEventsData = JSON.parse(savedEvents);
+            if (parentEventsData.length > 0) {
+                renderParentEventsTable();
+            }
+        }
+        updateDataSummary();
+    } catch (e) {
+        console.warn('Could not load from localStorage:', e);
+    }
+}
+
+function updateDataSummary() {
+    const summary = document.getElementById('data-summary');
+    const saveDate = localStorage.getItem('tlrw_save_date');
+    let text = `Currently loaded: ${studentData.length} students`;
+    if (parentEventsData.length > 0) text += `, ${parentEventsData.length} parent events`;
+    if (saveDate) text += ` | Last saved: ${saveDate}`;
+    summary.textContent = text;
+}
+
+// ---- EXPORT DATA AS CSV ----
+function exportStudentCSV() {
+    const headers = ['Student Name', 'Grade', 'Reading Level', 'Math Level', 'Attendance Rate', 'Intervention Program', 'Notes'];
+    let csv = headers.join(',') + '\n';
+    studentData.forEach(s => {
+        csv += `"${s.name}",${s.grade},${s.reading},${s.math},${s.attendance},${s.intervention},${s.notes || ''}\n`;
+    });
+    downloadCSVFile(csv, 'student-data-export.csv');
+}
+
+function exportEventsCSV() {
+    const headers = ['Event Date', 'Event Type', 'Topic', 'Number of Attendees', 'Follow-Up Status'];
+    let csv = headers.join(',') + '\n';
+    parentEventsData.forEach(e => {
+        csv += `${e.date},${e.type},"${e.topic}",${e.attendees},${e.followUp}\n`;
+    });
+    downloadCSVFile(csv, 'parent-events-export.csv');
+}
+
+function downloadCSVFile(csvContent, filename) {
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// ---- TEMPLATE DOWNLOADS ----
+function downloadTemplate(type) {
+    if (type === 'student') {
+        const csv = 'Student Name,Grade,Reading Level,Math Level,Attendance Rate,Intervention Program,Notes\n"Last, First",K,At Grade,At Grade,95,None,\n"Last, First",1,Above Grade,At Grade,98,None,\n"Last, First",2,Below Grade,Below Grade,87,Reading Recovery,Needs extra support\n';
+        downloadCSVFile(csv, 'student-data-template.csv');
+    } else {
+        const csv = 'Event Date,Event Type,Topic,Number of Attendees,Follow-Up Status\n2026-01-28,Parent Meeting,Title 1 Annual Meeting,84,Complete\n2026-01-15,Family Night,Reading Night,72,Complete\n';
+        downloadCSVFile(csv, 'parent-events-template.csv');
+    }
+}
+
+// ---- CLEAR ALL ----
+function clearAllData() {
+    if (!confirm('Are you sure you want to clear ALL data and start fresh? This cannot be undone.')) return;
+
+    // Reset to empty
+    studentData.length = 0;
+    parentEventsData = [];
+    localStorage.removeItem('tlrw_student_data');
+    localStorage.removeItem('tlrw_events_data');
+    localStorage.removeItem('tlrw_save_date');
+
+    renderStudentTable(studentData);
+    initCharts();
+    updateDataSummary();
+    showUploadSuccess('All data cleared. Upload new CSV files to get started.');
+}
+
+// ---- ALERTS ----
+function showUploadSuccess(msg) {
+    const el = document.getElementById('upload-success');
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 6000);
+}
+
+function showUploadWarning(msg) {
+    const el = document.getElementById('upload-warning');
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 6000);
+}
+
+// Boot
+document.addEventListener('DOMContentLoaded', function() {
+    initCharts();
+    loadFromLocalStorage();
+});
+</script>
+
+</body>
+</html>

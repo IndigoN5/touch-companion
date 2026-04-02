@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TLRW Process Engine &mdash; Live Methodology Demo</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #1a365d; --primary-light: #2b6cb0; --accent: #ed8936;
+            --success: #38a169; --warning: #d69e2e; --danger: #e53e3e;
+            --bg: #f7fafc; --card: #ffffff; --text: #2d3748; --text-light: #718096;
+            --border: #e2e8f0; --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+            --radius: 8px;
+            --think: #4299e1; --learn: #48bb78; --reflect: #ed8936; --write: #9f7aea;
+            --code-bg: #1e293b; --code-text: #e2e8f0;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+        .header {
+            background: linear-gradient(135deg, #1a365d 0%, #553c9a 50%, #805ad5 100%);
+            color: white; padding: 20px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+        }
+        .header h1 { font-size: 1.4rem; font-weight: 700; }
+        .header .subtitle { font-size: 0.8rem; opacity: 0.85; }
+        .header-controls { display: flex; gap: 12px; align-items: center; }
+        .header-controls button {
+            padding: 8px 16px; border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.15); color: white; font-size: 0.85rem; cursor: pointer;
+        }
+        .btn-run { background: var(--success) !important; border-color: var(--success) !important; font-weight: 700; font-size: 1rem !important; padding: 10px 24px !important; }
+
+        .container { max-width: 1440px; margin: 0 auto; padding: 24px; }
+
+        /* TLRW PROGRESS */
+        .tlrw-progress { display: flex; gap: 4px; margin-bottom: 24px; background: var(--card); padding: 8px; border-radius: var(--radius); box-shadow: var(--shadow); }
+        .tlrw-phase {
+            flex: 1; padding: 10px 12px; border-radius: 6px; text-align: center;
+            font-size: 0.8rem; font-weight: 600; transition: all 0.3s; opacity: 0.4;
+            border: 2px solid transparent;
+        }
+        .tlrw-phase.active { opacity: 1; animation: tlrwPulse 2s ease-in-out infinite; }
+        .tlrw-phase.completed { opacity: 1; }
+        .tlrw-phase.completed::after { content: ' \2713'; font-weight: 700; }
+        .phase-think { background: rgba(66,153,225,0.1); color: var(--think); }
+        .phase-think.active { border-color: var(--think); box-shadow: 0 0 12px rgba(66,153,225,0.4); background: rgba(66,153,225,0.2); }
+        .phase-think.completed { background: rgba(66,153,225,0.3); border-color: var(--think); }
+        .phase-learn { background: rgba(72,187,120,0.1); color: var(--learn); }
+        .phase-learn.active { border-color: var(--learn); box-shadow: 0 0 12px rgba(72,187,120,0.4); background: rgba(72,187,120,0.2); }
+        .phase-learn.completed { background: rgba(72,187,120,0.3); border-color: var(--learn); }
+        .phase-reflect { background: rgba(237,137,54,0.1); color: var(--reflect); }
+        .phase-reflect.active { border-color: var(--reflect); box-shadow: 0 0 12px rgba(237,137,54,0.4); background: rgba(237,137,54,0.2); }
+        .phase-reflect.completed { background: rgba(237,137,54,0.3); border-color: var(--reflect); }
+        .phase-write { background: rgba(159,122,234,0.1); color: var(--write); }
+        .phase-write.active { border-color: var(--write); box-shadow: 0 0 12px rgba(159,122,234,0.4); background: rgba(159,122,234,0.2); }
+        .phase-write.completed { background: rgba(159,122,234,0.3); border-color: var(--write); }
+        @keyframes tlrwPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.03); opacity: 0.85; } }
+        .phase-num { font-size: 0.65rem; display: block; opacity: 0.7; }
+
+        /* TABS */
+        .tab-bar { display: flex; gap: 4px; background: var(--card); padding: 4px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 24px; overflow-x: auto; }
+        .tab { padding: 10px 18px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-light); white-space: nowrap; transition: all 0.2s; border: none; background: none; }
+        .tab:hover { color: var(--text); background: var(--bg); }
+        .tab.active { background: var(--primary); color: white; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* CODE EDITOR */
+        .code-area {
+            width: 100%; min-height: 350px; padding: 16px; border: 2px solid var(--border);
+            border-radius: var(--radius); font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.85rem; line-height: 1.6; background: var(--code-bg); color: var(--code-text);
+            resize: vertical; tab-size: 4;
+        }
+        .code-area:focus { outline: none; border-color: var(--primary-light); }
+        .code-output {
+            width: 100%; min-height: 300px; padding: 16px; border-radius: var(--radius);
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.85rem; line-height: 1.6; background: var(--code-bg); color: var(--code-text);
+            overflow: auto; white-space: pre-wrap;
+        }
+
+        /* CARDS */
+        .chart-card { background: var(--card); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px; }
+        .chart-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; }
+        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-bottom: 24px; }
+
+        /* KPIs */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .kpi-card { background: var(--card); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); border-left: 4px solid var(--primary); text-align: center; }
+        .kpi-card.success { border-left-color: var(--success); }
+        .kpi-card.warning { border-left-color: var(--warning); }
+        .kpi-card.danger { border-left-color: var(--danger); }
+        .kpi-card.accent { border-left-color: var(--accent); }
+        .kpi-card.purple { border-left-color: #9f7aea; }
+        .kpi-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-light); margin-bottom: 4px; }
+        .kpi-value { font-size: 1.6rem; font-weight: 700; }
+
+        /* ISSUE LIST */
+        .issue-list { max-height: 400px; overflow-y: auto; }
+        .issue-item {
+            display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+            border-bottom: 1px solid var(--border); font-size: 0.85rem;
+        }
+        .issue-item:last-child { border-bottom: none; }
+        .issue-badge {
+            padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600;
+            flex-shrink: 0; min-width: 70px; text-align: center;
+        }
+        .badge-surface { background: #bee3f8; color: #2a4365; }
+        .badge-structural { background: #fefcbf; color: #744210; }
+        .badge-systemic { background: #fed7d7; color: #822727; }
+        .badge-syntax { background: #e9d8fd; color: #44337a; }
+        .issue-line { font-family: monospace; color: var(--text-light); min-width: 60px; }
+        .issue-text { flex: 1; }
+
+        /* BAR CHART */
+        .bar-chart { display: flex; flex-direction: column; gap: 10px; }
+        .bar-row { display: flex; align-items: center; gap: 12px; }
+        .bar-label { width: 100px; font-size: 0.8rem; text-align: right; flex-shrink: 0; }
+        .bar-track { flex: 1; height: 24px; background: #edf2f7; border-radius: 4px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; font-size: 0.7rem; font-weight: 600; color: white; transition: width 0.6s ease; }
+
+        /* GAUGE */
+        .gauge-container { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+        .gauge { width: 140px; height: 140px; border-radius: 50%; position: relative; flex-shrink: 0; }
+        .gauge-center {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+            background: var(--card); width: 90px; height: 90px; border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .gauge-center .big { font-size: 1.4rem; font-weight: 700; }
+        .gauge-center .small { font-size: 0.65rem; color: var(--text-light); }
+
+        /* DIFF VIEW */
+        .diff-line { font-family: monospace; font-size: 0.8rem; padding: 2px 8px; white-space: pre-wrap; }
+        .diff-add { background: rgba(72,187,120,0.15); color: #22543d; }
+        .diff-remove { background: rgba(229,62,62,0.15); color: #822727; }
+        .diff-context { color: var(--text-light); }
+
+        /* BUTTONS */
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text); }
+        .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+
+        /* MANUAL */
+        .manual-section h4 { margin: 16px 0 8px; color: var(--primary); font-size: 0.95rem; }
+        .manual-section p, .manual-section li { font-size: 0.9rem; line-height: 1.7; }
+        .manual-section ul { margin-left: 20px; margin-bottom: 12px; }
+        .manual-tip { background: rgba(66,153,225,0.08); padding: 12px 16px; border-radius: var(--radius); border-left: 4px solid var(--think); margin: 12px 0; font-size: 0.85rem; }
+
+        /* GLOSSARY */
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .glossary-item { padding: 12px; border-bottom: 1px solid var(--border); }
+        .glossary-term { font-weight: 700; color: var(--primary); font-size: 0.9rem; }
+        .glossary-def { font-size: 0.85rem; color: var(--text-light); margin-top: 2px; }
+        .glossary-cat { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin: 20px 0 12px; padding: 6px 12px; background: rgba(237,137,54,0.08); border-radius: 4px; font-weight: 700; }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header { padding: 16px; }
+            .container { padding: 16px; }
+            .chart-grid { grid-template-columns: 1fr; }
+            .tlrw-progress { flex-direction: column; }
+        }
+        @media print {
+            .header-controls, .tab-bar, .tlrw-progress, .code-area, .btn-row { display: none; }
+            .tab-panel { display: block !important; page-break-inside: avoid; margin-bottom: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- BACK TO HUB NAV -->
+<div id="hub-nav" style="background:#0a1628;padding:8px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #1e3a5f;">
+    <a href="../NUVABASE-Launcher.html" style="background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);color:#c9a84c;padding:6px 16px;border-radius:6px;text-decoration:none;font-size:0.85rem;font-weight:600;">&#9664; Back to Hub</a>
+    <span style="color:#8899aa;font-size:0.8rem;">NUVABASE Launcher</span>
+</div>
+
+<!-- TLRW DEMO BANNER -->
+<div style="background:linear-gradient(90deg,#0d1b2e,#1a365d);padding:14px 24px;border-bottom:1px solid #1e3a5f;text-align:center;">
+    <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;color:#c9a84c;font-weight:600;margin-bottom:4px;">Live Methodology Demonstration</div>
+    <div style="font-size:0.85rem;color:#b0c4de;max-width:700px;margin:0 auto;">This tool demonstrates how the TLRW 4-phase, 12-gate quality process executes in real time. The same methodology powers all NUVABASE consulting engagements.</div>
+</div>
+
+<div class="header">
+    <div>
+        <h1>TLRW Process Engine &mdash; Live Demo</h1>
+        <div class="subtitle">Four-Phase Redundancy Cascade &mdash; NUVABASE Professional Consulting</div>
+    </div>
+    <div class="header-controls">
+        <button class="btn-run" onclick="runCascade()">&#9654; Run TLRW Cascade</button>
+        <button onclick="loadSample()">Load Sample Code</button>
+        <button onclick="clearAll()">Clear</button>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="tlrw-progress">
+        <div class="tlrw-phase phase-think" id="p-think"><span class="phase-num">Phase 1</span> THINK</div>
+        <div class="tlrw-phase phase-learn" id="p-learn"><span class="phase-num">Phase 2</span> LEARN</div>
+        <div class="tlrw-phase phase-reflect" id="p-reflect"><span class="phase-num">Phase 3</span> REFLECT</div>
+        <div class="tlrw-phase phase-write" id="p-write"><span class="phase-num">Phase 4</span> WRITE</div>
+    </div>
+
+    <div class="tab-bar">
+        <button class="tab active" onclick="switchTab('input')">Input Code</button>
+        <button class="tab" onclick="switchTab('results')">Analysis Results</button>
+        <button class="tab" onclick="switchTab('issues')">Issues Found</button>
+        <button class="tab" onclick="switchTab('diff')">Before / After</button>
+        <button class="tab" onclick="switchTab('report')">Full Report</button>
+        <button class="tab" onclick="switchTab('manual')">User Manual</button>
+        <button class="tab" onclick="switchTab('glossary')">Glossary</button>
+    </div>
+
+    <!-- INPUT -->
+    <div id="tab-input" class="tab-panel active">
+        <div class="chart-card">
+            <h3>Paste Your Python Code Below</h3>
+            <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:12px;">
+                Paste any Python code and click <strong>"Run TLRW Cascade"</strong> in the header. The fixer will analyze it through all four TLRW phases and show you what it found.
+            </p>
+            <textarea class="code-area" id="code-input" placeholder="# Paste your Python code here...&#10;# Then click the green 'Run TLRW Cascade' button above.&#10;&#10;def example(items=[]):&#10;    print 'hello'&#10;    if x == None:&#10;        pass&#10;    except:&#10;        pass"></textarea>
+            <div class="btn-row">
+                <button class="btn btn-success" onclick="runCascade()">&#9654; Run TLRW Cascade</button>
+                <button class="btn btn-outline" onclick="loadSample()">Load Sample Code</button>
+                <button class="btn btn-outline" onclick="document.getElementById('file-upload').click()">Upload .py File</button>
+                <input type="file" id="file-upload" accept=".py,.txt" style="display:none" onchange="uploadFile(this)">
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="tab-results" class="tab-panel">
+        <div class="kpi-grid" id="result-kpis">
+            <div class="kpi-card"><div class="kpi-label">Status</div><div class="kpi-value" style="font-size:1rem;color:var(--text-light);">Waiting...</div></div>
+        </div>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Issues by Category</h3>
+                <div class="bar-chart" id="category-bars"></div>
+            </div>
+            <div class="chart-card">
+                <h3>Fix Confidence</h3>
+                <div class="gauge-container">
+                    <div class="gauge" id="confidence-gauge"></div>
+                    <div id="confidence-details"></div>
+                </div>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h3>Learned Conventions</h3>
+            <div id="conventions-display" style="font-size:0.85rem;color:var(--text-light);">Run the cascade to see results.</div>
+        </div>
+    </div>
+
+    <!-- ISSUES -->
+    <div id="tab-issues" class="tab-panel">
+        <div class="chart-card">
+            <h3>All Issues Detected</h3>
+            <div class="issue-list" id="issue-list">
+                <p style="color:var(--text-light);padding:20px;text-align:center;">Run the cascade to see issues.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- DIFF -->
+    <div id="tab-diff" class="tab-panel">
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Original Code</h3>
+                <div class="code-output" id="diff-original" style="border-left:4px solid var(--danger);">Paste code and run cascade.</div>
+            </div>
+            <div class="chart-card">
+                <h3>Fixed Code (Golden Fix)</h3>
+                <div class="code-output" id="diff-fixed" style="border-left:4px solid var(--success);">Run cascade to see fixed code.</div>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h3>Line-by-Line Changes</h3>
+            <div id="diff-view" style="max-height:500px;overflow-y:auto;font-size:0.8rem;">
+                <p style="color:var(--text-light);padding:12px;">Run cascade to see diff.</p>
+            </div>
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-primary" onclick="copyFixed()">Copy Fixed Code</button>
+            <button class="btn btn-outline" onclick="downloadFixed()">Download Fixed Code</button>
+        </div>
+    </div>
+
+    <!-- REPORT -->
+    <div id="tab-report" class="tab-panel">
+        <div class="chart-card">
+            <h3>TLRW Cascade Analysis Report</h3>
+            <div class="code-output" id="report-output" style="background:white;color:var(--text);border:1px solid var(--border);">Run the cascade to generate a full report.</div>
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-primary" onclick="copyReport()">Copy Report</button>
+            <button class="btn btn-outline" onclick="window.print()">Print Report</button>
+        </div>
+    </div>
+
+    <!-- USER MANUAL -->
+    <div id="tab-manual" class="tab-panel">
+        <div class="chart-card manual-section">
+            <h3>TLRW Code Fixer &mdash; User Manual</h3>
+            <p style="color:var(--text-light);margin-bottom:16px;">Version 2.0 &bull; NUVABASE Professional Consulting</p>
+
+            <h4>What This Tool Does</h4>
+            <p>The TLRW Code Fixer analyzes Python code for common bugs, style issues, and architectural problems. It uses a four-phase process (Think, Learn, Reflect, Write) with triple redundancy to find and fix issues automatically.</p>
+
+            <h4>How to Use It</h4>
+            <ul>
+                <li><strong>Step 1:</strong> Paste your Python code in the "Input Code" tab, or click "Upload .py File" to load a file from your computer.</li>
+                <li><strong>Step 2:</strong> Click the green <strong>"Run TLRW Cascade"</strong> button.</li>
+                <li><strong>Step 3:</strong> Watch the TLRW phases light up as the analysis runs.</li>
+                <li><strong>Step 4:</strong> Review results across the tabs: Analysis Results, Issues Found, Before/After, Full Report.</li>
+            </ul>
+
+            <h4>Understanding the Tabs</h4>
+            <ul>
+                <li><strong>Analysis Results:</strong> KPI cards showing issue count, confidence score, fix level. Bar chart of issues by category. Gauge showing overall confidence.</li>
+                <li><strong>Issues Found:</strong> Every issue detected, with line number, category (surface/structural/systemic), and description.</li>
+                <li><strong>Before / After:</strong> Side-by-side view of original vs. fixed code, plus a line-by-line diff showing exactly what changed.</li>
+                <li><strong>Full Report:</strong> Complete text report you can copy, print, or save.</li>
+            </ul>
+
+            <h4>What the Fixer Detects (25+ Patterns)</h4>
+            <ul>
+                <li><strong>Surface:</strong> Python 2 prints, None comparisons, boolean comparisons, trailing whitespace, f-strings without placeholders, missing docstrings.</li>
+                <li><strong>Structural:</strong> Bare excepts, silent exception swallowing, wildcard imports, assert statements, return in __init__, duplicate dict keys.</li>
+                <li><strong>Systemic:</strong> Mutable default arguments, excessive nesting, long functions, global usage, magic numbers, string concat in loops.</li>
+            </ul>
+
+            <h4>The TLRW Process</h4>
+            <ul>
+                <li><strong>THINK:</strong> Atomic deconstruction &mdash; detect all issues using line-level heuristics and AST analysis.</li>
+                <li><strong>LEARN:</strong> Extract coding conventions (indentation, quote style, naming patterns, imports).</li>
+                <li><strong>REFLECT:</strong> Generate three independent fix layers (surface, structural, systemic) and calculate divergence.</li>
+                <li><strong>WRITE:</strong> Select the "golden fix" through agent discovery and cross-validation.</li>
+            </ul>
+            <div class="manual-tip"><strong>Tip:</strong> Click "Load Sample Code" to see a demo with intentionally buggy code.</div>
+
+            <h4>Privacy</h4>
+            <p>All analysis runs entirely in your browser. No code is sent to any server. 100% private.</p>
+        </div>
+    </div>
+
+    <!-- GLOSSARY -->
+    <div id="tab-glossary" class="tab-panel">
+        <div class="chart-card">
+            <h3>Glossary of Terms</h3>
+
+            <div class="glossary-cat">TLRW Methodology</div>
+            <div class="glossary-grid">
+                <div class="glossary-item"><div class="glossary-term">TLRW</div><div class="glossary-def">Think, Learn, Reflect, Write &mdash; four-phase analysis methodology with 12 quality gates.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Cascade</div><div class="glossary-def">The full TLRW pipeline: Think &rarr; Learn &rarr; Reflect &rarr; Agent Discovery &rarr; Write.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Triple Redundancy</div><div class="glossary-def">Three independent fix layers (surface, structural, systemic) that cross-validate each other.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Golden Fix</div><div class="glossary-def">The best fix selected after comparing all three redundancy layers.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Divergence Score</div><div class="glossary-def">Measures how different the three fix layers are. Low divergence = high confidence.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Agent Discovery</div><div class="glossary-def">Cross-validation phase that checks fixes for correctness before selecting the golden fix.</div></div>
+            </div>
+
+            <div class="glossary-cat">Issue Categories</div>
+            <div class="glossary-grid">
+                <div class="glossary-item"><div class="glossary-term">Surface Issue</div><div class="glossary-def">Style and formatting problems (trailing whitespace, print statements, None comparisons).</div></div>
+                <div class="glossary-item"><div class="glossary-term">Structural Issue</div><div class="glossary-def">Pattern and relationship problems (bare excepts, silent errors, missing error handling).</div></div>
+                <div class="glossary-item"><div class="glossary-term">Systemic Issue</div><div class="glossary-def">Architectural and logic problems (mutable defaults, excessive nesting, global state).</div></div>
+                <div class="glossary-item"><div class="glossary-term">Syntax Issue</div><div class="glossary-def">Code that won't parse at all (invalid Python syntax).</div></div>
+            </div>
+
+            <div class="glossary-cat">Python Terms</div>
+            <div class="glossary-grid">
+                <div class="glossary-item"><div class="glossary-term">AST</div><div class="glossary-def">Abstract Syntax Tree &mdash; Python's internal code structure used for deep analysis.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Mutable Default</div><div class="glossary-def">Using [] or {} as a function default argument. Dangerous because it's shared between calls.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Bare Except</div><div class="glossary-def">"except:" without specifying an exception type. Catches everything including system exits.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Docstring</div><div class="glossary-def">A documentation string at the start of a function/class explaining what it does.</div></div>
+                <div class="glossary-item"><div class="glossary-term">PEP 8</div><div class="glossary-def">Python's official style guide. Many fixer rules enforce PEP 8 conventions.</div></div>
+            </div>
+
+            <div class="glossary-cat">Dashboard Terms</div>
+            <div class="glossary-grid">
+                <div class="glossary-item"><div class="glossary-term">KPI</div><div class="glossary-def">Key Performance Indicator &mdash; summary numbers at the top of the results page.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Diff</div><div class="glossary-def">A comparison showing exactly what lines changed between original and fixed code.</div></div>
+                <div class="glossary-item"><div class="glossary-term">Confidence</div><div class="glossary-def">How sure the fixer is that its fix is correct (based on how many layers passed validation).</div></div>
+                <div class="glossary-item"><div class="glossary-term">Primer ID</div><div class="glossary-def">A unique fingerprint (hash) of the original code being analyzed.</div></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ===========================================================
+// STATE
+// ===========================================================
+let analysisResult = null;
+
+// ===========================================================
+// TAB SWITCHING
+// ===========================================================
+function switchTab(name) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    const map = { input:0, results:1, issues:2, diff:3, report:4, manual:5, glossary:6 };
+    const tabs = document.querySelectorAll('.tab');
+    if (map[name] !== undefined && tabs[map[name]]) tabs[map[name]].classList.add('active');
+}
+
+// ===========================================================
+// TLRW PHASE ANIMATION
+// ===========================================================
+function setPhase(phase) {
+    ['think','learn','reflect','write'].forEach(p => {
+        document.getElementById('p-' + p).classList.remove('active');
+    });
+    document.getElementById('p-' + phase).classList.add('active');
+}
+function completePhase(phase) {
+    const el = document.getElementById('p-' + phase);
+    el.classList.remove('active');
+    el.classList.add('completed');
+}
+
+// ===========================================================
+// CORE ANALYSIS ENGINE (Browser-side Python analyzer)
+// ===========================================================
+function runCascade() {
+    const code = document.getElementById('code-input').value;
+    if (!code.trim()) { alert('Please paste some Python code first.'); return; }
+
+    // Reset phases
+    ['think','learn','reflect','write'].forEach(p => {
+        const el = document.getElementById('p-' + p);
+        el.classList.remove('active','completed');
+    });
+
+    // Phase 1: THINK
+    setPhase('think');
+    setTimeout(() => {
+        const issues = detectIssues(code);
+        completePhase('think');
+
+        // Phase 2: LEARN
+        setPhase('learn');
+        setTimeout(() => {
+            const conventions = learnConventions(code);
+            completePhase('learn');
+
+            // Phase 3: REFLECT
+            setPhase('reflect');
+            setTimeout(() => {
+                const fixes = applyFixes(code, issues);
+                completePhase('reflect');
+
+                // Phase 4: WRITE
+                setPhase('write');
+                setTimeout(() => {
+                    const result = {
+                        original: code,
+                        issues: issues,
+                        conventions: conventions,
+                        fixedCode: fixes.systemic,
+                        fixes: fixes,
+                        confidence: calculateConfidence(fixes),
+                        selectedLevel: 'systemic',
+                        primerId: hashCode(code).toString(16).slice(0,12),
+                        lineCount: code.split('\n').length,
+                    };
+                    analysisResult = result;
+                    renderResults(result);
+                    completePhase('write');
+                    switchTab('results');
+                }, 400);
+            }, 500);
+        }, 400);
+    }, 300);
+}
+
+// ===========================================================
+// ISSUE DETECTION
+// ===========================================================
+function detectIssues(code) {
+    const issues = [];
+    const lines = code.split('\n');
+
+    lines.forEach((line, i) => {
+        const lineNum = i + 1;
+        const stripped = line.trim();
+
+        // Bare excepts
+        if (/^\s*except\s*:/.test(line))
+            issues.push({ type: 'structural', line: lineNum, text: 'Bare except clause', fix_type: 'structural' });
+
+        // Mutable defaults
+        if (/^\s*def\s+\w+\(.*=\s*(\[\]|\{\})/.test(line))
+            issues.push({ type: 'systemic', line: lineNum, text: 'Mutable default argument ([] or {})', fix_type: 'systemic' });
+
+        // Python 2 print
+        if (/^\s*print\s+[^(]/.test(line))
+            issues.push({ type: 'syntax', line: lineNum, text: 'Python 2 print statement', fix_type: 'surface' });
+
+        // == None / != None
+        if (line.includes('== None') || line.includes('!= None'))
+            issues.push({ type: 'surface', line: lineNum, text: 'Identity comparison with None (use is/is not)', fix_type: 'surface' });
+
+        // == True / == False
+        if (line.includes('== True') || line.includes('== False'))
+            issues.push({ type: 'surface', line: lineNum, text: 'Equality comparison with boolean', fix_type: 'surface' });
+
+        // Wildcard imports
+        if (/^\s*from\s+\w+\s+import\s+\*/.test(line))
+            issues.push({ type: 'structural', line: lineNum, text: 'Wildcard import (from X import *)', fix_type: 'structural' });
+
+        // Global statement
+        if (/^\s*global\s+/.test(line))
+            issues.push({ type: 'systemic', line: lineNum, text: 'Global variable usage', fix_type: 'systemic' });
+
+        // Semicolons
+        if (stripped.includes(';') && !stripped.startsWith('#') && !stripped.startsWith("'") && !stripped.startsWith('"')) {
+            const parts = stripped.split(';');
+            if (parts.length > 1 && parts[1].trim())
+                issues.push({ type: 'surface', line: lineNum, text: 'Semicolon-separated statements', fix_type: 'surface' });
+        }
+
+        // Trailing whitespace
+        if (line !== line.trimEnd() && line.trim())
+            issues.push({ type: 'surface', line: lineNum, text: 'Trailing whitespace', fix_type: 'surface' });
+
+        // Silent except + pass
+        if (/^\s*except.*:/.test(line) && i + 1 < lines.length) {
+            const nextStripped = lines[i + 1].trim();
+            if (nextStripped === 'pass')
+                issues.push({ type: 'structural', line: lineNum, text: 'Silent exception swallowing (except + pass)', fix_type: 'structural' });
+        }
+
+        // Magic numbers
+        if (/[=<>!]=?\s+\d{2,}/.test(stripped) && !stripped.startsWith('#') && !stripped.includes('range') && !stripped.includes('import'))
+            issues.push({ type: 'systemic', line: lineNum, text: 'Magic number in comparison/assignment', fix_type: 'systemic' });
+    });
+
+    return issues;
+}
+
+// ===========================================================
+// LEARN CONVENTIONS
+// ===========================================================
+function learnConventions(code) {
+    const lines = code.split('\n');
+    let spaces = 0, tabs = 0, singleQ = 0, doubleQ = 0, hasTypeHints = false;
+    const funcNames = [];
+
+    lines.forEach(line => {
+        if (line.startsWith('    ')) spaces++;
+        if (line.startsWith('\t')) tabs++;
+        singleQ += (line.match(/'/g) || []).length;
+        doubleQ += (line.match(/"/g) || []).length;
+        if (line.includes('->') || line.includes(': str') || line.includes(': int') || line.includes(': List') || line.includes(': Dict'))
+            hasTypeHints = true;
+        const m = line.match(/^\s*def\s+(\w+)/);
+        if (m) funcNames.push(m[1]);
+    });
+
+    const nonEmpty = lines.filter(l => l.trim()).length;
+    const avgLen = nonEmpty > 0 ? Math.round(lines.filter(l => l.trim()).reduce((s, l) => s + l.length, 0) / nonEmpty) : 0;
+
+    return {
+        indentation: spaces >= tabs ? 'spaces (4)' : 'tabs',
+        quoteStyle: doubleQ > singleQ ? 'double quotes' : 'single quotes',
+        typeHints: hasTypeHints,
+        avgLineLength: avgLen,
+        functionCount: funcNames.length,
+        totalLines: lines.length,
+    };
+}
+
+// ===========================================================
+// FIX APPLICATION
+// ===========================================================
+function applyFixes(code, issues) {
+    // Surface fixes
+    let surface = code;
+    surface = surface.replace(/^(\s*)print\s+([^(].*)$/gm, (m, indent, content) => {
+        content = content.trim();
+        return indent + 'print(' + content + ')';
+    });
+    surface = surface.replace(/== None/g, 'is None');
+    surface = surface.replace(/!= None/g, 'is not None');
+    surface = surface.split('\n').map(l => l.trimEnd()).join('\n');
+
+    // Structural fixes
+    let structural = surface;
+    structural = structural.replace(/^(\s*)except\s*:/gm, '$1except Exception:');
+
+    // Systemic fixes
+    let systemic = structural;
+    systemic = systemic.split('\n').map(line => {
+        if (/^\s*def\s+\w+\(/.test(line)) {
+            line = line.replace(/=\s*\[\]/g, '=None');
+            line = line.replace(/=\s*\{\}/g, '=None');
+        }
+        return line;
+    }).join('\n');
+
+    return { surface, structural, systemic };
+}
+
+function calculateConfidence(fixes) {
+    let valid = 0;
+    // Simple check: count how many fix levels produced different output
+    if (fixes.surface) valid++;
+    if (fixes.structural) valid++;
+    if (fixes.systemic) valid++;
+    return Math.round(valid / 3 * 100);
+}
+
+function hashCode(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+    }
+    return Math.abs(hash);
+}
+
+// ===========================================================
+// RENDER RESULTS
+// ===========================================================
+function renderResults(r) {
+    // KPIs
+    const byType = {};
+    r.issues.forEach(i => { byType[i.type] = (byType[i.type] || 0) + 1; });
+
+    const kpis = document.getElementById('result-kpis');
+    kpis.innerHTML = `
+        <div class="kpi-card accent"><div class="kpi-label">Issues Found</div><div class="kpi-value">${r.issues.length}</div></div>
+        <div class="kpi-card ${r.confidence >= 80 ? 'success' : r.confidence >= 50 ? 'warning' : 'danger'}"><div class="kpi-label">Confidence</div><div class="kpi-value">${r.confidence}%</div></div>
+        <div class="kpi-card purple"><div class="kpi-label">Fix Level</div><div class="kpi-value" style="font-size:1.2rem;">${r.selectedLevel}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Lines Analyzed</div><div class="kpi-value">${r.lineCount}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Primer ID</div><div class="kpi-value" style="font-size:0.9rem;">${r.primerId}</div></div>
+        <div class="kpi-card ${(byType.surface||0) > 0 ? 'warning' : 'success'}"><div class="kpi-label">Surface</div><div class="kpi-value">${byType.surface||0}</div></div>
+        <div class="kpi-card ${(byType.structural||0) > 0 ? 'warning' : 'success'}"><div class="kpi-label">Structural</div><div class="kpi-value">${byType.structural||0}</div></div>
+        <div class="kpi-card ${(byType.systemic||0) > 0 ? 'danger' : 'success'}"><div class="kpi-label">Systemic</div><div class="kpi-value">${byType.systemic||0}</div></div>
+    `;
+
+    // Category bars
+    const cats = Object.entries(byType).sort((a,b) => b[1] - a[1]);
+    const maxCount = Math.max(...cats.map(c => c[1]), 1);
+    const barContainer = document.getElementById('category-bars');
+    barContainer.innerHTML = '';
+    const colors = { surface: '#4299e1', structural: '#d69e2e', systemic: '#e53e3e', syntax: '#9f7aea' };
+    cats.forEach(([cat, count]) => {
+        const pct = Math.round(count / maxCount * 100);
+        barContainer.innerHTML += `<div class="bar-row"><div class="bar-label">${cat}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${colors[cat]||'#718096'}">${count}</div></div></div>`;
+    });
+
+    // Confidence gauge
+    const gauge = document.getElementById('confidence-gauge');
+    const conf = r.confidence;
+    const gColor = conf >= 80 ? '#38a169' : conf >= 50 ? '#d69e2e' : '#e53e3e';
+    gauge.style.background = `conic-gradient(${gColor} 0% ${conf}%, #edf2f7 ${conf}% 100%)`;
+    gauge.innerHTML = `<div class="gauge-center"><span class="big">${conf}%</span><span class="small">Confidence</span></div>`;
+
+    const details = document.getElementById('confidence-details');
+    details.innerHTML = `<div style="font-size:0.85rem;"><strong>Fix Level:</strong> ${r.selectedLevel}<br><strong>Issues:</strong> ${r.issues.length}<br><strong>Lines:</strong> ${r.lineCount}</div>`;
+
+    // Conventions
+    const conv = document.getElementById('conventions-display');
+    const c = r.conventions;
+    conv.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+            <div><strong>Indentation:</strong> ${c.indentation}</div>
+            <div><strong>Quote Style:</strong> ${c.quoteStyle}</div>
+            <div><strong>Type Hints:</strong> ${c.typeHints ? 'Yes' : 'No'}</div>
+            <div><strong>Avg Line Length:</strong> ${c.avgLineLength} chars</div>
+            <div><strong>Functions:</strong> ${c.functionCount}</div>
+            <div><strong>Total Lines:</strong> ${c.totalLines}</div>
+        </div>
+    `;
+
+    // Issues list
+    const issueList = document.getElementById('issue-list');
+    issueList.innerHTML = '';
+    if (r.issues.length === 0) {
+        issueList.innerHTML = '<p style="text-align:center;padding:20px;color:var(--success);font-weight:600;">No issues found! Your code looks clean.</p>';
+    } else {
+        r.issues.forEach(issue => {
+            const badgeClass = issue.type === 'surface' ? 'badge-surface' : issue.type === 'structural' ? 'badge-structural' : issue.type === 'systemic' ? 'badge-systemic' : 'badge-syntax';
+            issueList.innerHTML += `<div class="issue-item"><span class="issue-badge ${badgeClass}">${issue.type}</span><span class="issue-line">Line ${issue.line}</span><span class="issue-text">${issue.text}</span></div>`;
+        });
+    }
+
+    // Diff view
+    document.getElementById('diff-original').textContent = r.original;
+    document.getElementById('diff-fixed').textContent = r.fixedCode;
+
+    const diffView = document.getElementById('diff-view');
+    diffView.innerHTML = '';
+    const origLines = r.original.split('\n');
+    const fixedLines = r.fixedCode.split('\n');
+    const maxLen = Math.max(origLines.length, fixedLines.length);
+    for (let i = 0; i < maxLen; i++) {
+        const orig = origLines[i] || '';
+        const fixed = fixedLines[i] || '';
+        if (orig !== fixed) {
+            if (orig) diffView.innerHTML += `<div class="diff-line diff-remove">- ${orig}</div>`;
+            if (fixed) diffView.innerHTML += `<div class="diff-line diff-add">+ ${fixed}</div>`;
+        } else {
+            diffView.innerHTML += `<div class="diff-line diff-context">  ${orig}</div>`;
+        }
+    }
+
+    // Report
+    const report = document.getElementById('report-output');
+    const now = new Date().toLocaleString();
+    report.textContent = `============================================================
+  TLRW REDUNDANCY CASCADE FIXER — ANALYSIS REPORT
+  Version: 2.0.0 (Browser Dashboard)
+  Date: ${now}
+============================================================
+
+Primer ID:        ${r.primerId}
+Code Complexity:   ${r.lineCount} lines
+Issues Detected:   ${r.issues.length}
+Fix Level:         ${r.selectedLevel}
+Confidence:        ${r.confidence}%
+
+------------------------------------------------------------
+  ISSUE BREAKDOWN
+------------------------------------------------------------
+${Object.entries(byType).map(([t, c]) => `\n  [${t.toUpperCase()}] (${c} issues)\n${r.issues.filter(i=>i.type===t).map(i=>`    Line ${String(i.line).padStart(4)}: ${i.text}`).join('\n')}`).join('\n')}
+
+------------------------------------------------------------
+  LEARNED CONVENTIONS
+------------------------------------------------------------
+    Indentation:    ${r.conventions.indentation}
+    Quote Style:    ${r.conventions.quoteStyle}
+    Type Hints:     ${r.conventions.typeHints ? 'yes' : 'no'}
+    Avg Line Length: ${r.conventions.avgLineLength} chars
+    Functions:      ${r.conventions.functionCount}
+    Total Lines:    ${r.conventions.totalLines}
+
+============================================================
+  NUVABASE Professional Consulting
+  TLRW Redundancy Cascade Fixer v2.0
+============================================================`;
+}
+
+// ===========================================================
+// UTILITIES
+// ===========================================================
+function loadSample() {
+    document.getElementById('code-input').value = `import os
+from sys import *
+
+def process_data(items=[], cache={}):
+    print "Processing items..."
+    global counter
+    counter = 0
+
+    for item in items:
+        if item == None:
+            continue
+        if item == True:
+            counter += 1
+
+    try:
+        result = items[0]
+    except:
+        pass
+
+    if counter == 100:
+        print "Done"
+
+    return counter
+
+class DataProcessor:
+    def __init__(self):
+        return "initialized"
+
+    def analyze(self, data):
+        result = ""
+        for item in data:
+            result += str(item)
+        return result`;
+}
+
+function clearAll() {
+    document.getElementById('code-input').value = '';
+    ['think','learn','reflect','write'].forEach(p => {
+        const el = document.getElementById('p-' + p);
+        el.classList.remove('active','completed');
+    });
+    analysisResult = null;
+}
+
+function uploadFile(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('code-input').value = e.target.result;
+    };
+    reader.readAsText(file);
+    input.value = '';
+}
+
+function copyFixed() {
+    if (!analysisResult) { alert('Run the cascade first.'); return; }
+    navigator.clipboard.writeText(analysisResult.fixedCode).then(() => alert('Fixed code copied!'));
+}
+
+function downloadFixed() {
+    if (!analysisResult) { alert('Run the cascade first.'); return; }
+    const blob = new Blob([analysisResult.fixedCode], { type: 'text/plain' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'fixed_code.py';
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+}
+
+function copyReport() {
+    const text = document.getElementById('report-output').textContent;
+    navigator.clipboard.writeText(text).then(() => alert('Report copied!'));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Municipal Intelligence &mdash; NUVABASE Professional Consulting</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --navy: #0a1628;
+            --navy-mid: #132240;
+            --navy-light: #1a365d;
+            --gold: #c9a84c;
+            --gold-light: #e2c97e;
+            --gold-dim: rgba(201,168,76,0.15);
+            --white: #ffffff;
+            --text: #e8ecf1;
+            --text-muted: #8899aa;
+            --border: #1e3a5f;
+            --card: #111d33;
+            --card-hover: #172847;
+            --success: #38a169;
+            --radius: 10px;
+            --think: #4299e1;
+            --learn: #48bb78;
+            --reflect: #ed8936;
+            --write: #9f7aea;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, sans-serif;
+            background: var(--navy);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ===== HUB NAV ===== */
+        #hub-nav {
+            background: var(--navy);
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        #hub-nav a {
+            background: var(--gold-dim);
+            border: 1px solid rgba(201,168,76,0.3);
+            color: var(--gold);
+            padding: 6px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        #hub-nav a:hover { background: rgba(201,168,76,0.25); }
+        #hub-nav span { color: var(--text-muted); font-size: 0.8rem; }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: -0.02em;
+        }
+        .header h1 .gold { color: var(--gold); }
+        .header .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .demo-badge {
+            background: var(--gold);
+            color: var(--navy);
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 4px;
+            letter-spacing: 0.08em;
+        }
+
+        /* TLRW Indicator */
+        .tlrw-indicator {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .tlrw-phase {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+        .tlrw-phase .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .phase-t { background: rgba(66,153,225,0.15); color: var(--think); }
+        .phase-t .dot { background: var(--think); }
+        .phase-l { background: rgba(72,187,120,0.15); color: var(--learn); }
+        .phase-l .dot { background: var(--learn); }
+        .phase-r { background: rgba(237,137,54,0.15); color: var(--reflect); }
+        .phase-r .dot { background: var(--reflect); }
+        .phase-w { background: rgba(159,122,234,0.15); color: var(--write); }
+        .phase-w .dot { background: var(--write); }
+
+        /* ===== CONTAINER ===== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 24px 60px;
+        }
+
+        /* ===== TABS ===== */
+        .tab-bar {
+            display: flex;
+            gap: 2px;
+            background: var(--navy-mid);
+            padding: 4px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+        .tab-bar::-webkit-scrollbar { height: 4px; }
+        .tab-bar::-webkit-scrollbar-track { background: transparent; }
+        .tab-bar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        .tab-btn {
+            padding: 10px 18px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            white-space: nowrap;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            font-family: inherit;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+        .tab-btn.active {
+            color: var(--gold);
+            background: rgba(201,168,76,0.08);
+            border-bottom: 2px solid var(--gold);
+        }
+        .tab-panel { display: none; animation: fadeIn 0.3s ease; }
+        .tab-panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: border-color 0.2s;
+        }
+        .card:hover { border-color: rgba(201,168,76,0.3); }
+        .card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 12px;
+        }
+        .card h3 .icon { margin-right: 8px; }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px;
+            text-align: center;
+            transition: all 0.25s;
+        }
+        .kpi-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+        .kpi-label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .kpi-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gold);
+            line-height: 1.2;
+        }
+        .kpi-change {
+            font-size: 0.75rem;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+        .kpi-change.up { color: var(--success); }
+        .kpi-change.down { color: var(--success); }
+
+        /* City Profile */
+        .city-profile {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--navy-mid), var(--navy-light));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .city-profile .city-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+        .city-profile .city-stat {
+            text-align: center;
+            padding: 0 16px;
+            border-left: 1px solid var(--border);
+        }
+        .city-profile .city-stat:first-of-type { border-left: none; }
+        .city-stat-val { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
+        .city-stat-label { font-size: 0.72rem; color: var(--text-muted); }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .data-table th {
+            text-align: left;
+            padding: 10px 12px;
+            background: var(--navy-mid);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            border-bottom: 1px solid var(--border);
+        }
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(30,58,95,0.5);
+            color: var(--text);
+        }
+        .data-table tbody tr:hover { background: rgba(201,168,76,0.04); }
+
+        /* Status badges */
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+        .badge-active { background: rgba(56,161,105,0.15); color: var(--success); }
+        .badge-applied { background: rgba(66,153,225,0.15); color: var(--think); }
+        .badge-pending { background: var(--gold-dim); color: var(--gold); }
+        .badge-demo { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+        .badge-live { background: rgba(56,161,105,0.15); color: var(--success); border: 1px solid rgba(56,161,105,0.3); }
+
+        /* CSS Bar Chart */
+        .bar-chart { margin-top: 12px; }
+        .bar-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 10px;
+        }
+        .bar-label {
+            width: 140px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .bar-track {
+            flex: 1;
+            height: 24px;
+            background: rgba(30,58,95,0.5);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--white);
+            transition: width 0.8s ease;
+        }
+        .bar-fill.high { background: linear-gradient(90deg, rgba(56,161,105,0.6), var(--success)); }
+        .bar-fill.mid { background: linear-gradient(90deg, rgba(201,168,76,0.6), var(--gold)); }
+        .bar-fill.low { background: linear-gradient(90deg, rgba(229,62,62,0.6), #e53e3e); }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 10px 22px;
+            border-radius: 7px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .btn-gold {
+            background: var(--gold);
+            color: var(--navy);
+        }
+        .btn-gold:hover { background: var(--gold-light); }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+        .btn-sm { padding: 6px 14px; font-size: 0.78rem; }
+
+        /* Quick actions */
+        .quick-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+
+        /* Forms */
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--navy-mid);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            color: var(--text);
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        .form-control:focus { outline: none; border-color: var(--gold); }
+        select.form-control { cursor: pointer; }
+        textarea.form-control { resize: vertical; min-height: 80px; }
+
+        /* API Connection cards */
+        .api-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .api-card .api-info { flex: 1; min-width: 200px; }
+        .api-card .api-info h4 { color: var(--white); font-size: 0.95rem; margin-bottom: 4px; }
+        .api-card .api-info p { color: var(--text-muted); font-size: 0.8rem; }
+        .api-card .api-fields { flex: 2; min-width: 250px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+        .api-card .api-fields .form-group { margin-bottom: 0; flex: 1; min-width: 160px; }
+        .api-card .api-fields .form-control { padding: 8px 12px; font-size: 0.82rem; }
+
+        /* Drop zone */
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(201,168,76,0.05);
+        }
+
+        /* ROI display */
+        .roi-result {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--navy-mid), var(--navy-light));
+            border: 1px solid var(--gold);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+        }
+        .roi-result .roi-label {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .roi-result .roi-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--gold);
+        }
+        .roi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .roi-inputs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        /* Proposal output */
+        .proposal-output {
+            background: var(--white);
+            color: #1a202c;
+            padding: 40px;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            display: none;
+        }
+        .proposal-output h2 {
+            color: var(--navy);
+            font-size: 1.3rem;
+            margin: 24px 0 8px;
+            border-bottom: 2px solid var(--gold);
+            padding-bottom: 6px;
+        }
+        .proposal-output h3 {
+            color: var(--navy-light);
+            font-size: 1.05rem;
+            margin: 18px 0 6px;
+        }
+        .proposal-output .letterhead {
+            text-align: center;
+            border-bottom: 3px solid var(--gold);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        .proposal-output .letterhead h1 {
+            color: var(--navy);
+            font-size: 1.5rem;
+            letter-spacing: 0.08em;
+        }
+        .proposal-output .letterhead p { color: #718096; font-size: 0.85rem; }
+        .proposal-output ul { margin-left: 20px; margin-bottom: 12px; }
+        .proposal-output li { margin-bottom: 6px; }
+        .proposal-output .sig-block { margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+
+        /* Accordion (manual) */
+        .accordion-item { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; }
+        .accordion-header {
+            background: var(--navy-mid);
+            padding: 14px 18px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--white);
+            transition: background 0.2s;
+            user-select: none;
+        }
+        .accordion-header:hover { background: var(--card-hover); }
+        .accordion-header .arrow { transition: transform 0.2s; font-size: 0.7rem; color: var(--gold); }
+        .accordion-header.open .arrow { transform: rotate(90deg); }
+        .accordion-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: var(--card);
+        }
+        .accordion-body-inner { padding: 16px 18px; font-size: 0.85rem; color: var(--text); line-height: 1.7; }
+
+        /* Glossary */
+        .glossary-term {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(30,58,95,0.5);
+        }
+        .glossary-term:last-child { border-bottom: none; }
+        .glossary-term strong { color: var(--gold); font-size: 0.9rem; }
+        .glossary-term p { color: var(--text); font-size: 0.85rem; margin-top: 2px; }
+
+        /* Efficiency colors */
+        .eff-high { color: var(--success); font-weight: 600; }
+        .eff-mid { color: var(--gold); font-weight: 600; }
+        .eff-low { color: #e53e3e; font-weight: 600; }
+
+        /* Insights panel */
+        .insights-panel {
+            background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(201,168,76,0.02));
+            border: 1px solid rgba(201,168,76,0.2);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .insights-panel h4 {
+            color: var(--gold);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .insights-panel ul { margin-left: 16px; }
+        .insights-panel li { margin-bottom: 6px; font-size: 0.85rem; color: var(--text); }
+
+        /* Section header */
+        .section-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Two column layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Metric card for operational efficiency */
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(30,58,95,0.5);
+        }
+        .metric-row:last-child { border-bottom: none; }
+        .metric-name { font-size: 0.85rem; color: var(--text); }
+        .metric-val { font-size: 1rem; font-weight: 700; color: var(--gold); }
+        .metric-target { font-size: 0.75rem; color: var(--text-muted); }
+
+        /* Before/After comparison */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 16px;
+            align-items: center;
+            margin: 16px 0;
+        }
+        .comparison-col { text-align: center; }
+        .comparison-col h4 { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .comparison-arrow { font-size: 1.5rem; color: var(--gold); }
+        .comparison-stat { margin-bottom: 10px; }
+        .comparison-stat .val { font-size: 1.2rem; font-weight: 700; }
+        .comparison-stat .label { font-size: 0.75rem; color: var(--text-muted); }
+        .before .val { color: var(--text-muted); }
+        .after .val { color: var(--success); }
+
+        /* Print styles */
+        @media print {
+            body { background: white !important; color: #1a202c !important; }
+            #hub-nav, .header, .tab-bar, .btn, .no-print { display: none !important; }
+            .tab-panel { display: block !important; }
+            .card { border: 1px solid #e2e8f0 !important; background: white !important; break-inside: avoid; }
+            .kpi-value, .roi-value { color: var(--navy) !important; }
+            .proposal-output { display: block !important; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .two-col { grid-template-columns: 1fr; }
+            .roi-grid { grid-template-columns: 1fr; }
+            .header { padding: 16px 20px; }
+            .container { padding: 16px; }
+            .city-profile { flex-direction: column; text-align: center; }
+            .city-profile .city-stat { border-left: none; border-top: 1px solid var(--border); padding-top: 10px; }
+            .api-card { flex-direction: column; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            .comparison-arrow { transform: rotate(90deg); }
+        }
+        @media (max-width: 480px) {
+            .kpi-grid { grid-template-columns: 1fr; }
+            .bar-label { width: 100px; font-size: 0.72rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== HUB NAV ===== -->
+<div id="hub-nav">
+    <a href="../NUVABASE-Launcher.html">&#9664; Back to Hub</a>
+    <span>NUVABASE Launcher</span>
+</div>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+    <div class="header-inner">
+        <div>
+            <h1><span class="gold">Municipal</span> Intelligence</h1>
+            <div class="subtitle">Workforce Analytics &bull; Operational Efficiency &bull; Grant Capture &mdash; NUVABASE Professional Consulting</div>
+            <div class="tlrw-indicator">
+                <span class="tlrw-phase phase-t"><span class="dot"></span> Think = Planning</span>
+                <span class="tlrw-phase phase-l"><span class="dot"></span> Learn = Data Collection</span>
+                <span class="tlrw-phase phase-r"><span class="dot"></span> Reflect = Analysis</span>
+                <span class="tlrw-phase phase-w"><span class="dot"></span> Write = Implementation</span>
+            </div>
+        </div>
+        <div>
+            <span class="demo-badge">DEMO</span>
+        </div>
+    </div>
+</div>
+
+<!-- ===== CONTAINER ===== -->
+<div class="container">
+
+    <!-- TAB BAR -->
+    <div class="tab-bar" role="tablist">
+        <button class="tab-btn active" onclick="switchTab('dashboard')" role="tab">Dashboard</button>
+        <button class="tab-btn" onclick="switchTab('api')" role="tab">API Connections</button>
+        <button class="tab-btn" onclick="switchTab('workforce')" role="tab">Workforce Analytics</button>
+        <button class="tab-btn" onclick="switchTab('efficiency')" role="tab">Operational Efficiency</button>
+        <button class="tab-btn" onclick="switchTab('grants')" role="tab">Grants &amp; Funding</button>
+        <button class="tab-btn" onclick="switchTab('roi')" role="tab">ROI Calculator</button>
+        <button class="tab-btn" onclick="switchTab('proposal')" role="tab">Generate Proposal</button>
+        <button class="tab-btn" onclick="switchTab('manual')" role="tab">User Manual</button>
+        <button class="tab-btn" onclick="switchTab('glossary')" role="tab">Glossary</button>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- TAB 1: DASHBOARD OVERVIEW -->
+    <!-- ========================================================== -->
+    <div id="tab-dashboard" class="tab-panel active">
+
+        <!-- City Profile -->
+        <div class="city-profile">
+            <div class="city-name">&#127963; Metro City</div>
+            <div class="city-stat">
+                <div class="city-stat-val">215,000</div>
+                <div class="city-stat-label">Population</div>
+            </div>
+            <div class="city-stat">
+                <div class="city-stat-val">8</div>
+                <div class="city-stat-label">Departments</div>
+            </div>
+            <div class="city-stat">
+                <div class="city-stat-val">4,200</div>
+                <div class="city-stat-label">Employees</div>
+            </div>
+        </div>
+
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Workforce Efficiency</div>
+                <div class="kpi-value">78%</div>
+                <div class="kpi-change up">&#9650; 4% vs last quarter</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Service Response Time</div>
+                <div class="kpi-value">2.3 days</div>
+                <div class="kpi-change down">&#9660; 0.5 days improvement</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Grant Capture Rate</div>
+                <div class="kpi-value">62%</div>
+                <div class="kpi-change up">8 of 13 applications</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Budget Utilization</div>
+                <div class="kpi-value">91%</div>
+                <div class="kpi-change up">$184M of $202M</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Citizen Satisfaction</div>
+                <div class="kpi-value">7.4/10</div>
+                <div class="kpi-change up">&#9650; 0.6 improvement</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Active Grants</div>
+                <div class="kpi-value">$18.7M</div>
+                <div class="kpi-change up">6 federal, 2 state</div>
+            </div>
+        </div>
+
+        <!-- Department Performance Chart -->
+        <div class="card">
+            <h3><span class="icon">&#128202;</span> Department Performance Comparison</h3>
+            <div class="bar-chart">
+                <div class="bar-row">
+                    <div class="bar-label">Fire &amp; EMS</div>
+                    <div class="bar-track"><div class="bar-fill high" style="width:88%">88%</div></div>
+                </div>
+                <div class="bar-row">
+                    <div class="bar-label">IT &amp; Innovation</div>
+                    <div class="bar-track"><div class="bar-fill high" style="width:84%">84%</div></div>
+                </div>
+                <div class="bar-row">
+                    <div class="bar-label">Public Works</div>
+                    <div class="bar-track"><div class="bar-fill high" style="width:82%">82%</div></div>
+                </div>
+                <div class="bar-row">
+                    <div class="bar-label">Administration</div>
+                    <div class="bar-track"><div class="bar-fill high" style="width:80%">80%</div></div>
+                </div>
+                <div class="bar-row">
+                    <div class="bar-label">Public Health</div>
+                    <div class="bar-track"><div class="bar-fill mid" style="width:79%">79%</div></div>
+                </div>
+                <div class="bar-row">
+                    <div class="bar-label">Planning &amp; Zoning</div>
+                    <div class="bar-track"><div class="bar-fill mid" style="width:76%">76%</div></div>
+                </div>
+                <div class="bar-row">
+                    <div class="bar-label">Police</div>
+                    <div class="bar-track"><div class="bar-fill mid" style="width:75%">75%</div></div>
+                </div>
+                <div class="bar-row">
+                    <div class="bar-label">Parks &amp; Rec</div>
+                    <div class="bar-track"><div class="bar-fill mid" style="width:71%">71%</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="btn btn-gold" onclick="switchTab('workforce')">View Workforce</button>
+            <button class="btn btn-gold" onclick="switchTab('grants')">Check Grants</button>
+            <button class="btn btn-gold" onclick="switchTab('proposal')">Generate Proposal</button>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- TAB 2: API CONNECTIONS -->
+    <!-- ========================================================== -->
+    <div id="tab-api" class="tab-panel">
+        <div class="section-header">Data Source Connections</div>
+
+        <!-- Census Bureau -->
+        <div class="api-card">
+            <div class="api-info">
+                <h4>&#127463; Census Bureau API</h4>
+                <p>Access population, demographics, housing, and economic data for municipal planning.</p>
+            </div>
+            <div class="api-fields">
+                <div class="form-group">
+                    <label>API Key</label>
+                    <input type="text" class="form-control" id="api-census-key" placeholder="Enter Census API Key">
+                </div>
+                <button class="btn btn-gold btn-sm" onclick="saveApiConnection('census')">Connect</button>
+                <span class="badge badge-demo" id="api-census-status">DEMO</span>
+            </div>
+        </div>
+
+        <!-- BLS -->
+        <div class="api-card">
+            <div class="api-info">
+                <h4>&#128200; Bureau of Labor Statistics (BLS)</h4>
+                <p>Labor market data including employment, wages, and occupational statistics for workforce planning.</p>
+            </div>
+            <div class="api-fields">
+                <div class="form-group">
+                    <label>API Key</label>
+                    <input type="text" class="form-control" id="api-bls-key" placeholder="Enter BLS API Key">
+                </div>
+                <button class="btn btn-gold btn-sm" onclick="saveApiConnection('bls')">Connect</button>
+                <span class="badge badge-demo" id="api-bls-status">DEMO</span>
+            </div>
+        </div>
+
+        <!-- Open Government -->
+        <div class="api-card">
+            <div class="api-info">
+                <h4>&#127963; Open Government Data Portal</h4>
+                <p>Connect to your city's open data portal for real-time municipal operations data.</p>
+            </div>
+            <div class="api-fields">
+                <div class="form-group">
+                    <label>City Portal URL</label>
+                    <input type="text" class="form-control" id="api-gov-url" placeholder="https://data.yourcity.gov">
+                </div>
+                <div class="form-group">
+                    <label>API Key</label>
+                    <input type="text" class="form-control" id="api-gov-key" placeholder="Enter Portal API Key">
+                </div>
+                <button class="btn btn-gold btn-sm" onclick="saveApiConnection('gov')">Connect</button>
+                <span class="badge badge-demo" id="api-gov-status">DEMO</span>
+            </div>
+        </div>
+
+        <!-- Grants.gov -->
+        <div class="api-card">
+            <div class="api-info">
+                <h4>&#128176; Grants.gov</h4>
+                <p>Federal grant opportunities database for tracking and applying to government funding programs.</p>
+            </div>
+            <div class="api-fields">
+                <div class="form-group">
+                    <label>API Key</label>
+                    <input type="text" class="form-control" id="api-grants-key" placeholder="Enter Grants.gov API Key">
+                </div>
+                <button class="btn btn-gold btn-sm" onclick="saveApiConnection('grants')">Connect</button>
+                <span class="badge badge-demo" id="api-grants-status">DEMO</span>
+            </div>
+        </div>
+
+        <!-- CSV Upload -->
+        <div class="api-card">
+            <div class="api-info">
+                <h4>&#128196; CSV Upload (Fallback)</h4>
+                <p>Upload your own data files when API connections are not available. Supports CSV and Excel formats.</p>
+            </div>
+            <div style="flex:2;min-width:250px;">
+                <div class="drop-zone" id="csv-drop-zone" onclick="document.getElementById('csv-file-input').click()">
+                    <div style="font-size:2rem;margin-bottom:8px;">&#128195;</div>
+                    <div>Drag &amp; drop CSV files here or click to browse</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">Supported: .csv, .xlsx, .xls</div>
+                </div>
+                <input type="file" id="csv-file-input" accept=".csv,.xlsx,.xls" style="display:none;" onchange="handleCsvUpload(this)">
+                <div id="csv-upload-status" style="margin-top:8px;font-size:0.82rem;color:var(--text-muted);"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- TAB 3: WORKFORCE ANALYTICS -->
+    <!-- ========================================================== -->
+    <div id="tab-workforce" class="tab-panel">
+        <div class="section-header">Department Workforce Breakdown</div>
+
+        <div class="card" style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Employees</th>
+                        <th>Efficiency</th>
+                        <th>Overtime %</th>
+                        <th>Turnover</th>
+                        <th>Budget</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Public Works</strong></td>
+                        <td>680</td>
+                        <td><span class="eff-high">82%</span></td>
+                        <td>12%</td>
+                        <td>8%</td>
+                        <td>$34.2M</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Police</strong></td>
+                        <td>520</td>
+                        <td><span class="eff-mid">75%</span></td>
+                        <td>18%</td>
+                        <td>11%</td>
+                        <td>$52.8M</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fire &amp; EMS</strong></td>
+                        <td>380</td>
+                        <td><span class="eff-high">88%</span></td>
+                        <td>15%</td>
+                        <td>6%</td>
+                        <td>$28.4M</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Parks &amp; Recreation</strong></td>
+                        <td>290</td>
+                        <td><span class="eff-mid">71%</span></td>
+                        <td>8%</td>
+                        <td>14%</td>
+                        <td>$12.6M</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Public Health</strong></td>
+                        <td>340</td>
+                        <td><span class="eff-mid">79%</span></td>
+                        <td>10%</td>
+                        <td>9%</td>
+                        <td>$22.1M</td>
+                    </tr>
+                    <tr>
+                        <td><strong>IT &amp; Innovation</strong></td>
+                        <td>180</td>
+                        <td><span class="eff-high">84%</span></td>
+                        <td>6%</td>
+                        <td>7%</td>
+                        <td>$15.3M</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Planning &amp; Zoning</strong></td>
+                        <td>210</td>
+                        <td><span class="eff-mid">76%</span></td>
+                        <td>5%</td>
+                        <td>10%</td>
+                        <td>$8.9M</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Administration</strong></td>
+                        <td>150</td>
+                        <td><span class="eff-high">80%</span></td>
+                        <td>4%</td>
+                        <td>5%</td>
+                        <td>$9.7M</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr style="border-top:2px solid var(--border);">
+                        <td><strong style="color:var(--gold);">TOTAL</strong></td>
+                        <td><strong>2,750</strong></td>
+                        <td><strong><span class="eff-mid">78% avg</span></strong></td>
+                        <td><strong>9.8% avg</strong></td>
+                        <td><strong>8.8% avg</strong></td>
+                        <td><strong>$184.0M</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- TLRW Insights Panel -->
+        <div class="insights-panel">
+            <h4>&#128161; TLRW Workforce Insights</h4>
+            <div class="two-col" style="gap:30px;">
+                <div>
+                    <strong style="color:var(--white);font-size:0.85rem;">Key Findings (Reflect Phase)</strong>
+                    <ul style="margin-top:8px;">
+                        <li>Police department overtime (18%) is 1.8x the city average, indicating staffing gaps or scheduling inefficiency.</li>
+                        <li>Parks &amp; Recreation has the highest turnover at 14%, suggesting retention issues that warrant compensation review.</li>
+                        <li>Fire &amp; EMS leads efficiency at 88% despite 15% overtime, demonstrating strong operational management.</li>
+                        <li>IT &amp; Innovation runs lean (180 staff) with high efficiency (84%) and minimal overtime (6%).</li>
+                        <li>Total workforce of 2,750 tracked vs 4,200 total employees reflects non-departmental and seasonal staff.</li>
+                    </ul>
+                </div>
+                <div>
+                    <strong style="color:var(--white);font-size:0.85rem;">Recommendations (Write Phase)</strong>
+                    <ul style="margin-top:8px;">
+                        <li>Implement shift optimization for Police to reduce overtime by an estimated 5%, saving $2.6M annually.</li>
+                        <li>Launch retention program for Parks &amp; Recreation targeting competitive pay and career pathways.</li>
+                        <li>Cross-train Public Works and Planning staff to improve flexibility and efficiency during peak periods.</li>
+                        <li>Establish Fire &amp; EMS operational standards as best-practice templates for other departments.</li>
+                        <li>Expand IT team by 15% to accelerate digital transformation and further reduce manual processes.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- TAB 4: OPERATIONAL EFFICIENCY -->
+    <!-- ========================================================== -->
+    <div id="tab-efficiency" class="tab-panel">
+        <div class="section-header">Service Delivery Metrics</div>
+
+        <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Service Completion</div>
+                <div class="kpi-value">2.3 days</div>
+                <div class="kpi-change up">Target: 2.0 days</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Permit Processing Time</div>
+                <div class="kpi-value">12.4 days</div>
+                <div class="kpi-change" style="color:#e53e3e;">Target: 10 days</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Maintenance Backlog</div>
+                <div class="kpi-value">234</div>
+                <div class="kpi-change" style="color:#e53e3e;">items pending</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Digital Adoption Rate</div>
+                <div class="kpi-value">43%</div>
+                <div class="kpi-change up">&#9650; 8% this year</div>
+            </div>
+        </div>
+
+        <!-- Process Optimization Opportunities -->
+        <div class="card">
+            <h3><span class="icon">&#9881;</span> Process Optimization Opportunities</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Process</th>
+                        <th>Current Time</th>
+                        <th>Target</th>
+                        <th>Potential Savings</th>
+                        <th>Priority</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Building Permit Review</td>
+                        <td>12.4 days</td>
+                        <td>7 days</td>
+                        <td>$1.8M/year</td>
+                        <td><span class="badge badge-active">High</span></td>
+                    </tr>
+                    <tr>
+                        <td>Pothole Repair Response</td>
+                        <td>4.2 days</td>
+                        <td>2 days</td>
+                        <td>$420K/year</td>
+                        <td><span class="badge badge-active">High</span></td>
+                    </tr>
+                    <tr>
+                        <td>Business License Processing</td>
+                        <td>8.6 days</td>
+                        <td>3 days</td>
+                        <td>$680K/year</td>
+                        <td><span class="badge badge-pending">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>311 Call Resolution</td>
+                        <td>3.1 days</td>
+                        <td>1 day</td>
+                        <td>$350K/year</td>
+                        <td><span class="badge badge-pending">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>Vendor Payment Cycle</td>
+                        <td>22 days</td>
+                        <td>14 days</td>
+                        <td>$290K/year</td>
+                        <td><span class="badge badge-applied">Low</span></td>
+                    </tr>
+                    <tr>
+                        <td>Employee Onboarding</td>
+                        <td>18 days</td>
+                        <td>7 days</td>
+                        <td>$210K/year</td>
+                        <td><span class="badge badge-applied">Low</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Before / After TLRW -->
+        <div class="card">
+            <h3><span class="icon">&#128260;</span> Before / After: TLRW-Optimized Operations</h3>
+            <div class="comparison-grid">
+                <div class="comparison-col before">
+                    <h4>Before TLRW</h4>
+                    <div class="comparison-stat"><div class="val">78%</div><div class="label">Workforce Efficiency</div></div>
+                    <div class="comparison-stat"><div class="val">2.3 days</div><div class="label">Avg Service Response</div></div>
+                    <div class="comparison-stat"><div class="val">12.4 days</div><div class="label">Permit Processing</div></div>
+                    <div class="comparison-stat"><div class="val">62%</div><div class="label">Grant Capture Rate</div></div>
+                    <div class="comparison-stat"><div class="val">43%</div><div class="label">Digital Adoption</div></div>
+                </div>
+                <div class="comparison-arrow">&#10145;</div>
+                <div class="comparison-col after">
+                    <h4>After TLRW (Projected)</h4>
+                    <div class="comparison-stat"><div class="val">90%</div><div class="label">Workforce Efficiency</div></div>
+                    <div class="comparison-stat"><div class="val">1.2 days</div><div class="label">Avg Service Response</div></div>
+                    <div class="comparison-stat"><div class="val">7.0 days</div><div class="label">Permit Processing</div></div>
+                    <div class="comparison-stat"><div class="val">77%</div><div class="label">Grant Capture Rate</div></div>
+                    <div class="comparison-stat"><div class="val">72%</div><div class="label">Digital Adoption</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cost Savings Calculator -->
+        <div class="card">
+            <h3><span class="icon">&#128178;</span> Cost Savings Potential</h3>
+            <div class="two-col">
+                <div>
+                    <div class="form-group">
+                        <label>Current Annual Operating Cost</label>
+                        <input type="number" class="form-control" id="eff-cost" value="202000000" onchange="calcEffSavings()">
+                    </div>
+                    <div class="form-group">
+                        <label>Estimated Efficiency Gain (%)</label>
+                        <input type="number" class="form-control" id="eff-gain" value="12" min="1" max="50" onchange="calcEffSavings()">
+                    </div>
+                </div>
+                <div class="roi-result" id="eff-savings-result">
+                    <div class="roi-label">Projected Annual Savings</div>
+                    <div class="roi-value" id="eff-savings-val">$24,240,000</div>
+                    <div style="font-size:0.8rem;color:var(--text-muted);margin-top:8px;">Based on 12% improvement of $202M operating budget</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- TAB 5: GRANTS & FUNDING -->
+    <!-- ========================================================== -->
+    <div id="tab-grants" class="tab-panel">
+        <div class="section-header">Grants &amp; Funding Tracker</div>
+
+        <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:24px;">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Captured</div>
+                <div class="kpi-value">$18.7M</div>
+                <div class="kpi-change up">8 active grants</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">In Pipeline</div>
+                <div class="kpi-value">$9.1M</div>
+                <div class="kpi-change up">5 pending/applied</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Capture Rate</div>
+                <div class="kpi-value">62%</div>
+                <div class="kpi-change up">8 of 13 applications</div>
+            </div>
+        </div>
+
+        <div class="card" style="overflow-x:auto;">
+            <h3><span class="icon">&#128176;</span> Active &amp; Pending Grants</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Grant Name</th>
+                        <th>Source</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Deadline</th>
+                        <th>Match Required</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Community Development Block Grant</td>
+                        <td>HUD</td>
+                        <td>$2,400,000</td>
+                        <td><span class="badge badge-active">Active</span></td>
+                        <td>Ongoing</td>
+                        <td>25%</td>
+                    </tr>
+                    <tr>
+                        <td>COPS Hiring Program</td>
+                        <td>DOJ</td>
+                        <td>$1,800,000</td>
+                        <td><span class="badge badge-active">Active</span></td>
+                        <td>Sep 2025</td>
+                        <td>25%</td>
+                    </tr>
+                    <tr>
+                        <td>Clean Water State Revolving Fund</td>
+                        <td>EPA</td>
+                        <td>$5,200,000</td>
+                        <td><span class="badge badge-pending">Pending</span></td>
+                        <td>Jun 2025</td>
+                        <td>20%</td>
+                    </tr>
+                    <tr>
+                        <td>Homeland Security Grant</td>
+                        <td>FEMA</td>
+                        <td>$890,000</td>
+                        <td><span class="badge badge-active">Active</span></td>
+                        <td>Ongoing</td>
+                        <td>0%</td>
+                    </tr>
+                    <tr>
+                        <td>Transportation Alternatives</td>
+                        <td>FHWA</td>
+                        <td>$3,100,000</td>
+                        <td><span class="badge badge-applied">Applied</span></td>
+                        <td>Aug 2025</td>
+                        <td>20%</td>
+                    </tr>
+                    <tr>
+                        <td>Brownfields Assessment</td>
+                        <td>EPA</td>
+                        <td>$500,000</td>
+                        <td><span class="badge badge-active">Active</span></td>
+                        <td>Dec 2025</td>
+                        <td>0%</td>
+                    </tr>
+                    <tr>
+                        <td>State Infrastructure Bank</td>
+                        <td>State DOT</td>
+                        <td>$4,800,000</td>
+                        <td><span class="badge badge-applied">Applied</span></td>
+                        <td>Apr 2025</td>
+                        <td>10%</td>
+                    </tr>
+                    <tr>
+                        <td>Smart Cities Challenge</td>
+                        <td>DOE</td>
+                        <td>$1,200,000</td>
+                        <td><span class="badge badge-pending">Pending</span></td>
+                        <td>Jul 2025</td>
+                        <td>15%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Grant Insights -->
+        <div class="insights-panel">
+            <h4>&#128161; Grant Strategy Insights</h4>
+            <ul>
+                <li><strong>Highest-value opportunity:</strong> Clean Water State Revolving Fund ($5.2M) is pending &mdash; requires 20% match ($1.04M). Recommend prioritizing application materials.</li>
+                <li><strong>Lowest match requirement:</strong> Homeland Security Grant and Brownfields Assessment require 0% match &mdash; maximize these fully-funded opportunities.</li>
+                <li><strong>Upcoming deadline:</strong> State Infrastructure Bank application ($4.8M) due Apr 2025. Confirm all supporting documents are prepared.</li>
+                <li><strong>Federal pipeline:</strong> 6 of 8 grants are federal &mdash; consider diversifying with state and private foundation sources.</li>
+                <li><strong>TLRW approach:</strong> Systematic grant capture methodology has improved win rate from 45% to 62% since TLRW implementation.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- TAB 6: ROI CALCULATOR -->
+    <!-- ========================================================== -->
+    <div id="tab-roi" class="tab-panel">
+        <div class="section-header" style="text-align:center;font-size:1.3rem;">NUVABASE ROI Projection</div>
+
+        <div class="roi-inputs-grid">
+            <div class="card">
+                <h3>City Parameters</h3>
+                <div class="form-group">
+                    <label>City Population</label>
+                    <input type="number" class="form-control roi-input" id="roi-population" value="215000" onchange="calcROI()">
+                </div>
+                <div class="form-group">
+                    <label>Annual Operating Budget ($)</label>
+                    <input type="number" class="form-control roi-input" id="roi-budget" value="202000000" onchange="calcROI()">
+                </div>
+                <div class="form-group">
+                    <label>Number of Departments</label>
+                    <input type="number" class="form-control roi-input" id="roi-depts" value="8" onchange="calcROI()">
+                </div>
+                <div class="form-group">
+                    <label>Current Workforce Efficiency (%)</label>
+                    <input type="number" class="form-control roi-input" id="roi-eff-current" value="78" min="1" max="100" onchange="calcROI()">
+                </div>
+            </div>
+            <div class="card">
+                <h3>Improvement Estimates</h3>
+                <div class="form-group">
+                    <label>Estimated Efficiency Improvement (%)</label>
+                    <input type="number" class="form-control roi-input" id="roi-eff-improve" value="12" min="1" max="50" onchange="calcROI()">
+                </div>
+                <div class="form-group">
+                    <label>Annual Grant Applications</label>
+                    <input type="number" class="form-control roi-input" id="roi-grant-apps" value="13" onchange="calcROI()">
+                </div>
+                <div class="form-group">
+                    <label>Current Grant Capture Rate (%)</label>
+                    <input type="number" class="form-control roi-input" id="roi-grant-rate" value="62" min="1" max="100" onchange="calcROI()">
+                </div>
+                <div class="form-group">
+                    <label>Estimated Capture Rate Improvement (%)</label>
+                    <input type="number" class="form-control roi-input" id="roi-grant-improve" value="15" min="1" max="50" onchange="calcROI()">
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:24px;">
+            <div class="roi-grid" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="roi-result">
+                    <div class="roi-label">Operational Savings</div>
+                    <div class="roi-value" id="roi-ops-savings">$24,240,000/yr</div>
+                </div>
+                <div class="roi-result">
+                    <div class="roi-label">Additional Grant Revenue</div>
+                    <div class="roi-value" id="roi-grant-revenue">$4,545,000/yr</div>
+                </div>
+            </div>
+            <div class="roi-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="roi-result" style="border-color:var(--gold);">
+                    <div class="roi-label">Total Annual Impact</div>
+                    <div class="roi-value" id="roi-total-annual">$28,785,000</div>
+                </div>
+                <div class="roi-result" style="border-color:var(--gold);">
+                    <div class="roi-label">3-Year Projected Impact</div>
+                    <div class="roi-value" id="roi-three-year">$86,355,000</div>
+                </div>
+                <div class="roi-result" style="border-color:var(--gold);">
+                    <div class="roi-label">ROI Multiple</div>
+                    <div class="roi-value" id="roi-multiple">57x</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+            <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.7;">
+                <strong style="color:var(--gold);">Methodology Reference:</strong> Based on NUVABASE TLRW Framework &mdash;
+                $7M savings achieved for Chicago Public Schools, 20+ years of infrastructure management at Bell Labs scale.
+                $90M SBA portfolio managed, 1,500+ employees managed across multiple organizations.
+                ROI projections are conservative estimates based on documented case study outcomes applied proportionally to municipal operating budgets.
+            </p>
+        </div>
+
+        <div style="margin-top:16px;text-align:center;">
+            <button class="btn btn-gold" onclick="printROI()">&#128424; Print ROI Summary</button>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- TAB 7: GENERATE PROPOSAL -->
+    <!-- ========================================================== -->
+    <div id="tab-proposal" class="tab-panel">
+        <div class="section-header">Generate TLRW Municipal Proposal</div>
+
+        <div class="two-col">
+            <div class="card">
+                <h3>Proposal Parameters</h3>
+                <div class="form-group">
+                    <label>Municipality Name</label>
+                    <input type="text" class="form-control" id="prop-city" placeholder="e.g., Metro City" value="Metro City">
+                </div>
+                <div class="form-group">
+                    <label>Population</label>
+                    <input type="number" class="form-control" id="prop-pop" value="215000">
+                </div>
+                <div class="form-group">
+                    <label>Primary Challenge</label>
+                    <select class="form-control" id="prop-challenge">
+                        <option value="Workforce Optimization">Workforce Optimization</option>
+                        <option value="Service Delivery">Service Delivery</option>
+                        <option value="Grant Capture">Grant Capture</option>
+                        <option value="Infrastructure">Infrastructure</option>
+                        <option value="Budget Efficiency">Budget Efficiency</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Key Departments</label>
+                    <textarea class="form-control" id="prop-depts" placeholder="e.g., Public Works, Police, Fire &amp; EMS, Parks &amp; Recreation">Public Works, Police, Fire &amp; EMS, Parks &amp; Recreation, Public Health, IT &amp; Innovation, Planning &amp; Zoning, Administration</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Timeline</label>
+                    <select class="form-control" id="prop-timeline">
+                        <option value="90 days">90 Days (Rapid Assessment)</option>
+                        <option value="6 months" selected>6 Months (Standard Engagement)</option>
+                        <option value="12 months">12 Months (Full Transformation)</option>
+                        <option value="18 months">18 Months (Enterprise Implementation)</option>
+                    </select>
+                </div>
+                <button class="btn btn-gold" onclick="generateProposal()" style="width:100%;margin-top:8px;">Generate TLRW Proposal</button>
+            </div>
+            <div class="card" id="proposal-preview-card" style="min-height:400px;">
+                <h3>Proposal Preview</h3>
+                <p style="color:var(--text-muted);font-size:0.85rem;" id="proposal-placeholder">Configure parameters and click "Generate TLRW Proposal" to create a professional proposal document.</p>
+                <div class="proposal-output" id="proposal-output"></div>
+            </div>
+        </div>
+        <div style="text-align:center;margin-top:16px;" id="print-proposal-wrap" class="no-print" style="display:none;">
+            <button class="btn btn-gold" id="btn-print-proposal" onclick="printProposal()" style="display:none;">&#128424; Print Proposal</button>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- TAB 8: USER MANUAL -->
+    <!-- ========================================================== -->
+    <div id="tab-manual" class="tab-panel">
+        <div class="section-header">User Manual</div>
+
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>1. Getting Started</span>
+                <span class="arrow">&#9654;</span>
+            </div>
+            <div class="accordion-body">
+                <div class="accordion-body-inner">
+                    <p><strong>Welcome to Municipal Intelligence by NUVABASE Professional Consulting.</strong></p>
+                    <p style="margin-top:8px;">This dashboard provides a comprehensive view of your municipality's workforce, operations, grants, and financial performance. It uses the TLRW (Think, Learn, Reflect, Write) methodology to structure analysis and recommendations.</p>
+                    <p style="margin-top:8px;"><strong>Quick Start:</strong></p>
+                    <ul style="margin:8px 0 0 20px;">
+                        <li>Begin on the <strong>Dashboard</strong> tab for an overview of key performance indicators.</li>
+                        <li>Navigate between tabs to explore specific areas of municipal operations.</li>
+                        <li>Connect data sources in the <strong>API Connections</strong> tab for live data (or use DEMO mode).</li>
+                        <li>Use the <strong>ROI Calculator</strong> to project potential savings for your municipality.</li>
+                        <li>Generate professional proposals with the <strong>Generate Proposal</strong> tab.</li>
+                    </ul>
+                    <p style="margin-top:8px;"><strong>System Requirements:</strong> Modern web browser (Chrome, Safari, Edge, Firefox). Optimized for iPad and desktop viewing. No internet connection required for DEMO mode.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>2. Understanding Municipal KPIs</span>
+                <span class="arrow">&#9654;</span>
+            </div>
+            <div class="accordion-body">
+                <div class="accordion-body-inner">
+                    <p>The Dashboard tab displays six critical Key Performance Indicators (KPIs) for municipal operations:</p>
+                    <ul style="margin:8px 0 0 20px;">
+                        <li><strong>Workforce Efficiency (78%):</strong> Measures productive output relative to total labor hours across all departments. Calculated as (productive hours / total available hours) x 100. Benchmark: 80%+ is considered strong for municipalities.</li>
+                        <li><strong>Service Response Time (2.3 days):</strong> Average time from citizen service request to resolution. Includes 311 calls, online submissions, and walk-in requests. Lower is better.</li>
+                        <li><strong>Grant Capture Rate (62%):</strong> Percentage of grant applications that receive funding. Calculated as (awards / applications) x 100. National municipal average is approximately 45%.</li>
+                        <li><strong>Budget Utilization (91%):</strong> Percentage of allocated budget that is effectively deployed. Values between 90-97% indicate healthy spending without waste.</li>
+                        <li><strong>Citizen Satisfaction (7.4/10):</strong> Aggregate score from citizen surveys, online reviews, and feedback mechanisms. Scores above 7.0 indicate positive public perception.</li>
+                        <li><strong>Active Grants ($18.7M):</strong> Total dollar value of currently active federal and state grants. Includes both formula-based and competitive awards.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>3. Connecting Government Data Sources</span>
+                <span class="arrow">&#9654;</span>
+            </div>
+            <div class="accordion-body">
+                <div class="accordion-body-inner">
+                    <p>The API Connections tab allows you to integrate live data from government sources:</p>
+                    <ul style="margin:8px 0 0 20px;">
+                        <li><strong>Census Bureau API:</strong> Provides population, demographics, and economic data. Register for a free key at <em>api.census.gov</em>.</li>
+                        <li><strong>Bureau of Labor Statistics:</strong> Employment, wages, and labor market data. Register at <em>bls.gov/developers</em>.</li>
+                        <li><strong>Open Government Data Portal:</strong> Your city's open data (e.g., data.cityname.gov). Enter the portal URL and any required API key.</li>
+                        <li><strong>Grants.gov:</strong> Federal grant opportunities and tracking. Register at <em>grants.gov</em> for API access.</li>
+                        <li><strong>CSV Upload:</strong> If APIs are unavailable, upload data manually in CSV or Excel format.</li>
+                    </ul>
+                    <p style="margin-top:8px;"><strong>Note:</strong> In DEMO mode, all tabs display simulated data for "Metro City." Connect real API keys to switch to LIVE mode with your municipality's actual data.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>4. Analyzing Workforce Data</span>
+                <span class="arrow">&#9654;</span>
+            </div>
+            <div class="accordion-body">
+                <div class="accordion-body-inner">
+                    <p>The Workforce Analytics tab provides a department-by-department breakdown of your municipal workforce:</p>
+                    <ul style="margin:8px 0 0 20px;">
+                        <li><strong>Efficiency Rating:</strong> Color-coded green (>80%), gold (70-80%), or red (<70%) for quick visual assessment.</li>
+                        <li><strong>Overtime %:</strong> Percentage of total hours that are overtime. High overtime may indicate understaffing or scheduling issues.</li>
+                        <li><strong>Turnover Rate:</strong> Annual employee departure rate by department. High turnover increases recruitment and training costs.</li>
+                        <li><strong>Budget:</strong> Annual departmental allocation. Use alongside efficiency to identify areas where spending may not align with output.</li>
+                    </ul>
+                    <p style="margin-top:8px;">The TLRW Insights panel at the bottom provides automated analysis of key findings (Reflect phase) and actionable recommendations (Write phase).</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>5. Using the Grant Tracker</span>
+                <span class="arrow">&#9654;</span>
+            </div>
+            <div class="accordion-body">
+                <div class="accordion-body-inner">
+                    <p>The Grants &amp; Funding tab tracks all active and pending grant applications:</p>
+                    <ul style="margin:8px 0 0 20px;">
+                        <li><strong>Status Badges:</strong> Active (green) = currently funded; Applied (blue) = submitted, awaiting decision; Pending (gold) = in preparation.</li>
+                        <li><strong>Match Required:</strong> The percentage of grant amount the municipality must provide as matching funds. 0% = fully federally funded.</li>
+                        <li><strong>Pipeline View:</strong> Top KPI cards show total captured ($18.7M) vs. in-pipeline ($9.1M) for a clear funding picture.</li>
+                    </ul>
+                    <p style="margin-top:8px;">Use the strategy insights to prioritize applications based on deadline proximity, match requirements, and potential impact.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>6. ROI Calculator Guide</span>
+                <span class="arrow">&#9654;</span>
+            </div>
+            <div class="accordion-body">
+                <div class="accordion-body-inner">
+                    <p>The ROI Calculator projects the financial impact of implementing NUVABASE's TLRW methodology:</p>
+                    <ul style="margin:8px 0 0 20px;">
+                        <li><strong>Operational Savings:</strong> Calculated as (Annual Budget x Efficiency Improvement %). Based on documented case studies including $7M saved for Chicago Public Schools.</li>
+                        <li><strong>Additional Grant Revenue:</strong> Projected from improved capture rate applied to average grant value and application volume.</li>
+                        <li><strong>ROI Multiple:</strong> Total Annual Impact divided by typical consulting engagement investment ($500K). Demonstrates value proposition for decision-makers.</li>
+                    </ul>
+                    <p style="margin-top:8px;">All inputs are editable. Adjust the values to match your municipality's specific parameters. Results update automatically as you change inputs.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>7. Generating Proposals</span>
+                <span class="arrow">&#9654;</span>
+            </div>
+            <div class="accordion-body">
+                <div class="accordion-body-inner">
+                    <p>The Generate Proposal tab creates professional, print-ready proposals for prospective municipal clients:</p>
+                    <ul style="margin:8px 0 0 20px;">
+                        <li>Enter the municipality name, population, primary challenge, key departments, and desired timeline.</li>
+                        <li>Click "Generate TLRW Proposal" to create the document.</li>
+                        <li>The proposal includes: NUVABASE letterhead, executive summary, TLRW methodology overview, deliverables, timeline, investment terms, credentials, and signature block.</li>
+                        <li>Click "Print Proposal" to send to printer or save as PDF.</li>
+                    </ul>
+                    <p style="margin-top:8px;"><strong>Tip:</strong> For best print results, use landscape orientation and set margins to "Minimum" or "None" in your browser's print dialog.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>8. Troubleshooting</span>
+                <span class="arrow">&#9654;</span>
+            </div>
+            <div class="accordion-body">
+                <div class="accordion-body-inner">
+                    <p>Common issues and solutions:</p>
+                    <ul style="margin:8px 0 0 20px;">
+                        <li><strong>Data not loading:</strong> Ensure API keys are entered correctly in the API Connections tab. If using CSV upload, confirm the file is in .csv format with headers matching the expected fields.</li>
+                        <li><strong>Dashboard shows DEMO data:</strong> This is expected behavior when no API keys are connected. The dashboard operates in DEMO mode by default with simulated "Metro City" data.</li>
+                        <li><strong>Print layout issues:</strong> Use Chrome or Safari for best print results. Set orientation to Landscape for tables and charts. The dashboard automatically hides navigation elements when printing.</li>
+                        <li><strong>Tabs not switching:</strong> Ensure JavaScript is enabled in your browser. Try refreshing the page. If using an older browser, please update to the latest version.</li>
+                        <li><strong>ROI numbers not updating:</strong> Click outside the input field after changing a value, or press Tab. Ensure values are positive numbers without commas or dollar signs.</li>
+                        <li><strong>Proposal not generating:</strong> Ensure the Municipality Name field is filled in. All other fields have default values and are optional.</li>
+                        <li><strong>File not opening:</strong> If downloaded as ZIP, you must RIGHT-CLICK the ZIP file and select "Extract All" before opening. Do not try to open HTML files directly from inside the ZIP.</li>
+                    </ul>
+                    <p style="margin-top:12px;"><strong>Support:</strong> Contact NUVABASE Professional Consulting for technical support and custom implementations.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- TAB 9: GLOSSARY -->
+    <!-- ========================================================== -->
+    <div id="tab-glossary" class="tab-panel">
+        <div class="section-header">Municipal Intelligence Glossary</div>
+
+        <div class="card">
+            <div class="glossary-term">
+                <strong>Block Grant</strong>
+                <p>A large sum of federal money granted to a state or local government with only general guidelines for its use. Block grants provide more flexibility than categorical grants but less federal oversight.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>CDBG (Community Development Block Grant)</strong>
+                <p>A federal program administered by HUD that provides annual grants to cities and counties for community development activities, including affordable housing, anti-poverty programs, and infrastructure improvements.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>Citizen Satisfaction</strong>
+                <p>A composite metric measuring public perception of municipal services, typically gathered through surveys, digital feedback, and 311 interaction ratings. Expressed on a scale of 1-10.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>COPS (Community Oriented Policing Services)</strong>
+                <p>A U.S. Department of Justice program that provides grants to hire community policing professionals, develop and test innovative policing strategies, and provide training and technical assistance.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>DBE (Disadvantaged Business Enterprise)</strong>
+                <p>A federal program ensuring that small businesses owned by socially and economically disadvantaged individuals have equitable access to government-funded contracting opportunities.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>EMS (Emergency Medical Services)</strong>
+                <p>A system providing out-of-hospital acute medical care, transport to definitive care, and other medical transport services. Typically combined with Fire department in municipal structures.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>FTE (Full-Time Equivalent)</strong>
+                <p>A unit of measurement equal to the hours worked by one full-time employee. Used to standardize workforce counts when a mix of full-time and part-time staff are employed.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>General Fund</strong>
+                <p>The primary operating fund of a municipality, covering day-to-day government operations. Revenue sources include property taxes, sales taxes, fees, and fines.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>HUD (Department of Housing and Urban Development)</strong>
+                <p>A federal agency responsible for national policy and programs addressing housing needs, fair housing laws, and community development. Major source of municipal block grants.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>Infrastructure</strong>
+                <p>The physical and organizational structures needed for municipal operations, including roads, bridges, water systems, sewer systems, power grids, telecommunications, and public buildings.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>Mill Rate</strong>
+                <p>The amount of tax per dollar of assessed property value. One mill equals one-tenth of one cent ($0.001). Used to calculate property tax obligations for municipal revenue.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>OSHA (Occupational Safety and Health Administration)</strong>
+                <p>A federal agency ensuring safe and healthful working conditions. Municipalities must comply with OSHA standards for all public employees and contractors.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>Prevailing Wage</strong>
+                <p>The minimum hourly wage, benefits, and overtime paid to workers on public works projects, as determined by the Department of Labor. Applies to all federally funded municipal construction.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>RFP (Request for Proposal)</strong>
+                <p>A document issued by a municipality soliciting bids from qualified vendors or consultants for a specific project or service. The formal procurement mechanism for government contracts.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>SAM.gov (System for Award Management)</strong>
+                <p>The official U.S. government system for entity registration and contract/grant award information. All organizations receiving federal funding must be registered in SAM.gov.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>TLRW Framework (Think, Learn, Reflect, Write)</strong>
+                <p>NUVABASE's proprietary methodology for structured problem-solving and decision-making. Think = strategic planning; Learn = data collection and analysis; Reflect = insight synthesis and pattern recognition; Write = actionable implementation and documentation. Applied across workforce, operations, and grant management.</p>
+            </div>
+            <div class="glossary-term">
+                <strong>Workforce Efficiency</strong>
+                <p>A metric measuring the ratio of productive output to total labor input across municipal departments. Calculated as (productive hours / total available hours) x 100. Benchmarks: >80% = high (green), 70-80% = moderate (gold), <70% = needs improvement (red).</p>
+            </div>
+        </div>
+    </div>
+
+</div><!-- end .container -->
+
+<script>
+/* ===================================================================
+   MUNICIPAL INTELLIGENCE — JavaScript
+   Zero external dependencies. All functionality self-contained.
+   =================================================================== */
+
+/* --- Tab Switching --- */
+function switchTab(tabId) {
+    // Hide all panels
+    var panels = document.querySelectorAll('.tab-panel');
+    for (var i = 0; i < panels.length; i++) {
+        panels[i].classList.remove('active');
+    }
+    // Deactivate all tab buttons
+    var btns = document.querySelectorAll('.tab-btn');
+    for (var i = 0; i < btns.length; i++) {
+        btns[i].classList.remove('active');
+    }
+    // Show selected panel
+    var target = document.getElementById('tab-' + tabId);
+    if (target) {
+        target.classList.add('active');
+    }
+    // Activate the corresponding button
+    var tabMap = {
+        'dashboard': 0, 'api': 1, 'workforce': 2, 'efficiency': 3,
+        'grants': 4, 'roi': 5, 'proposal': 6, 'manual': 7, 'glossary': 8
+    };
+    var idx = tabMap[tabId];
+    if (idx !== undefined && btns[idx]) {
+        btns[idx].classList.add('active');
+        // Scroll tab into view on mobile
+        btns[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+}
+
+/* --- ROI Calculator --- */
+function calcROI() {
+    var budget = parseFloat(document.getElementById('roi-budget').value) || 0;
+    var effImprove = parseFloat(document.getElementById('roi-eff-improve').value) || 0;
+    var grantApps = parseFloat(document.getElementById('roi-grant-apps').value) || 0;
+    var grantRate = parseFloat(document.getElementById('roi-grant-rate').value) || 0;
+    var grantImprove = parseFloat(document.getElementById('roi-grant-improve').value) || 0;
+
+    // Operational savings = budget * efficiency improvement %
+    var opsSavings = budget * (effImprove / 100);
+
+    // Grant revenue improvement
+    // Assume average grant value based on current pipeline
+    var avgGrantValue = 2340000; // ~$2.34M average from demo data
+    var currentCaptures = grantApps * (grantRate / 100);
+    var newRate = Math.min(grantRate + grantImprove, 100);
+    var newCaptures = grantApps * (newRate / 100);
+    var additionalCaptures = newCaptures - currentCaptures;
+    var grantRevenue = additionalCaptures * avgGrantValue;
+
+    var totalAnnual = opsSavings + grantRevenue;
+    var threeYear = totalAnnual * 3;
+    var roiMultiple = Math.round(totalAnnual / 500000); // $500K engagement cost
+
+    document.getElementById('roi-ops-savings').textContent = '$' + formatNumber(Math.round(opsSavings)) + '/yr';
+    document.getElementById('roi-grant-revenue').textContent = '$' + formatNumber(Math.round(grantRevenue)) + '/yr';
+    document.getElementById('roi-total-annual').textContent = '$' + formatNumber(Math.round(totalAnnual));
+    document.getElementById('roi-three-year').textContent = '$' + formatNumber(Math.round(threeYear));
+    document.getElementById('roi-multiple').textContent = roiMultiple + 'x';
+}
+
+function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+/* --- Efficiency Savings Calculator (Tab 4) --- */
+function calcEffSavings() {
+    var cost = parseFloat(document.getElementById('eff-cost').value) || 0;
+    var gain = parseFloat(document.getElementById('eff-gain').value) || 0;
+    var savings = cost * (gain / 100);
+    document.getElementById('eff-savings-val').textContent = '$' + formatNumber(Math.round(savings));
+    var desc = document.querySelector('#eff-savings-result div:last-child');
+    if (desc) {
+        desc.textContent = 'Based on ' + gain + '% improvement of $' + formatNumber(Math.round(cost)) + ' operating budget';
+    }
+}
+
+/* --- API Connection Management --- */
+function saveApiConnection(service) {
+    var statusEl = document.getElementById('api-' + service + '-status');
+    var key = '';
+
+    switch(service) {
+        case 'census':
+            key = document.getElementById('api-census-key').value.trim();
+            if (key) {
+                localStorage.setItem('nuvabase_census_key', key);
+                statusEl.textContent = 'LIVE';
+                statusEl.className = 'badge badge-live';
+            } else {
+                localStorage.removeItem('nuvabase_census_key');
+                statusEl.textContent = 'DEMO';
+                statusEl.className = 'badge badge-demo';
+            }
+            break;
+        case 'bls':
+            key = document.getElementById('api-bls-key').value.trim();
+            if (key) {
+                localStorage.setItem('nuvabase_bls_key', key);
+                statusEl.textContent = 'LIVE';
+                statusEl.className = 'badge badge-live';
+            } else {
+                localStorage.removeItem('nuvabase_bls_key');
+                statusEl.textContent = 'DEMO';
+                statusEl.className = 'badge badge-demo';
+            }
+            break;
+        case 'gov':
+            var url = document.getElementById('api-gov-url').value.trim();
+            key = document.getElementById('api-gov-key').value.trim();
+            if (url && key) {
+                localStorage.setItem('nuvabase_gov_url', url);
+                localStorage.setItem('nuvabase_gov_key', key);
+                statusEl.textContent = 'LIVE';
+                statusEl.className = 'badge badge-live';
+            } else {
+                localStorage.removeItem('nuvabase_gov_url');
+                localStorage.removeItem('nuvabase_gov_key');
+                statusEl.textContent = 'DEMO';
+                statusEl.className = 'badge badge-demo';
+            }
+            break;
+        case 'grants':
+            key = document.getElementById('api-grants-key').value.trim();
+            if (key) {
+                localStorage.setItem('nuvabase_grants_key', key);
+                statusEl.textContent = 'LIVE';
+                statusEl.className = 'badge badge-live';
+            } else {
+                localStorage.removeItem('nuvabase_grants_key');
+                statusEl.textContent = 'DEMO';
+                statusEl.className = 'badge badge-demo';
+            }
+            break;
+    }
+}
+
+function loadApiConnections() {
+    var services = ['census', 'bls', 'grants'];
+    for (var i = 0; i < services.length; i++) {
+        var svc = services[i];
+        var stored = localStorage.getItem('nuvabase_' + svc + '_key');
+        if (stored) {
+            document.getElementById('api-' + svc + '-key').value = stored;
+            var badge = document.getElementById('api-' + svc + '-status');
+            badge.textContent = 'LIVE';
+            badge.className = 'badge badge-live';
+        }
+    }
+    // Gov portal
+    var govUrl = localStorage.getItem('nuvabase_gov_url');
+    var govKey = localStorage.getItem('nuvabase_gov_key');
+    if (govUrl && govKey) {
+        document.getElementById('api-gov-url').value = govUrl;
+        document.getElementById('api-gov-key').value = govKey;
+        var badge = document.getElementById('api-gov-status');
+        badge.textContent = 'LIVE';
+        badge.className = 'badge badge-live';
+    }
+}
+
+/* --- CSV Upload --- */
+function handleCsvUpload(input) {
+    if (input.files && input.files[0]) {
+        var file = input.files[0];
+        var statusEl = document.getElementById('csv-upload-status');
+        statusEl.textContent = 'Uploaded: ' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+        statusEl.style.color = 'var(--success)';
+    }
+}
+
+// Drag and drop
+(function() {
+    var dropZone = document.getElementById('csv-drop-zone');
+    if (!dropZone) return;
+
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+    });
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            var fileInput = document.getElementById('csv-file-input');
+            fileInput.files = e.dataTransfer.files;
+            handleCsvUpload(fileInput);
+        }
+    });
+})();
+
+/* --- Proposal Generator --- */
+function generateProposal() {
+    var city = document.getElementById('prop-city').value.trim() || 'Metro City';
+    var pop = parseInt(document.getElementById('prop-pop').value) || 215000;
+    var challenge = document.getElementById('prop-challenge').value;
+    var depts = document.getElementById('prop-depts').value.trim() || 'All Departments';
+    var timeline = document.getElementById('prop-timeline').value;
+
+    var deptList = depts.split(',').map(function(d) { return d.trim(); }).filter(function(d) { return d; });
+    var deptHtml = '';
+    for (var i = 0; i < deptList.length; i++) {
+        deptHtml += '<li>' + deptList[i] + '</li>';
+    }
+
+    var today = new Date();
+    var dateStr = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    var budget = Math.round(pop * 940); // ~$940 per capita estimate
+    var savings = Math.round(budget * 0.12);
+
+    var challengeDesc = {
+        'Workforce Optimization': 'optimizing workforce efficiency, reducing overtime costs, and improving employee retention across municipal departments',
+        'Service Delivery': 'streamlining service delivery processes, reducing citizen wait times, and improving satisfaction scores through data-driven operations management',
+        'Grant Capture': 'maximizing federal and state grant capture rates, building sustainable funding pipelines, and ensuring compliance across active awards',
+        'Infrastructure': 'modernizing infrastructure management, reducing maintenance backlogs, and implementing predictive analytics for capital planning',
+        'Budget Efficiency': 'improving budget utilization, eliminating redundant expenditures, and aligning departmental spending with strategic priorities'
+    };
+
+    var html = '';
+    html += '<div class="letterhead">';
+    html += '<h1>NUVABASE</h1>';
+    html += '<p>Professional Consulting &mdash; Service to Service Group, Inc.</p>';
+    html += '<p style="margin-top:4px;font-size:0.78rem;">Transforming Organizations Through the TLRW Framework</p>';
+    html += '</div>';
+
+    html += '<h2>Municipal Intelligence Proposal</h2>';
+    html += '<p><strong>Prepared for:</strong> ' + city + '<br>';
+    html += '<strong>Date:</strong> ' + dateStr + '<br>';
+    html += '<strong>Population:</strong> ' + formatNumber(pop) + '<br>';
+    html += '<strong>Primary Focus:</strong> ' + challenge + '</p>';
+
+    html += '<h2>Executive Summary</h2>';
+    html += '<p>NUVABASE Professional Consulting proposes a comprehensive ' + challenge.toLowerCase() + ' engagement for the City of ' + city + '. ';
+    html += 'Leveraging our proprietary TLRW (Think, Learn, Reflect, Write) methodology, we will deliver measurable improvements in ' + (challengeDesc[challenge] || 'municipal operations') + '.</p>';
+    html += '<p>Based on our analysis, this engagement is projected to generate <strong>$' + formatNumber(savings) + '</strong> in annual savings or equivalent value over the ' + timeline + ' implementation period.</p>';
+
+    html += '<h2>TLRW Methodology &mdash; Municipal Application</h2>';
+    html += '<h3>Phase 1: Think (Strategic Planning)</h3>';
+    html += '<ul>';
+    html += '<li>Conduct stakeholder interviews with department heads and elected officials</li>';
+    html += '<li>Define success metrics aligned with ' + city + '\'s strategic plan</li>';
+    html += '<li>Map current organizational processes and identify bottlenecks</li>';
+    html += '<li>Establish baseline KPIs for each participating department</li>';
+    html += '</ul>';
+
+    html += '<h3>Phase 2: Learn (Data Collection &amp; Analysis)</h3>';
+    html += '<ul>';
+    html += '<li>Deploy Municipal Intelligence dashboard for real-time data visualization</li>';
+    html += '<li>Integrate with government data sources (Census Bureau, BLS, Open Data portals)</li>';
+    html += '<li>Analyze workforce patterns, service delivery metrics, and financial data</li>';
+    html += '<li>Benchmark performance against comparable municipalities</li>';
+    html += '</ul>';
+
+    html += '<h3>Phase 3: Reflect (Insight Synthesis)</h3>';
+    html += '<ul>';
+    html += '<li>Identify highest-impact improvement opportunities across departments</li>';
+    html += '<li>Quantify ROI for each recommended initiative</li>';
+    html += '<li>Develop prioritized action plan based on effort-vs-impact analysis</li>';
+    html += '<li>Present findings to leadership with clear recommendations</li>';
+    html += '</ul>';
+
+    html += '<h3>Phase 4: Write (Implementation)</h3>';
+    html += '<ul>';
+    html += '<li>Execute approved initiatives with dedicated NUVABASE project team</li>';
+    html += '<li>Implement process improvements with department staff training</li>';
+    html += '<li>Deploy monitoring dashboards for ongoing performance tracking</li>';
+    html += '<li>Deliver final report with documented outcomes and sustainability plan</li>';
+    html += '</ul>';
+
+    html += '<h2>Deliverables</h2>';
+    html += '<ul>';
+    html += '<li>Municipal Intelligence Dashboard (customized for ' + city + ')</li>';
+    html += '<li>Workforce Efficiency Assessment &amp; Optimization Plan</li>';
+    html += '<li>Operational Process Improvement Roadmap</li>';
+    html += '<li>Grant Capture Strategy &amp; Pipeline Management System</li>';
+    html += '<li>ROI Analysis &amp; Financial Impact Report</li>';
+    html += '<li>Staff Training Materials &amp; Standard Operating Procedures</li>';
+    html += '<li>Monthly Progress Reports &amp; Quarterly Executive Briefings</li>';
+    html += '</ul>';
+
+    html += '<h2>Scope: Key Departments</h2>';
+    html += '<ul>' + deptHtml + '</ul>';
+
+    html += '<h2>Timeline</h2>';
+    html += '<p>This engagement will be executed over a <strong>' + timeline + '</strong> period, structured in four TLRW phases:</p>';
+
+    if (timeline === '90 days') {
+        html += '<ul><li>Weeks 1-2: Think (Planning &amp; Stakeholder Engagement)</li>';
+        html += '<li>Weeks 3-5: Learn (Data Collection &amp; Analysis)</li>';
+        html += '<li>Weeks 6-8: Reflect (Findings &amp; Recommendations)</li>';
+        html += '<li>Weeks 9-12: Write (Quick-Win Implementations &amp; Report)</li></ul>';
+    } else if (timeline === '6 months') {
+        html += '<ul><li>Month 1: Think (Planning &amp; Stakeholder Engagement)</li>';
+        html += '<li>Months 2-3: Learn (Data Collection &amp; Analysis)</li>';
+        html += '<li>Month 4: Reflect (Findings &amp; Recommendations)</li>';
+        html += '<li>Months 5-6: Write (Implementation &amp; Training)</li></ul>';
+    } else if (timeline === '12 months') {
+        html += '<ul><li>Months 1-2: Think (Strategic Planning &amp; Assessment)</li>';
+        html += '<li>Months 3-5: Learn (Comprehensive Data Analysis)</li>';
+        html += '<li>Months 6-7: Reflect (Insight Synthesis &amp; Strategy)</li>';
+        html += '<li>Months 8-12: Write (Full Implementation &amp; Optimization)</li></ul>';
+    } else {
+        html += '<ul><li>Months 1-3: Think (Enterprise Strategic Planning)</li>';
+        html += '<li>Months 4-7: Learn (Organization-Wide Data Analysis)</li>';
+        html += '<li>Months 8-10: Reflect (Comprehensive Strategy Development)</li>';
+        html += '<li>Months 11-18: Write (Enterprise Transformation &amp; Sustainability)</li></ul>';
+    }
+
+    html += '<h2>Investment</h2>';
+    html += '<p>Professional consulting fees for this engagement:</p>';
+
+    var investMap = {
+        '90 days': { fee: '$175,000', desc: 'Rapid Assessment' },
+        '6 months': { fee: '$350,000', desc: 'Standard Engagement' },
+        '12 months': { fee: '$625,000', desc: 'Full Transformation' },
+        '18 months': { fee: '$925,000', desc: 'Enterprise Implementation' }
+    };
+    var invest = investMap[timeline] || investMap['6 months'];
+    html += '<p style="font-size:1.1rem;"><strong>' + invest.fee + '</strong> &mdash; ' + invest.desc + ' (' + timeline + ')</p>';
+    html += '<p style="font-size:0.85rem;color:#718096;">Projected ROI: <strong>$' + formatNumber(savings) + ' in annual savings</strong>, representing a return of ' + Math.round(savings / parseInt(invest.fee.replace(/[$,]/g,'')) * 10) / 10 + 'x investment within the first year.</p>';
+
+    html += '<h2>NUVABASE Credentials</h2>';
+    html += '<ul>';
+    html += '<li>$90M SBA portfolio managed across multiple engagements</li>';
+    html += '<li>$7M documented savings for Chicago Public Schools</li>';
+    html += '<li>1,500+ employees managed across client organizations</li>';
+    html += '<li>9.1/10 GBCA AI Dashboard rating (construction sector)</li>';
+    html += '<li>20+ years Bell Labs telecom infrastructure management</li>';
+    html += '<li>Proprietary TLRW Framework with proven cross-industry results</li>';
+    html += '</ul>';
+
+    html += '<div class="sig-block">';
+    html += '<p><strong>Submitted by:</strong></p>';
+    html += '<p style="margin-top:30px;"><strong>_____________________________</strong></p>';
+    html += '<p>Corky Reams, Founder &amp; Principal Consultant<br>';
+    html += 'NUVABASE Professional Consulting<br>';
+    html += 'Service to Service Group, Inc.</p>';
+    html += '<p style="margin-top:20px;"><strong>Accepted by:</strong></p>';
+    html += '<p style="margin-top:30px;"><strong>_____________________________</strong></p>';
+    html += '<p>Authorized Representative<br>';
+    html += 'City of ' + city + '</p>';
+    html += '<p style="margin-top:10px;">Date: _____________________________</p>';
+    html += '</div>';
+
+    var output = document.getElementById('proposal-output');
+    output.innerHTML = html;
+    output.style.display = 'block';
+
+    document.getElementById('proposal-placeholder').style.display = 'none';
+    document.getElementById('btn-print-proposal').style.display = 'inline-block';
+}
+
+/* --- Print Functions --- */
+function printROI() {
+    window.print();
+}
+
+function printProposal() {
+    // Temporarily show only the proposal for printing
+    var proposal = document.getElementById('proposal-output');
+    var origDisplay = proposal.style.display;
+    proposal.style.display = 'block';
+    window.print();
+    proposal.style.display = origDisplay;
+}
+
+/* --- Accordion --- */
+function toggleAccordion(header) {
+    var body = header.nextElementSibling;
+    var isOpen = header.classList.contains('open');
+
+    if (isOpen) {
+        header.classList.remove('open');
+        body.style.maxHeight = '0';
+    } else {
+        header.classList.add('open');
+        body.style.maxHeight = body.scrollHeight + 'px';
+    }
+}
+
+/* --- Initialize --- */
+(function init() {
+    loadApiConnections();
+    calcROI();
+    calcEffSavings();
+})();
+</script>
+
+</body>
+</html>
